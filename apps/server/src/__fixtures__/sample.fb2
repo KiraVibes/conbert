@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FictionBook xmlns="http://www.gribuser.ru/xml/fictionbook/2.0" xmlns:l="http://www.w3.org/1999/xlink">
+<description>
+    <title-info>
+        <genre>antique</genre>
+        <author><first-name></first-name><last-name>Unknown</last-name></author>
+        <book-title>Conbert</book-title>
+        <lang>en</lang>
+    </title-info>
+    <document-info>
+        <author><first-name></first-name><last-name>Unknown</last-name></author>
+        <program-used>calibre 8.5.0</program-used>
+        <date>25.10.2026</date>
+        <id>563fb3e0-c0cf-42e8-bd85-e9efac416bfe</id>
+        <version>1.0</version>
+    </document-info>
+    <publish-info>
+        <year>2026</year>
+    </publish-info>
+</description>
+<body>
+<section>
+<empty-line/><empty-line/>
+<p><strong>Conbert</strong></p>
+<empty-line/>
+</section>
+<section>
+<empty-line/><empty-line/>
+<p><strong>Conbert Testdokument</strong></p>
+<p>Ein Absatz mit <strong>fettem</strong> und <emphasis>kursivem</emphasis> Text – und Umlauten: äöü ß.</p>
+<p>Punkt eins</p>
+<p>Punkt zwei</p>
+<empty-line/>
+<p><strong>Format</strong></p>
+<p><strong>Gut für</strong></p>
+<empty-line/>
+<p>DOCX</p>
+<p>Briefe</p>
+<empty-line/>
+</section>
+</body>
+
+</FictionBook>

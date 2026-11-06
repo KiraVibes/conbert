@@ -1,0 +1,13 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.tif binary
+*.tiff binary
+*.wasm binary
+*.ico binary
+# Subtitle fixtures keep their Windows line endings and encoding on purpose.
+packages/core/src/subtitles/__fixtures__/*.srt -text

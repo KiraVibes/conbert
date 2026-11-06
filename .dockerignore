@@ -1,0 +1,19 @@
+**/node_modules
+**/dist
+**/coverage
+**/*.tsbuildinfo
+.git
+.claude
+data
+apps/web/public/wasm
+apps/web/public/soundfonts
+apps/web/test-results
+apps/web/playwright-report
+.env
+.env.*
+!.env.example
+Thumbs.db
+.DS_Store
+# Development and debug data of the server (databases, keys)
+apps/server/data
+apps/server/data-*

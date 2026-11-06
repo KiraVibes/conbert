@@ -1,0 +1,88 @@
+# Conbert – FileWizard
+# Start:  docker compose up --build -d
+# Open:   http://localhost:3313
+# First start: the setup page asks for a one-time setup code. Find it with
+#   docker compose logs conbert
+#
+# Note: converting "on this device" needs a secure context. It works on
+# http://localhost and via https:// (e.g. behind a reverse proxy), but not on
+# plain http://<LAN-IP> – "Automatic" then uses the server instead.
+
+services:
+  conbert:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: runtime
+      args:
+        # "standard" (default) or "full" – full adds Calibre for e-books
+        # (MOBI, AZW3, FB2 …) and makes the image about 850 MB larger.
+        TOOLS_STAGE: tools-${CONBERT_EDITION:-standard}
+    image: conbert:latest
+    container_name: conbert
+    restart: unless-stopped
+    # A tiny init process that cleans up finished helper programs (zombies).
+    init: true
+    depends_on:
+      valkey:
+        condition: service_healthy
+    ports:
+      - '${CONBERT_PORT:-3313}:3313'
+    environment:
+      CONBERT_LOG_LEVEL: ${CONBERT_LOG_LEVEL:-info}
+      CONBERT_REDIS_URL: redis://valkey:6379
+      CONBERT_MAX_UPLOAD_MB: ${CONBERT_MAX_UPLOAD_MB:-2048}
+      CONBERT_CLEANUP_MINUTES: ${CONBERT_CLEANUP_MINUTES:-60}
+      # How many server jobs run at the same time (more = faster, but more RAM).
+      CONBERT_JOB_CONCURRENCY: ${CONBERT_JOB_CONCURRENCY:-2}
+      # Optional: login handled by your reverse proxy (see .env.example)
+      CONBERT_AUTH_PROXY_HEADER: ${CONBERT_AUTH_PROXY_HEADER:-}
+      CONBERT_TRUSTED_PROXIES: ${CONBERT_TRUSTED_PROXIES:-}
+      CONBERT_SETUP_CODE: ${CONBERT_SETUP_CODE:-}
+      # Key for stored passwords of storage locations (see .env.example).
+      CONBERT_SECRET: ${CONBERT_SECRET:-}
+    # Resource limits (see .env.example). 0 = no limit. If the container hits
+    # the memory limit, the biggest running conversion is stopped – not the
+    # whole server. The process limit stops runaway programs.
+    mem_limit: ${CONBERT_MEMORY_LIMIT:-0}
+    cpus: ${CONBERT_CPUS:-0}
+    pids_limit: ${CONBERT_PIDS_LIMIT:-4096}
+    volumes:
+      - conbert-data:/data
+      # Folders for "Ordner auf dem Server" storage locations (Settings →
+      # Speicherorte). Mount anything below /storage, e.g. a disk or NFS mount:
+      # - /mnt/festplatte/fotos:/storage/fotos
+    # Optional: faster video conversion with a graphics card. Conbert detects
+    # it on start (Settings → Engines shows the result).
+    # Intel / AMD (VA-API, Quick Sync):
+    # devices:
+    #   - /dev/dri:/dev/dri
+    # group_add:
+    #   - video
+    #   - render
+    # NVIDIA (needs the NVIDIA Container Toolkit on the host):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu, video]
+
+  # Job queue (Redis-compatible, BSD-licensed). Only reachable inside Docker.
+  valkey:
+    image: valkey/valkey:9-alpine
+    container_name: conbert-valkey
+    restart: unless-stopped
+    command: ['valkey-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    healthcheck:
+      test: ['CMD', 'valkey-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - conbert-valkey:/data
+
+volumes:
+  conbert-data:
+  conbert-valkey:

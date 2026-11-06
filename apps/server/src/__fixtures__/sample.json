@@ -1,0 +1,5 @@
+[
+  { "name": "Anna", "stadt": "Berlin", "punkte": 42 },
+  { "name": "Jörg", "stadt": "München", "punkte": 17 },
+  { "name": "Zoë", "stadt": "Köln", "punkte": 8 }
+]

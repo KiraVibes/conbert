@@ -1,0 +1,19 @@
+{
+  "name": "@conbert/i18n",
+  "version": "0.1.0",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "type": "module",
+  "description": "All UI and help texts (German and English)",
+  "exports": {
+    ".": "./src/index.ts",
+    "./languages": "./src/languages.ts",
+    "./locales/*": "./src/locales/*"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "@conbert/core": "workspace:*"
+  }
+}

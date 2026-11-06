@@ -1,0 +1,41 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+
+# Runtime data (uploads, temp files, database)
+data/
+# Debug/E2E server instances (apps/server/data-e2e-debug …)
+apps/server/data-*/
+
+# Self-hosted WASM files are copied from node_modules at build time
+apps/web/public/wasm/
+apps/web/public/soundfonts/
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Playwright auth state and data
+apps/web/e2e/.auth/
+
+# GBA player build output
+apps/server/gba-player/player.elf
+apps/server/gba-player/player.gba
+
+# Internal working notes (stay local, not part of the published project)
+CLAUDE.md
+PROGRESS.md
+docs/decisions.md
+docs/progress-archive.md
+.claude/

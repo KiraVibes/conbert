@@ -1,0 +1,18 @@
+# Development helpers: only the job queue, reachable on localhost.
+#   docker compose -f docker-compose.dev.yml up -d
+# Then run `pnpm dev` as usual.
+
+name: conbert-dev
+
+services:
+  valkey:
+    image: valkey/valkey:9-alpine
+    restart: unless-stopped
+    command: ['valkey-server', '--appendonly', 'yes', '--maxmemory-policy', 'noeviction']
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - valkey-dev:/data
+
+volumes:
+  valkey-dev:

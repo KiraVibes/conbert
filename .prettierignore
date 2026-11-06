@@ -1,0 +1,12 @@
+pnpm-lock.yaml
+CLAUDE.md
+PROGRESS.md
+dist/
+coverage/
+apps/web/public/wasm/
+**/__fixtures__/
+apps/server/drizzle/
+docs/spec/
+docs/decisions.md
+docs/progress-archive.md
+.claude/settings.local.json

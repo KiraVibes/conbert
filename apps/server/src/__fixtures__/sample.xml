@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<personen>
+  <person id="1"><name>Anna</name><stadt>Berlin</stadt></person>
+  <person id="2"><name>Jörg</name><stadt>München</stadt></person>
+</personen>

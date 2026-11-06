@@ -1,0 +1,36 @@
+{
+  "name": "@conbert/core",
+  "version": "0.1.0",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "type": "module",
+  "description": "Shared engine interface, format registry and routing logic",
+  "exports": {
+    ".": "./src/index.ts",
+    "./gltf": "./src/gltf/index.ts",
+    "./data": "./src/data/index.ts",
+    "./subtitles": "./src/subtitles/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
+    "@zip.js/zip.js": "2.24.0",
+    "draco3dgltf": "1.5.9",
+    "fast-xml-parser": "5.11.2",
+    "fflate": "0.8.3",
+    "meshoptimizer": "1.3.0",
+    "papaparse": "5.7.0",
+    "read-excel-file": "9.3.12",
+    "smol-toml": "1.9.1",
+    "write-excel-file": "4.1.1",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.2",
+    "age-encryption": "0.3.1"
+  }
+}

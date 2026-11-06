@@ -1,0 +1,20 @@
+{
+  "name": "@conbert/cli",
+  "version": "0.1.0",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "type": "module",
+  "description": "Command line tool for Conbert: convert files on your own server from scripts",
+  "bin": {
+    "conbert": "./dist/conbert.mjs"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "tsdown": "^0.23.2",
+    "typescript": "6.0.3",
+    "@types/node": "^24.19.2"
+  }
+}

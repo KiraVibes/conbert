@@ -1,0 +1,1 @@
+ALTER TABLE `downloads` ADD `known` integer DEFAULT 0 NOT NULL;
