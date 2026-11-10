@@ -651,7 +651,12 @@ function DownloadRow({ download, onTake }: { download: DownloadDto; onTake: () =
           {active ? <XIcon aria-hidden="true" /> : <Trash2Icon aria-hidden="true" />}
         </Button>
       </div>
-      {(fresh > 0 || before > 0) && (
+      {download.recordOnly && (
+        <p className="text-xs text-muted-foreground tabular-nums" data-testid="download-recorded">
+          {t('downloader.recordOnly', { count: download.known })}
+        </p>
+      )}
+      {!download.recordOnly && (fresh > 0 || before > 0) && (
         <p className="text-xs tabular-nums" data-testid="download-counts">
           <span className="font-medium text-green-700 dark:text-green-400">
             {t('downloader.counts.new', { count: fresh })}
@@ -668,7 +673,7 @@ function DownloadRow({ download, onTake }: { download: DownloadDto; onTake: () =
             value={download.progress}
             aria-label={t(`downloader.status.${download.status}`)}
           />
-          {download.status === 'running' && (
+          {download.status === 'running' && !download.recordOnly && (
             <p className="text-xs text-muted-foreground tabular-nums">
               {/* Counts finished files – the bar itself never runs backwards. */}
               {download.total

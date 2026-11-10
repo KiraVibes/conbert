@@ -3276,7 +3276,9 @@
         "step3": "Then the tab ends up on a page that doesn't load (“localhost”, “this site can't be reached”). That's how it should be.",
         "step4": "Copy the whole address from that tab's address bar (it contains “code=”), come back here and paste it below. Conbert connects right away."
       }
-    }
+    },
+    "recordOnly_one": "First run of the subscription: 1 existing work remembered. Existing works are not downloaded here – the subscription only loads what is added from now on.",
+    "recordOnly_other": "First run of the subscription: {{count}} existing works remembered. Existing works are not downloaded here – the subscription only loads what is added from now on."
   },
   "booru": {
     "ratings": {

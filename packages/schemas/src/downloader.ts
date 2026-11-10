@@ -131,6 +131,8 @@ export const downloadSchema = z.object({
   feedId: z.string().nullable().default(null),
   /** Finished without a file: everything had been downloaded before. */
   nothingNew: z.boolean().default(false),
+  /** A subscription's first run with "only new": remembers what exists, loads nothing. */
+  recordOnly: z.boolean().default(false),
 });
 export type DownloadDto = z.infer<typeof downloadSchema>;
 export const downloadResponseSchema = z.object({ download: downloadSchema });

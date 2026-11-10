@@ -123,8 +123,10 @@ export function toDownloadDto(row: DownloadRecord, current?: number): DownloadDt
     createdAt: row.createdAt.toISOString(),
     finishedAt: row.finishedAt?.toISOString() ?? null,
     feedId: row.feedId ?? null,
+    recordOnly: options.recordOnly === true,
     // Done without a single file: everything had been loaded before.
-    nothingNew: row.status === 'done' && (row.files as unknown[]).length === 0,
+    nothingNew:
+      row.status === 'done' && (row.files as unknown[]).length === 0 && options.recordOnly !== true,
   };
 }
 

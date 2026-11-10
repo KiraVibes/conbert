@@ -3276,7 +3276,9 @@
         "step3": "Danach landet der Tab auf einer Seite, die nicht lädt („localhost“, „Seite nicht erreichbar“). Das ist richtig so.",
         "step4": "Kopiere die ganze Adresse aus der Adresszeile dieses Tabs (sie enthält „code=“), komm hierher zurück und füge sie unten ein. Conbert verbindet sofort."
       }
-    }
+    },
+    "recordOnly_one": "Erster Lauf des Abos: 1 vorhandenes Werk vermerkt. Vorhandene Werke werden dabei nicht geladen – das Abo lädt nur, was ab jetzt neu dazukommt.",
+    "recordOnly_other": "Erster Lauf des Abos: {{count}} vorhandene Werke vermerkt. Vorhandene Werke werden dabei nicht geladen – das Abo lädt nur, was ab jetzt neu dazukommt."
   },
   "booru": {
     "ratings": {
