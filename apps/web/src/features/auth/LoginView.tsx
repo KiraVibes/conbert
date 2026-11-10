@@ -31,7 +31,10 @@ export function LoginView({ status }: { status: AuthStatusResponse }) {
   const error = login.error instanceof ApiRequestError ? login.error : null;
 
   return (
-    <AuthLayout title={t('auth.login.title')} description={t('auth.login.intro')}>
+    <AuthLayout
+      title={t('auth.login.title')}
+      description={t(status.ldap ? 'auth.login.introLdap' : 'auth.login.intro')}
+    >
       <form
         className="space-y-4"
         onSubmit={(event) => {

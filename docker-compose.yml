@@ -38,6 +38,7 @@ services:
       # Optional: login handled by your reverse proxy (see .env.example)
       CONBERT_AUTH_PROXY_HEADER: ${CONBERT_AUTH_PROXY_HEADER:-}
       CONBERT_TRUSTED_PROXIES: ${CONBERT_TRUSTED_PROXIES:-}
+      CONBERT_PROXY_GROUPS_HEADER: ${CONBERT_PROXY_GROUPS_HEADER:-}
       CONBERT_SETUP_CODE: ${CONBERT_SETUP_CODE:-}
       # Key for stored passwords of storage locations (see .env.example).
       CONBERT_SECRET: ${CONBERT_SECRET:-}

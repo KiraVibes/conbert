@@ -18,11 +18,28 @@ import {
   listUsers,
   toUserDto,
 } from '../auth/users';
+import { syncMemberships } from '../auth/permissions';
 import type { AppContext } from '../context';
-import { booruSettings, users } from '../db/schema';
+import type { DbOrTx } from '../db';
+import { booruSettings, groups, users } from '../db/schema';
 import { HttpError } from '../lib/http-error';
 
 const idParams = z.object({ id: z.string().min(1).max(64) });
+
+/** Replaces the hand-picked groups of a user; LDAP/proxy memberships stay. */
+function setManualGroups(db: DbOrTx, userId: string, groupIds: string[]): void {
+  const wanted = new Set(groupIds);
+  const known = new Set(
+    db
+      .select({ id: groups.id })
+      .from(groups)
+      .all()
+      .map((g) => g.id),
+  );
+  for (const gid of wanted)
+    if (!known.has(gid)) throw new HttpError(400, 'BAD_REQUEST', `group ${gid}`);
+  syncMemberships(db, userId, 'manual', [...wanted]);
+}
 
 /** User management – administrators only. */
 export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void {
@@ -38,7 +55,10 @@ export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void 
         .map((r) => r.userId),
     );
     return {
-      users: listUsers(ctx.db).map((u) => ({ ...toUserDto(u), booruPin: locked.has(u.id) })),
+      users: listUsers(ctx.db).map((u) => ({
+        ...toUserDto(ctx.db, u, { admin: true }),
+        booruPin: locked.has(u.id),
+      })),
     };
   });
 
@@ -52,7 +72,7 @@ export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void 
       role: body.role,
     });
     reply.status(201);
-    return { user: toUserDto(user) };
+    return { user: toUserDto(ctx.db, user, { admin: true }) };
   });
 
   app.patch('/api/users/:id', admin, async (request): Promise<UserResponse> => {
@@ -63,22 +83,27 @@ export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void 
     if (body.role === 'user' && user.role === 'admin' && countAdmins(ctx.db) <= 1) {
       throw new HttpError(409, 'LAST_ADMIN');
     }
+    // LDAP and proxy accounts sign in elsewhere; a password here would be a back door.
+    if (body.password && user.authSource !== 'local') throw new HttpError(400, 'LDAP_MANAGED');
     const passwordHash = body.password ? await hashPassword(body.password) : undefined;
-    ctx.db
-      .update(users)
-      .set({
-        ...(body.role ? { role: body.role } : {}),
-        ...(body.displayName !== undefined ? { displayName: body.displayName || null } : {}),
-        ...(passwordHash ? { passwordHash } : {}),
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, id))
-      .run();
+    ctx.db.transaction((tx) => {
+      tx.update(users)
+        .set({
+          ...(body.role ? { role: body.role } : {}),
+          ...(body.displayName !== undefined ? { displayName: body.displayName || null } : {}),
+          ...(passwordHash ? { passwordHash } : {}),
+          ...(body.permissionOverrides ? { permissionOverrides: body.permissionOverrides } : {}),
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, id))
+        .run();
+      if (body.groupIds) setManualGroups(tx, id, body.groupIds);
+    });
     // A password reset signs the user out everywhere.
     if (passwordHash) deleteUserSessions(ctx.db, id);
     const updated = findUserById(ctx.db, id);
     if (!updated) throw new HttpError(404, 'NOT_FOUND');
-    return { user: toUserDto(updated) };
+    return { user: toUserDto(ctx.db, updated, { admin: true }) };
   });
 
   // A forgotten booru PIN: the admin lifts the lock (the ratings stay as they are).

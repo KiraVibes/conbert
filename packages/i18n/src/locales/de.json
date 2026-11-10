@@ -2205,6 +2205,51 @@
       "what": "DeviantArt hat nicht geantwortet.",
       "cause": "DeviantArt war nicht erreichbar oder hat etwas Unerwartetes geantwortet.",
       "action": "Versuch es in ein paar Minuten noch einmal."
+    },
+    "featureForbidden": {
+      "what": "Diese Funktion ist für dich gesperrt.",
+      "cause": "Dein Administrator hat sie für dein Konto oder deine Gruppe abgeschaltet.",
+      "action": "Frag deinen Administrator, ob er sie für dich freischaltet."
+    },
+    "groupNameTaken": {
+      "what": "Es gibt schon eine Gruppe mit diesem Namen.",
+      "cause": "Gruppennamen müssen eindeutig sein (Groß- und Kleinschreibung zählt nicht).",
+      "action": "Wähl einen anderen Namen."
+    },
+    "groupBuiltin": {
+      "what": "Die Gruppe „Alle Nutzer“ lässt sich so nicht ändern.",
+      "cause": "Jede Person ist automatisch Mitglied. Man kann sie weder umbenennen noch löschen, und sie hat keine eigenen Mitglieder.",
+      "action": "Schalte hier nur Funktionen ein oder aus. Für alles andere leg eine eigene Gruppe an."
+    },
+    "ldapManaged": {
+      "what": "Das Passwort dieses Kontos wird nicht in Conbert verwaltet.",
+      "cause": "Die Person meldet sich über LDAP oder deinen Reverse-Proxy an.",
+      "action": "Ändere das Passwort dort, wo das Konto eigentlich liegt (z. B. im Active Directory)."
+    },
+    "ldapUnreachable": {
+      "what": "Der LDAP-Server ist nicht erreichbar.",
+      "cause": "Die Adresse stimmt nicht, der Server ist aus, oder eine Firewall blockiert den Port.",
+      "action": "Prüfe die Adresse in der Verwaltung unter „Anmeldung über LDAP“ und teste die Verbindung. Lokale Conbert-Konten funktionieren weiter."
+    },
+    "ldapTls": {
+      "what": "Die verschlüsselte Verbindung zum LDAP-Server ist fehlgeschlagen.",
+      "cause": "Meist ist das Zertifikat des Servers selbst ausgestellt oder passt nicht zur Adresse.",
+      "action": "Trag das CA-Zertifikat deines Servers ein oder schalte „Zertifikat des Servers prüfen“ aus (weniger sicher)."
+    },
+    "ldapBindFailed": {
+      "what": "Conbert konnte sich nicht mit dem Dienstkonto am LDAP-Server anmelden.",
+      "cause": "Bind-DN oder Passwort des Dienstkontos stimmen nicht.",
+      "action": "Prüfe Dienstkonto und Passwort. Bei Active Directory funktioniert oft auch die Form name@firma.de."
+    },
+    "ldapSearchFailed": {
+      "what": "Die Suche im LDAP-Verzeichnis ist fehlgeschlagen.",
+      "cause": "Suchbasis oder Filter sind ungültig, oder das Dienstkonto darf dort nicht suchen.",
+      "action": "Prüfe Suchbasis und Filter (z. B. mit einer Vorlage) und teste die Verbindung."
+    },
+    "ldapNotConfigured": {
+      "what": "Die Anmeldung über LDAP ist noch nicht eingerichtet.",
+      "cause": "Adresse, Suchbasis oder Benutzerfilter fehlen, oder LDAP ist ausgeschaltet.",
+      "action": "Richte LDAP in der Verwaltung ein und schalte es ein."
     }
   },
   "stages": {
@@ -2259,7 +2304,8 @@
       "intro": "Melde dich mit deinem Conbert-Konto an.",
       "proxyIntro": "Die Anmeldung läuft über deinen Reverse-Proxy.",
       "submit": "Anmelden",
-      "forgot": "Passwort vergessen? Ein Administrator kann es dir in den Einstellungen neu setzen."
+      "forgot": "Passwort vergessen? Ein Administrator kann es dir in den Einstellungen neu setzen.",
+      "introLdap": "Melde dich mit deinem Conbert-Konto oder deinem Konto aus dem Verzeichnis (LDAP) an."
     },
     "menu": {
       "label": "Konto von {{name}}",
@@ -2278,7 +2324,8 @@
       "savePassword": "Passwort speichern",
       "passwordChanged": "Dein Passwort wurde geändert.",
       "otherDevices": "Auf deinen anderen Geräten wirst du danach abgemeldet.",
-      "proxyUser": "Du meldest dich über den Reverse-Proxy an. Dein Passwort verwaltest du dort."
+      "proxyUser": "Du meldest dich über den Reverse-Proxy an. Dein Passwort verwaltest du dort.",
+      "ldapUser": "Du meldest dich mit deinem Konto aus dem Verzeichnis (LDAP) an. Dein Passwort änderst du dort."
     },
     "users": {
       "title": "Benutzer verwalten",
@@ -2305,7 +2352,27 @@
       "resetBooruPinFor": "Booru-PIN von {{name}} zurücksetzen",
       "resetBooruPinIntro": "Die PIN, mit der die Person ihre Booru-Altersstufen gesperrt hat, wird entfernt. Die gewählten Altersstufen bleiben, wie sie sind; die Person kann danach eine neue PIN setzen.",
       "resetBooruPinSubmit": "PIN entfernen",
-      "booruPinReset": "Die Booru-PIN von „{{name}}“ wurde entfernt."
+      "booruPinReset": "Die Booru-PIN von „{{name}}“ wurde entfernt.",
+      "viaLdap": "meldet sich über LDAP an",
+      "disabled": "gesperrt",
+      "inGroups": "Gruppen: {{groups}}",
+      "accessFor": "Rechte von {{name}}",
+      "accessIntro": "Wähle die Gruppen der Person. Bei einzelnen Funktionen kannst du außerdem festlegen, dass sie unabhängig von den Gruppen erlaubt oder verboten sind.",
+      "adminAll": "Administratoren dürfen immer alles. Die Einstellungen hier gelten erst, wenn die Person wieder normaler Nutzer ist.",
+      "groups": "Gruppen",
+      "noGroups": "Noch keine eigenen Gruppen. Du legst sie in der Verwaltung unter „Gruppen“ an.",
+      "functions": "Funktionen",
+      "functionsHelp": "„Wie die Gruppen“ = erlaubt, wenn mindestens eine Gruppe der Person es erlaubt. „Immer erlauben“ und „Immer verbieten“ haben Vorrang vor den Gruppen. Der Punkt links zeigt, was am Ende gilt.",
+      "choiceFor": "Einstellung für {{name}}",
+      "choice": {
+        "group": "Wie die Gruppen",
+        "allow": "Immer erlauben",
+        "deny": "Immer verbieten"
+      },
+      "allowed": "erlaubt",
+      "blocked": "gesperrt",
+      "accessSave": "Rechte speichern",
+      "accessSaved": "Die Rechte von „{{name}}“ wurden gespeichert."
     }
   },
   "archive": {
@@ -5962,7 +6029,7 @@
       },
       "admin": {
         "title": "Verwaltung",
-        "body": "Nur für Admins: weitere Konten anlegen, Passwörter zurücksetzen, Speicher-Kontingente festlegen und sehen, wie stark der Server ausgelastet ist."
+        "body": "Nur für Admins: weitere Konten anlegen, Passwörter zurücksetzen, Speicher-Kontingente festlegen und sehen, wie stark der Server ausgelastet ist. Unter „Gruppen“ legst du fest, wer welche Funktionen nutzen darf, und unter „Anmeldung über LDAP“ verbindest du Conbert mit deinem Benutzerverzeichnis."
       }
     },
     "faq": {
@@ -6013,6 +6080,10 @@
       "quotaFull": {
         "q": "Was bedeutet „Speicher-Kontingent voll“?",
         "a": "Dein Admin hat festgelegt, wie viel Platz du auf dem Server belegen darfst. Lösch alte Ergebnisse im Archiv oder bitte den Admin um mehr Platz."
+      },
+      "missingArea": {
+        "q": "Warum fehlt bei mir ein Bereich, zum Beispiel „Herunterladen“?",
+        "a": "Dein Administrator kann Funktionen für einzelne Personen oder Gruppen abschalten. Gesperrte Bereiche verschwinden dann aus der Navigation. Wenn du einen Bereich brauchst, frag deinen Administrator, ob er ihn für dich freischaltet."
       }
     },
     "glossary": {
@@ -6127,6 +6198,14 @@
       "workflow": {
         "term": "Workflow",
         "text": "Eine feste Abfolge von Schritten, die Conbert automatisch ausführt, z. B. „umwandeln, verkleinern, speichern“."
+      },
+      "ldap": {
+        "term": "LDAP",
+        "text": "Ein zentrales Verzeichnis mit Benutzerkonten, Passwörtern und Gruppen – zum Beispiel Active Directory in Firmen oder lldap zu Hause. Statt für jedes Programm ein eigenes Konto anzulegen, melden sich alle mit demselben Konto an."
+      },
+      "userGroup": {
+        "term": "Gruppe (Benutzergruppe)",
+        "text": "Mehrere Konten, die zusammen dieselben Rechte bekommen. Beispiel: Die Gruppe „Familie“ darf Videos herunterladen, alle anderen nicht. So muss der Admin nicht jede Person einzeln einstellen."
       }
     },
     "guides": {
@@ -6145,6 +6224,10 @@
       "api": {
         "title": "Conbert aus Skripten nutzen (API)",
         "summary": "Für Fortgeschrittene: Home Assistant, n8n, Kurzbefehle und die Kommandozeile."
+      },
+      "ldap": {
+        "title": "Gruppen, Rechte und LDAP",
+        "summary": "Festlegen, wer welche Funktionen nutzen darf, und Anmeldung mit Konten aus Active Directory, lldap oder OpenLDAP."
       }
     }
   },
@@ -6288,5 +6371,232 @@
     "install": "Blender installieren",
     "remove": "Blender entfernen",
     "source": "Quelle: download.blender.org (offizielle Version, die Prüfsumme wird kontrolliert). Gespeichert unter /data/tools/blender."
+  },
+  "permissions": {
+    "blocked": {
+      "title": "Diese Funktion ist für dich gesperrt",
+      "body": "Dein Administrator hat diesen Bereich für dein Konto abgeschaltet. Wenn du ihn brauchst, frag bei ihm nach."
+    },
+    "serverConvertOff": "Dein Administrator hat das Umwandeln auf dem Server für dich abgeschaltet. Deine Dateien werden darum immer auf diesem Gerät umgewandelt.",
+    "onlyHidden": "Diese Funktion läuft ganz in deinem Browser. Conbert kann sie deshalb nur ausblenden – wer sich gut auskennt, könnte sie trotzdem aufrufen.",
+    "convert": {
+      "name": "Umwandeln & Komprimieren",
+      "help": "Die Startseite zum Umwandeln und die Seite „Komprimieren“. Ist sie aus, sieht die Person diese Seiten nicht."
+    },
+    "serverConvert": {
+      "name": "Umwandeln auf dem Server",
+      "help": "Dateien zum Umwandeln an den Server schicken (schneller, mehr Formate). Ist es aus, wird nur noch auf dem eigenen Gerät umgewandelt – das kostet den Server keine Rechenzeit."
+    },
+    "downloader": {
+      "name": "Herunterladen (Videos & Bilder)",
+      "help": "Videos und Bilder von Seiten wie YouTube oder Instagram laden, inklusive Abos für Profile und Kanäle."
+    },
+    "booru": {
+      "name": "Booru",
+      "help": "Bilder von Booru-Seiten laden, nach Tags suchen und Booru-Abos."
+    },
+    "workflows": {
+      "name": "Workflows",
+      "help": "Eigene Verarbeitungsketten anlegen und starten, auch „Danach automatisch …“ nach Downloads."
+    },
+    "storage": {
+      "name": "Speicherorte",
+      "help": "Eigene Speicherorte wie NAS, SMB-Freigaben oder Nextcloud einrichten und Dateien dort ablegen oder von dort öffnen."
+    },
+    "media": {
+      "name": "Swipen & ähnliche Bilder",
+      "help": "Bilder auf einem Speicherort durchswipen, aufräumen und doppelte oder ähnliche Bilder finden."
+    },
+    "ai": {
+      "name": "KI-Werkzeuge",
+      "help": "Sprache in Text umwandeln (Whisper), Hintergrund entfernen und Bilder vergrößern. Diese Werkzeuge brauchen auf dem Server viel Rechenzeit."
+    },
+    "workshop": {
+      "name": "Werkstatt",
+      "help": "Die FileWizard-Werkstatt mit Datei-Tricks wie „Was ist diese Datei wirklich?“, Steganografie oder dem Datei-Splitter."
+    },
+    "pdf": {
+      "name": "PDF-Werkzeuge",
+      "help": "PDFs zusammenfügen, teilen, sortieren und drehen."
+    },
+    "apiTokens": {
+      "name": "API-Schlüssel",
+      "help": "Eigene Zugangsschlüssel für Skripte und die Kommandozeile anlegen. Ein Schlüssel darf nie mehr als die Person selbst."
+    }
+  },
+  "groups": {
+    "title": "Gruppen",
+    "intro": "Mit Gruppen legst du fest, wer welche Funktionen von Conbert nutzen darf.",
+    "help": "Jede Person ist automatisch in „Alle Nutzer“. Was dort erlaubt ist, darf jeder. Weitere Gruppen erlauben zusätzliche Funktionen: Eine Funktion ist frei, sobald mindestens eine Gruppe der Person sie erlaubt. Pro Person kannst du in der Benutzerverwaltung einzelne Funktionen außerdem fest erlauben oder fest verbieten – das hat Vorrang. Administratoren dürfen immer alles.",
+    "everyone": "Alle Nutzer",
+    "everyoneIntro": "In dieser Gruppe ist jede Person automatisch. Schalte hier aus, was nicht jeder nutzen soll, und erlaube es dann über eigene Gruppen.",
+    "everyoneMembers": "Alle Konten",
+    "dialogIntro": "Leg fest, welche Funktionen die Mitglieder dieser Gruppe nutzen dürfen und wer dazugehört.",
+    "add": "Gruppe anlegen",
+    "addTitle": "Neue Gruppe",
+    "editTitle": "Gruppe „{{name}}“ bearbeiten",
+    "name": "Name",
+    "description": "Beschreibung (optional)",
+    "descriptionHint": "Zum Beispiel „Familie“ oder „Darf Videos herunterladen“.",
+    "functions": "Funktionen",
+    "functionsHint": "Eingeschaltet = Mitglieder dürfen diese Funktion nutzen.",
+    "members": "Mitglieder",
+    "noUsers": "Es gibt noch keine Benutzer.",
+    "memberSource": {
+      "manual": "von Hand",
+      "ldap": "aus LDAP",
+      "proxy": "vom Proxy"
+    },
+    "grantsAdmin": "Mitglieder sind Administratoren",
+    "grantsAdminHelp": "Gilt für Konten aus LDAP oder vom Reverse-Proxy: Wer dort in dieser Gruppe ist, wird bei der Anmeldung automatisch Administrator – und verliert das wieder, wenn er die Gruppe verlässt. Lokale Konten änderst du weiter von Hand.",
+    "proxyName": "Gruppenname beim Reverse-Proxy (optional)",
+    "proxyNameHint": "Zum Beispiel „conbert-download“. Leer lassen, wenn du keinen Reverse-Proxy mit Gruppen nutzt.",
+    "proxyNameHelp": "Meldet dein Reverse-Proxy (z. B. Authelia oder Authentik) die Gruppen einer Person mit, kommt jeder mit diesem Gruppennamen automatisch in diese Gruppe.",
+    "ldapDn": "Aus LDAP übernommen: {{dn}}",
+    "badgeProxy": "Proxy",
+    "memberCount_one": "{{count}} Mitglied",
+    "memberCount_other": "{{count}} Mitglieder",
+    "allFunctions": "alle Funktionen",
+    "noFunctions": "keine Funktionen",
+    "someFunctions": "{{count}} von {{total}} Funktionen",
+    "save": "Speichern",
+    "saved": "Gruppe gespeichert.",
+    "deleteNamed": "Gruppe „{{name}}“ löschen",
+    "deleteWarning": "Die Mitglieder verlieren die Funktionen, die nur diese Gruppe erlaubt hat. Ihre Konten und Dateien bleiben.",
+    "deleteConfirm": "Gruppe löschen"
+  },
+  "ldap": {
+    "title": "Anmeldung über LDAP",
+    "intro": "Lass Personen sich mit ihrem bestehenden Konto aus deinem Verzeichnis anmelden – zum Beispiel Active Directory, OpenLDAP oder lldap.",
+    "help": "LDAP ist ein Verzeichnis, in dem Firmen und viele Heimserver ihre Benutzerkonten und Gruppen zentral speichern. Ist es hier eingerichtet, prüft Conbert Benutzername und Passwort bei deinem Verzeichnis. Beim ersten Anmelden bekommt die Person automatisch ein Conbert-Konto. Lokale Conbert-Konten (z. B. dein Admin-Konto) funktionieren weiter – auch wenn das Verzeichnis mal nicht erreichbar ist.",
+    "loading": "LDAP-Einstellungen werden geladen …",
+    "save": "Speichern",
+    "saved": "LDAP-Einstellungen gespeichert.",
+    "presets": {
+      "label": "Vorlage",
+      "hint": "Füllt Filter und Attribute passend aus. Adresse, Konto und Suchbasis trägst du selbst ein.",
+      "openldap": "OpenLDAP / lldap",
+      "activeDirectory": "Active Directory"
+    },
+    "sections": {
+      "connection": "Verbindung",
+      "users": "Benutzer und Gruppen finden",
+      "advanced": "Erweitert: Filter und Attribute",
+      "access": "Zugang und Abgleich"
+    },
+    "fields": {
+      "enabled": {
+        "label": "Anmeldung über LDAP einschalten",
+        "help": "Ist das an, können sich Personen aus deinem Verzeichnis anmelden. Ausschalten sperrt neue LDAP-Anmeldungen – bestehende Konten bleiben in Conbert erhalten."
+      },
+      "url": {
+        "label": "Adresse des Servers",
+        "hint": "Zum Beispiel ldap://nas.local:389 oder ldaps://dc.firma.de:636",
+        "help": "ldaps:// verschlüsselt die Verbindung von Anfang an (meist Port 636). Mit ldap:// (meist Port 389) ist sie unverschlüsselt – schalte dann unten „StartTLS“ ein, wenn dein Server das kann. lldap nutzt standardmäßig Port 3890."
+      },
+      "startTls": {
+        "label": "Verbindung mit StartTLS verschlüsseln",
+        "help": "Nur für ldap://-Adressen: Die Verbindung beginnt unverschlüsselt und wird dann sofort verschlüsselt. Bei ldaps:// ausgeschaltet lassen."
+      },
+      "tlsVerify": {
+        "label": "Zertifikat des Servers prüfen",
+        "help": "Schützt davor, dass sich ein fremder Rechner als dein Server ausgibt. Nur ausschalten, wenn dein Server ein selbst ausgestelltes Zertifikat hat und du kein eigenes CA-Zertifikat eintragen möchtest."
+      },
+      "bindDn": {
+        "label": "Dienstkonto (Bind-DN)",
+        "hint": "Zum Beispiel cn=conbert,ou=services,dc=home oder conbert@firma.de",
+        "help": "Mit diesem Konto sucht Conbert im Verzeichnis nach Benutzern und Gruppen. Am besten ein eigenes Konto nur zum Lesen. Leer lassen, wenn dein Server anonymes Suchen erlaubt."
+      },
+      "bindPassword": {
+        "label": "Passwort des Dienstkontos",
+        "hint": "Wird verschlüsselt gespeichert und nie wieder angezeigt.",
+        "stored": "••••• gespeichert",
+        "change": "Ändern"
+      },
+      "userBase": {
+        "label": "Suchbasis für Benutzer",
+        "hint": "Zum Beispiel ou=people,dc=home oder dc=firma,dc=de",
+        "help": "Der Ordner im Verzeichnis, unter dem die Benutzerkonten liegen. Conbert sucht dort und in allen Unterordnern."
+      },
+      "userFilter": {
+        "label": "Benutzerfilter",
+        "hint": "{{username}} wird durch den eingegebenen Benutzernamen ersetzt.",
+        "help": "Sagt Conbert, woran es ein Benutzerkonto erkennt. Der Platzhalter {{username}} muss vorkommen. Beispiel: (&(objectClass=person)(uid={{username}})). Nur bestimmte Personen zulassen? Ergänze z. B. (memberOf=cn=conbert,ou=groups,dc=home) – oder nutze unten „Nur Mitglieder importierter Gruppen“."
+      },
+      "groupBase": {
+        "label": "Suchbasis für Gruppen (optional)",
+        "hint": "Zum Beispiel ou=groups,dc=home. Leer = wie bei den Benutzern.",
+        "help": "Der Ordner, unter dem deine Gruppen liegen. Von dort kannst du Gruppen in Conbert übernehmen."
+      },
+      "usernameAttr": {
+        "label": "Attribut für den Benutzernamen",
+        "hint": "uid bei OpenLDAP/lldap, sAMAccountName bei Active Directory."
+      },
+      "displayNameAttr": {
+        "label": "Attribut für den Anzeigenamen",
+        "hint": "cn oder displayName."
+      },
+      "groupFilter": {
+        "label": "Gruppenfilter",
+        "hint": "Zum Beispiel (objectClass=groupOfNames) oder (objectClass=group).",
+        "help": "Woran Conbert eine Gruppe erkennt. Leer lassen, wenn du keine Gruppen aus dem Verzeichnis nutzen möchtest."
+      },
+      "groupNameAttr": {
+        "label": "Attribut für den Gruppennamen",
+        "hint": "Meist cn."
+      },
+      "memberAttr": {
+        "label": "Wie Gruppen ihre Mitglieder speichern",
+        "help": "member: übliche Gruppen (groupOfNames, Active Directory). uniqueMember: groupOfUniqueNames. memberUid: Unix-Gruppen (posixGroup), die nur den Benutzernamen speichern. Verschachtelte Gruppen (Gruppen in Gruppen) werden nicht aufgelöst."
+      },
+      "caCert": {
+        "label": "Eigenes CA-Zertifikat (optional)",
+        "help": "Hat dein Server ein Zertifikat aus einer eigenen Zertifizierungsstelle (z. B. vom Firmen-Domänencontroller oder deiner NAS)? Füge hier das Stammzertifikat im PEM-Format ein (beginnt mit -----BEGIN CERTIFICATE-----). Dann klappt die Prüfung auch ohne „Zertifikat prüfen“ abzuschalten."
+      },
+      "onlyImportedGroups": {
+        "label": "Nur Mitglieder importierter Gruppen dürfen sich anmelden",
+        "help": "An: Wer in keiner der Gruppen ist, die du unter „Gruppen“ aus LDAP übernommen hast, kommt nicht hinein. So bestimmst du im Verzeichnis, wer Conbert nutzen darf. Wer eine Gruppe verlässt, wird beim nächsten Abgleich gesperrt."
+      },
+      "syncHours": {
+        "label": "Automatisch abgleichen alle",
+        "help": "So oft fragt Conbert dein Verzeichnis, wer in welcher Gruppe ist und wer noch existiert. Bei jeder Anmeldung wird außerdem sofort abgeglichen. 0 = nur bei der Anmeldung und per Knopf.",
+        "unit": "Stunden"
+      }
+    },
+    "test": {
+      "title": "Verbindung testen",
+      "intro": "Probiert die Einstellungen oben aus, ohne sie zu speichern. Trag optional ein Konto ein, um auch eine Anmeldung zu testen.",
+      "username": "Test-Benutzer (optional)",
+      "password": "Passwort des Test-Benutzers",
+      "run": "Verbindung testen",
+      "connected": "Verbindung klappt: {{users}} Benutzer und {{groups}} Gruppen gefunden.",
+      "loginOk": "Anmeldung als „{{name}}“ klappt.",
+      "inGroups": "Gruppen: {{groups}}",
+      "loginFailed": {
+        "notFound": "Diesen Benutzer gibt es nicht – oder der Benutzerfilter passt auf mehrere Konten.",
+        "wrongPassword": "Der Benutzer wurde gefunden, aber das Passwort stimmt nicht.",
+        "notInGroup": "Passwort stimmt, aber die Person ist in keiner importierten Gruppe und darf sich darum nicht anmelden."
+      }
+    },
+    "sync": {
+      "run": "Jetzt abgleichen",
+      "done": "Abgleich fertig: {{users}} LDAP-Konten geprüft, {{disabled}} gesperrt.",
+      "last": "Zuletzt abgeglichen: {{when}} ({{users}} Konten, {{groups}} Gruppen).",
+      "lastFailed": "Letzter Abgleich am {{when}} fehlgeschlagen: {{reason}}"
+    },
+    "import": {
+      "button": "Aus LDAP übernehmen",
+      "title": "Gruppen aus LDAP übernehmen",
+      "intro": "Wähle die Gruppen aus deinem Verzeichnis, die du in Conbert nutzen möchtest. Ihre Mitglieder werden bei jeder Anmeldung und jedem Abgleich automatisch eingetragen. Welche Funktionen eine Gruppe darf, legst du danach fest.",
+      "search": "Gruppe suchen …",
+      "loading": "Gruppen werden geladen …",
+      "none": "Keine Gruppen gefunden. Prüfe Suchbasis und Gruppenfilter in den LDAP-Einstellungen.",
+      "already": "schon übernommen",
+      "truncated": "Es gibt mehr Gruppen, als hier Platz haben – gib einen Suchbegriff ein.",
+      "submit_one": "{{count}} Gruppe übernehmen",
+      "submit_other": "{{count}} Gruppen übernehmen",
+      "done_one": "{{count}} Gruppe übernommen. Leg jetzt fest, welche Funktionen sie erlaubt.",
+      "done_other": "{{count}} Gruppen übernommen. Leg jetzt fest, welche Funktionen sie erlauben."
+    }
   }
 }

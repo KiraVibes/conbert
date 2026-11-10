@@ -8,6 +8,8 @@ import {
   type UserResponse,
 } from '@conbert/schemas';
 import { currentUser } from '../auth/plugin';
+import { ldapLogin } from '../auth/ldap/login';
+import { getLdapSettings, ldapReady } from '../auth/ldap/settings';
 import { getDummyHash, hashPassword, verifyPassword } from '../auth/password';
 import { FailureLimiter } from '../auth/rate-limit';
 import { SESSION_COOKIE, createSession, deleteSession, deleteUserSessions } from '../auth/sessions';
@@ -49,7 +51,8 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
       authMode: state.authMode,
       proxyAvailable: ctx.config.proxyAuth !== undefined,
       proxyUser: state.setupDone ? null : request.proxyUserName,
-      user: request.user ? toUserDto(request.user) : null,
+      ldap: ldapReady(getLdapSettings(ctx.db, ctx.secrets)),
+      user: request.user ? toUserDto(ctx.db, request.user) : null,
     };
   });
 
@@ -78,7 +81,7 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
         return { ...user, role: 'admin' as const };
       });
       request.log.info({ user: admin.username }, 'setup completed (reverse-proxy login)');
-      return { user: toUserDto(admin) };
+      return { user: toUserDto(ctx.db, admin) };
     }
 
     const passwordHash = await hashPassword(body.password);
@@ -96,7 +99,7 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
     });
     request.log.info({ user: admin.username }, 'setup completed');
     setSessionCookie(ctx, request, reply, admin);
-    return { user: toUserDto(admin) };
+    return { user: toUserDto(ctx.db, admin) };
   });
 
   app.post('/api/auth/login', async (request, reply): Promise<UserResponse> => {
@@ -111,16 +114,23 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
       throw new HttpError(429, 'TOO_MANY_ATTEMPTS');
     }
 
-    const user = findUserByName(ctx.db, body.username);
-    // Always run the hash so unknown names take as long as wrong passwords.
-    const ok = await verifyPassword(body.password, user?.passwordHash ?? (await getDummyHash()));
-    if (!user || !user.passwordHash || !ok) {
+    const local = findUserByName(ctx.db, body.username);
+    let user: User | null = null;
+    if (local?.passwordHash && local.authSource === 'local') {
+      if (await verifyPassword(body.password, local.passwordHash)) user = local;
+    } else {
+      // Directory account (or unknown name): ask LDAP if it is switched on.
+      user = await ldapLogin(ctx, body.username, body.password, request.log);
+      // Always run the hash so unknown names take as long as wrong passwords.
+      if (!user) await verifyPassword(body.password, await getDummyHash());
+    }
+    if (!user || user.disabled) {
       limiter.fail(limitKey);
       throw new HttpError(401, 'INVALID_LOGIN');
     }
     limiter.reset(limitKey);
     setSessionCookie(ctx, request, reply, user);
-    return { user: toUserDto(user) };
+    return { user: toUserDto(ctx.db, user) };
   });
 
   app.post('/api/auth/logout', async (request, reply) => {
@@ -133,6 +143,7 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
   app.post('/api/auth/password', async (request) => {
     const user = currentUser(request);
     const body = changePasswordRequestSchema.parse(request.body);
+    if (user.authSource !== 'local') throw new HttpError(400, 'LDAP_MANAGED');
     if (!user.passwordHash || !(await verifyPassword(body.currentPassword, user.passwordHash))) {
       throw new HttpError(400, 'WRONG_PASSWORD');
     }

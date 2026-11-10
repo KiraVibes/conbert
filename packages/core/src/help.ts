@@ -34,6 +34,7 @@ export const FAQ_ITEMS = [
   'forgotPassword',
   'installApp',
   'quotaFull',
+  'missingArea',
 ] as const;
 export type FaqItem = (typeof FAQ_ITEMS)[number];
 
@@ -48,8 +49,10 @@ export const GLOSSARY_TERMS = [
   'dpi',
   'exif',
   'framerate',
+  'userGroup',
   'hash',
   'https',
+  'ldap',
   'lossless',
   'lossy',
   'magicBytes',
@@ -79,6 +82,7 @@ export const HELP_GUIDES = [
   { id: 'nas', file: 'speicherorte.md', fileEn: 'storage.md' },
   { id: 'cookies', file: 'cookies.md', fileEn: 'cookies.md' },
   { id: 'api', file: 'api.md', fileEn: 'api.md' },
+  { id: 'ldap', file: 'ldap.md', fileEn: 'ldap.md' },
 ] as const;
 
 /** Link to a guide in the shown language (German or English). */

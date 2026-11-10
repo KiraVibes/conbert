@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { findMissingKeys } from '@conbert/i18n';
+import { FEATURES } from '@conbert/schemas';
 
 /**
  * Help-text guard for the UI: every literal key passed to t('…') or
@@ -74,6 +75,17 @@ describe('UI texts', () => {
       `server.${s}`,
       `server.${s}Help`,
     ]);
+    expect(findMissingKeys(keys)).toEqual([]);
+  });
+
+  it('every function a group can allow has a name and a help text', () => {
+    const keys = [
+      ...FEATURES.flatMap((f) => [`permissions.${f}.name`, `permissions.${f}.help`]),
+      ...['manual', 'ldap', 'proxy'].map((s) => `groups.memberSource.${s}`),
+      ...['group', 'allow', 'deny'].map((c) => `auth.users.choice.${c}`),
+      'groups.memberCount_one',
+      'groups.memberCount_other',
+    ];
     expect(findMissingKeys(keys)).toEqual([]);
   });
 });

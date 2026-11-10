@@ -19,6 +19,9 @@ import { HelpTip } from '@/components/HelpTip';
 import { ViewIntro } from '@/components/ViewIntro';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlenderCard } from './BlenderCard';
+import { GroupsCard } from './GroupsCard';
+import { LdapCard, LdapImportDialog } from './LdapCard';
+import { useLdapSettings } from './ldap-api';
 import { Progress } from '@/components/ui/progress';
 import {
   Select,
@@ -135,6 +138,7 @@ export function AdminView() {
     enabled: me?.role === 'admin',
     refetchInterval: 5000,
   });
+  const ldapOn = useLdapSettings(me?.role === 'admin').data?.enabled === true;
   if (me?.role !== 'admin') return <ErrorMessage messageKey="errors.forbidden" />;
   if (overview.isPending) {
     return <Loader2Icon className="animate-spin" aria-label={t('admin.loading')} />;
@@ -433,6 +437,8 @@ export function AdminView() {
           </CardContent>
         </Card>
       </div>
+      <GroupsCard importButton={ldapOn ? <LdapImportDialog /> : undefined} />
+      <LdapCard />
       <BlenderCard />
     </div>
   );

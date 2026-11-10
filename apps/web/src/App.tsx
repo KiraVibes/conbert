@@ -23,6 +23,8 @@ import { LazyView } from '@/components/LazyView';
 import { AuthGate } from '@/features/auth/AuthGate';
 import { UserMenu } from '@/features/auth/UserMenu';
 import { useCurrentUser } from '@/features/auth/use-auth';
+import { FeatureBlocked } from '@/components/FeatureBlocked';
+import type { Feature } from '@conbert/schemas';
 import { Tour } from '@/features/help/Tour';
 import { useWorkflowResults } from '@/features/workflows/use-workflow-results';
 import { useHistoryPersistence } from '@/features/archive/history-persistence';
@@ -33,7 +35,26 @@ import { ExpertModeToggle } from '@/features/settings/ExpertModeToggle';
 import { useSettings } from '@/features/settings/settings-store';
 import { useApplySettings } from '@/features/settings/use-apply-settings';
 import { useSettingsSync } from '@/features/settings/use-settings-sync';
-import { useView } from '@/lib/use-view';
+import { useView, type View } from '@/lib/use-view';
+
+/** Which function a view needs (null = always there). */
+const VIEW_FEATURES: Partial<Record<View, Feature[]>> = {
+  home: ['convert'],
+  compress: ['convert'],
+  download: ['downloader'],
+  booru: ['booru'],
+  subscriptions: ['downloader', 'booru'],
+  swipe: ['media'],
+  workflows: ['workflows'],
+  pdf: ['pdf'],
+  workshop: ['workshop'],
+};
+
+/** true if the user may open the view (one of its functions is enough). */
+function viewAllowed(view: View, permissions: readonly Feature[] | undefined): boolean {
+  const needs = VIEW_FEATURES[view];
+  return !needs || !permissions || needs.some((f) => permissions.includes(f));
+}
 
 // Every view but the start page is loaded when it is first opened (smaller start).
 const ArchiveView = lazy(() =>
@@ -152,6 +173,7 @@ function Shell() {
                 ] as const
               )
                 .filter(([target]) => target !== 'booru' || booruEnabled)
+                .filter(([target]) => viewAllowed(target, user?.permissions))
                 .map(([target, label, Icon]) => (
                   // Phones show icon + label in a grid; wider screens only the
                   // icon, with the label as tooltip (and for screen readers).
@@ -182,7 +204,9 @@ function Shell() {
                 ))}
             </nav>
             <LazyView key={view}>
-              {view === 'archive' ? (
+              {!viewAllowed(view, user?.permissions) ? (
+                <FeatureBlocked />
+              ) : view === 'archive' ? (
                 <ArchiveView />
               ) : view === 'download' ? (
                 <DownloaderView />

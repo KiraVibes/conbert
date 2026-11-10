@@ -15,14 +15,17 @@ import {
 } from '@conbert/schemas';
 import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { subscribeToWorkflows } from '@/lib/job-socket';
+import { useCan } from '@/features/auth/use-auth';
 
 export const WORKFLOWS_KEY = ['workflows'] as const;
 export const RUNS_KEY = ['workflow-runs'] as const;
 export const CHANNELS_KEY = ['notification-channels'] as const;
 
 export function useWorkflows() {
+  const allowed = useCan('workflows');
   return useQuery({
     queryKey: WORKFLOWS_KEY,
+    enabled: allowed,
     queryFn: ({ signal }) => apiGet('/api/workflows', workflowsResponseSchema, { signal }),
     select: (data) => data.workflows,
   });
@@ -54,8 +57,10 @@ export const removeRun = (id: string) => apiDelete(`/api/workflow-runs/${id}`);
 /** Recent runs, kept live over the WebSocket. */
 export function useWorkflowRuns() {
   const queryClient = useQueryClient();
+  const allowed = useCan('workflows');
   const query = useQuery({
     queryKey: RUNS_KEY,
+    enabled: allowed,
     queryFn: ({ signal }) => apiGet('/api/workflow-runs', workflowRunsResponseSchema, { signal }),
     select: (data) => data.runs,
   });

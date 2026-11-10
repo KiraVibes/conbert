@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { ownerMay } from '../auth/permissions';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import type { z } from 'zod';
 import type { WorkflowStep } from '@conbert/core';
@@ -126,6 +127,8 @@ export interface RunInput {
 
 /** Queues a run over the user's own files. */
 export async function startRun(ctx: AppContext, userId: string, input: RunInput) {
+  if (!ownerMay(ctx.db, userId, 'workflows'))
+    throw new HttpError(403, 'FEATURE_FORBIDDEN', 'workflows');
   const owned = ctx.db
     .select({ id: files.id, name: files.originalName })
     .from(files)

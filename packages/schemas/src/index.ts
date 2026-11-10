@@ -106,6 +106,8 @@ export function _assertDescriptorInSync(a: InferredDescriptor, b: EngineDescript
   void toSchema;
 }
 
+export * from './permissions';
+export * from './ldap';
 export * from './auth';
 export * from './jobs';
 export * from './storage';

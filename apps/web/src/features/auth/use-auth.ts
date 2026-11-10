@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   authStatusResponseSchema,
   userResponseSchema,
+  type Feature,
   type LoginRequest,
   type SetupRequest,
   type UserDto,
@@ -74,4 +75,20 @@ export function useChangePassword() {
     mutationFn: (body: { currentPassword: string; newPassword: string }) =>
       apiPost('/api/auth/password', body),
   });
+}
+
+/**
+ * May the signed-in user use this function? The admin can block functions
+ * for groups and users. Without a user (offline mode) everything local stays.
+ */
+export function useCan(feature: Feature): boolean {
+  // Only reads the status the auth gate loaded; never fetches by itself (the
+  // offline page would otherwise retry the unreachable server on every mount).
+  const { data } = useQuery({
+    queryKey: AUTH_QUERY_KEY,
+    queryFn: ({ signal }) => apiGet('/api/auth/status', authStatusResponseSchema, { signal }),
+    enabled: false,
+  });
+  const user = data?.user;
+  return user ? user.permissions.includes(feature) : true;
 }

@@ -2,6 +2,7 @@ import type { Engine } from '@conbert/core';
 import type { Config } from './config';
 import type { Db } from './db';
 import type { SecretBox } from './lib/secret-box';
+import type { LdapConnector } from './auth/ldap/client';
 import type { RcloneSetup } from './targets/rclone';
 import type { DownloadRunner } from './downloader/runner';
 import type { BooruRunner } from './booru/crawler';
@@ -19,6 +20,8 @@ export interface AppContext {
   setupCode: string;
   /** Encrypts stored credentials (storage locations …). */
   secrets: SecretBox;
+  /** Opens LDAP connections (a fake in tests). */
+  ldap: LdapConnector;
   /** How storage locations reach rclone. */
   rclone: RcloneSetup;
   /** Server-side conversion jobs (set up right after the context is created). */

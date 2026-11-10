@@ -2205,6 +2205,51 @@
       "what": "DeviantArt didn't answer.",
       "cause": "DeviantArt couldn't be reached or answered something unexpected.",
       "action": "Try again in a few minutes."
+    },
+    "featureForbidden": {
+      "what": "This function is blocked for you.",
+      "cause": "Your administrator switched it off for your account or your group.",
+      "action": "Ask your administrator to unlock it for you."
+    },
+    "groupNameTaken": {
+      "what": "There already is a group with this name.",
+      "cause": "Group names must be unique (upper and lower case don't count).",
+      "action": "Choose another name."
+    },
+    "groupBuiltin": {
+      "what": "The group “All users” can't be changed like that.",
+      "cause": "Everyone is a member automatically. It can't be renamed or deleted and has no members of its own.",
+      "action": "Only switch functions on or off here. For everything else, create an own group."
+    },
+    "ldapManaged": {
+      "what": "This account's password isn't managed in Conbert.",
+      "cause": "The person signs in through LDAP or your reverse proxy.",
+      "action": "Change the password where the account really lives (e.g. in Active Directory)."
+    },
+    "ldapUnreachable": {
+      "what": "The LDAP server can't be reached.",
+      "cause": "The address is wrong, the server is off, or a firewall blocks the port.",
+      "action": "Check the address in the administration under “Sign-in through LDAP” and test the connection. Local Conbert accounts keep working."
+    },
+    "ldapTls": {
+      "what": "The encrypted connection to the LDAP server failed.",
+      "cause": "Usually the server's certificate is self-signed or doesn't match the address.",
+      "action": "Enter your server's CA certificate or switch off “Check the server's certificate” (less secure)."
+    },
+    "ldapBindFailed": {
+      "what": "Conbert couldn't sign in to the LDAP server with the service account.",
+      "cause": "The bind DN or the service account's password is wrong.",
+      "action": "Check the service account and password. With Active Directory the form name@company.com often works, too."
+    },
+    "ldapSearchFailed": {
+      "what": "Searching the LDAP directory failed.",
+      "cause": "The search base or filter is invalid, or the service account may not search there.",
+      "action": "Check the search base and filters (e.g. with a template) and test the connection."
+    },
+    "ldapNotConfigured": {
+      "what": "Sign-in through LDAP isn't set up yet.",
+      "cause": "The address, search base or user filter is missing, or LDAP is switched off.",
+      "action": "Set up LDAP in the administration and switch it on."
     }
   },
   "stages": {
@@ -2259,7 +2304,8 @@
       "intro": "Sign in with your Conbert account.",
       "proxyIntro": "Sign-in is handled by your reverse proxy.",
       "submit": "Sign in",
-      "forgot": "Forgot your password? An administrator can set a new one in the settings."
+      "forgot": "Forgot your password? An administrator can set a new one in the settings.",
+      "introLdap": "Sign in with your Conbert account or your directory account (LDAP)."
     },
     "menu": {
       "label": "Account of {{name}}",
@@ -2278,7 +2324,8 @@
       "savePassword": "Save password",
       "passwordChanged": "Your password has been changed.",
       "otherDevices": "You'll be signed out on your other devices afterwards.",
-      "proxyUser": "You sign in through the reverse proxy. Manage your password there."
+      "proxyUser": "You sign in through the reverse proxy. Manage your password there.",
+      "ldapUser": "You sign in with your directory account (LDAP). You change your password there."
     },
     "users": {
       "title": "Manage users",
@@ -2305,7 +2352,27 @@
       "resetBooruPinFor": "Reset {{name}}’s booru PIN",
       "resetBooruPinIntro": "The PIN this person used to lock their booru age ratings is removed. The chosen ratings stay as they are; the person can set a new PIN afterwards.",
       "resetBooruPinSubmit": "Remove PIN",
-      "booruPinReset": "The booru PIN of “{{name}}” was removed."
+      "booruPinReset": "The booru PIN of “{{name}}” was removed.",
+      "viaLdap": "signs in through LDAP",
+      "disabled": "blocked",
+      "inGroups": "Groups: {{groups}}",
+      "accessFor": "Permissions of {{name}}",
+      "accessIntro": "Choose the person's groups. For single functions you can also decide that they are allowed or blocked no matter what the groups say.",
+      "adminAll": "Administrators may always do everything. The settings here only apply once the person is a normal user again.",
+      "groups": "Groups",
+      "noGroups": "No own groups yet. You create them in the administration under “Groups”.",
+      "functions": "Functions",
+      "functionsHelp": "“Like the groups” = allowed if at least one of the person's groups allows it. “Always allow” and “Always block” win over the groups. The dot on the left shows what applies in the end.",
+      "choiceFor": "Setting for {{name}}",
+      "choice": {
+        "group": "Like the groups",
+        "allow": "Always allow",
+        "deny": "Always block"
+      },
+      "allowed": "allowed",
+      "blocked": "blocked",
+      "accessSave": "Save permissions",
+      "accessSaved": "The permissions of “{{name}}” were saved."
     }
   },
   "archive": {
@@ -5962,7 +6029,7 @@
       },
       "admin": {
         "title": "Administration",
-        "body": "Admins only: create more accounts, reset passwords, set storage quotas and see how busy the server is."
+        "body": "For admins only: create more accounts, reset passwords, set storage quotas and see how busy the server is. Under “Groups” you decide who may use which functions, and under “Sign-in through LDAP” you connect Conbert to your user directory."
       }
     },
     "faq": {
@@ -6013,6 +6080,10 @@
       "quotaFull": {
         "q": "What does “storage quota full” mean?",
         "a": "Your admin decided how much space you may use on the server. Delete old results in the archive or ask the admin for more space."
+      },
+      "missingArea": {
+        "q": "Why is an area missing for me, for example “Download”?",
+        "a": "Your administrator can switch functions off for single people or groups. Blocked areas then disappear from the navigation. If you need an area, ask your administrator to unlock it for you."
       }
     },
     "glossary": {
@@ -6127,6 +6198,14 @@
       "workflow": {
         "term": "Workflow",
         "text": "A fixed sequence of steps that Conbert runs automatically, e.g. “convert, shrink, save”."
+      },
+      "ldap": {
+        "term": "LDAP",
+        "text": "A central directory of user accounts, passwords and groups – for example Active Directory in companies or lldap at home. Instead of an own account for every program, everyone signs in with the same account."
+      },
+      "userGroup": {
+        "term": "Group (user group)",
+        "text": "Several accounts that get the same permissions together. Example: the group “Family” may download videos, everyone else may not. That way the admin doesn't have to set up every person on their own."
       }
     },
     "guides": {
@@ -6145,6 +6224,10 @@
       "api": {
         "title": "Using Conbert from scripts (API)",
         "summary": "For advanced users: Home Assistant, n8n, Shortcuts and the command line (guide in German)."
+      },
+      "ldap": {
+        "title": "Groups, permissions and LDAP",
+        "summary": "Decide who may use which functions, and sign in with accounts from Active Directory, lldap or OpenLDAP."
       }
     }
   },
@@ -6288,5 +6371,232 @@
     "install": "Install Blender",
     "remove": "Remove Blender",
     "source": "Source: download.blender.org (official release, the checksum is verified). Stored in /data/tools/blender."
+  },
+  "permissions": {
+    "blocked": {
+      "title": "This function is blocked for you",
+      "body": "Your administrator switched this area off for your account. If you need it, ask them."
+    },
+    "serverConvertOff": "Your administrator switched off converting on the server for you, so your files are always converted on this device.",
+    "onlyHidden": "This function runs entirely in your browser, so Conbert can only hide it – someone who knows their way around could still open it.",
+    "convert": {
+      "name": "Convert & compress",
+      "help": "The start page for converting and the “Compress” page. When it's off, the person doesn't see these pages."
+    },
+    "serverConvert": {
+      "name": "Convert on the server",
+      "help": "Send files to the server to convert them (faster, more formats). When it's off, files are only converted on the person's own device – that costs the server no computing time."
+    },
+    "downloader": {
+      "name": "Download (videos & pictures)",
+      "help": "Download videos and pictures from sites like YouTube or Instagram, including subscriptions to profiles and channels."
+    },
+    "booru": {
+      "name": "Booru",
+      "help": "Download pictures from booru sites, search by tags and booru subscriptions."
+    },
+    "workflows": {
+      "name": "Workflows",
+      "help": "Create and start own processing chains, including “Then automatically …” after downloads."
+    },
+    "storage": {
+      "name": "Storage locations",
+      "help": "Set up own storage locations like a NAS, SMB shares or Nextcloud and save files there or open them from there."
+    },
+    "media": {
+      "name": "Swipe & similar pictures",
+      "help": "Swipe through pictures on a storage location, tidy up and find duplicate or similar pictures."
+    },
+    "ai": {
+      "name": "AI tools",
+      "help": "Turn speech into text (Whisper), remove backgrounds and upscale pictures. These tools need a lot of computing time on the server."
+    },
+    "workshop": {
+      "name": "Workshop",
+      "help": "The FileWizard workshop with file tricks like “What is this file really?”, steganography or the file splitter."
+    },
+    "pdf": {
+      "name": "PDF tools",
+      "help": "Merge, split, sort and rotate PDFs."
+    },
+    "apiTokens": {
+      "name": "API keys",
+      "help": "Create own access keys for scripts and the command line. A key may never do more than the person themselves."
+    }
+  },
+  "groups": {
+    "title": "Groups",
+    "intro": "Groups decide who may use which functions of Conbert.",
+    "help": "Everyone is automatically in “All users”. Whatever is allowed there, everyone may do. Other groups allow additional functions: a function is available as soon as at least one of the person's groups allows it. In the user management you can also always allow or always block single functions per person – that wins. Administrators may always do everything.",
+    "everyone": "All users",
+    "everyoneIntro": "Everyone is automatically in this group. Switch off here what not everyone should use, then allow it through own groups.",
+    "everyoneMembers": "All accounts",
+    "dialogIntro": "Choose which functions the members of this group may use and who belongs to it.",
+    "add": "Add group",
+    "addTitle": "New group",
+    "editTitle": "Edit group “{{name}}”",
+    "name": "Name",
+    "description": "Description (optional)",
+    "descriptionHint": "For example “Family” or “May download videos”.",
+    "functions": "Functions",
+    "functionsHint": "Switched on = members may use this function.",
+    "members": "Members",
+    "noUsers": "There are no users yet.",
+    "memberSource": {
+      "manual": "by hand",
+      "ldap": "from LDAP",
+      "proxy": "from the proxy"
+    },
+    "grantsAdmin": "Members are administrators",
+    "grantsAdminHelp": "For accounts from LDAP or the reverse proxy: whoever is in this group there automatically becomes an administrator when signing in – and loses it again after leaving the group. You still change local accounts by hand.",
+    "proxyName": "Group name at the reverse proxy (optional)",
+    "proxyNameHint": "For example “conbert-download”. Leave empty if you don't use a reverse proxy with groups.",
+    "proxyNameHelp": "If your reverse proxy (e.g. Authelia or Authentik) sends a person's groups along, everyone with this group name automatically joins this group.",
+    "ldapDn": "Taken from LDAP: {{dn}}",
+    "badgeProxy": "Proxy",
+    "memberCount_one": "{{count}} member",
+    "memberCount_other": "{{count}} members",
+    "allFunctions": "all functions",
+    "noFunctions": "no functions",
+    "someFunctions": "{{count}} of {{total}} functions",
+    "save": "Save",
+    "saved": "Group saved.",
+    "deleteNamed": "Delete group “{{name}}”",
+    "deleteWarning": "The members lose the functions only this group allowed. Their accounts and files stay.",
+    "deleteConfirm": "Delete group"
+  },
+  "ldap": {
+    "title": "Sign-in through LDAP",
+    "intro": "Let people sign in with their existing account from your directory – for example Active Directory, OpenLDAP or lldap.",
+    "help": "LDAP is a directory where companies and many home servers keep their user accounts and groups in one place. Once set up here, Conbert checks user name and password with your directory. On the first sign-in the person automatically gets a Conbert account. Local Conbert accounts (e.g. your admin account) keep working – even when the directory can't be reached.",
+    "loading": "Loading LDAP settings …",
+    "save": "Save",
+    "saved": "LDAP settings saved.",
+    "presets": {
+      "label": "Template",
+      "hint": "Fills in filters and attributes. You enter the address, account and search base yourself.",
+      "openldap": "OpenLDAP / lldap",
+      "activeDirectory": "Active Directory"
+    },
+    "sections": {
+      "connection": "Connection",
+      "users": "Finding users and groups",
+      "advanced": "Advanced: filters and attributes",
+      "access": "Access and sync"
+    },
+    "fields": {
+      "enabled": {
+        "label": "Switch on sign-in through LDAP",
+        "help": "When it's on, people from your directory can sign in. Switching it off blocks new LDAP sign-ins – existing accounts stay in Conbert."
+      },
+      "url": {
+        "label": "Server address",
+        "hint": "For example ldap://nas.local:389 or ldaps://dc.company.com:636",
+        "help": "ldaps:// encrypts the connection from the start (usually port 636). With ldap:// (usually port 389) it is unencrypted – then switch on “StartTLS” below if your server supports it. lldap uses port 3890 by default."
+      },
+      "startTls": {
+        "label": "Encrypt the connection with StartTLS",
+        "help": "Only for ldap:// addresses: the connection starts unencrypted and is encrypted right away. Leave it off for ldaps://."
+      },
+      "tlsVerify": {
+        "label": "Check the server's certificate",
+        "help": "Protects against another computer pretending to be your server. Only switch it off if your server has a self-signed certificate and you don't want to enter your own CA certificate."
+      },
+      "bindDn": {
+        "label": "Service account (bind DN)",
+        "hint": "For example cn=conbert,ou=services,dc=home or conbert@company.com",
+        "help": "Conbert uses this account to search the directory for users and groups. Best use an own read-only account. Leave empty if your server allows anonymous searching."
+      },
+      "bindPassword": {
+        "label": "Password of the service account",
+        "hint": "Stored encrypted and never shown again.",
+        "stored": "••••• saved",
+        "change": "Change"
+      },
+      "userBase": {
+        "label": "Search base for users",
+        "hint": "For example ou=people,dc=home or dc=company,dc=com",
+        "help": "The folder in the directory below which the user accounts are. Conbert searches there and in all subfolders."
+      },
+      "userFilter": {
+        "label": "User filter",
+        "hint": "{{username}} is replaced by the user name that was entered.",
+        "help": "Tells Conbert how to recognise a user account. The placeholder {{username}} must be in it. Example: (&(objectClass=person)(uid={{username}})). Only let certain people in? Add e.g. (memberOf=cn=conbert,ou=groups,dc=home) – or use “Only members of imported groups” below."
+      },
+      "groupBase": {
+        "label": "Search base for groups (optional)",
+        "hint": "For example ou=groups,dc=home. Empty = same as for users.",
+        "help": "The folder below which your groups are. From there you can take groups over into Conbert."
+      },
+      "usernameAttr": {
+        "label": "Attribute for the user name",
+        "hint": "uid for OpenLDAP/lldap, sAMAccountName for Active Directory."
+      },
+      "displayNameAttr": {
+        "label": "Attribute for the display name",
+        "hint": "cn or displayName."
+      },
+      "groupFilter": {
+        "label": "Group filter",
+        "hint": "For example (objectClass=groupOfNames) or (objectClass=group).",
+        "help": "How Conbert recognises a group. Leave empty if you don't want to use groups from the directory."
+      },
+      "groupNameAttr": {
+        "label": "Attribute for the group name",
+        "hint": "Usually cn."
+      },
+      "memberAttr": {
+        "label": "How groups store their members",
+        "help": "member: usual groups (groupOfNames, Active Directory). uniqueMember: groupOfUniqueNames. memberUid: Unix groups (posixGroup) that only store the user name. Nested groups (groups in groups) are not resolved."
+      },
+      "caCert": {
+        "label": "Own CA certificate (optional)",
+        "help": "Does your server have a certificate from an own certificate authority (e.g. from the company domain controller or your NAS)? Paste the root certificate in PEM format here (starts with -----BEGIN CERTIFICATE-----). Then the check works without switching off “Check the server's certificate”."
+      },
+      "onlyImportedGroups": {
+        "label": "Only members of imported groups may sign in",
+        "help": "On: whoever is in none of the groups you took over from LDAP under “Groups” can't get in. That way you decide in the directory who may use Conbert. Someone who leaves a group is blocked at the next sync."
+      },
+      "syncHours": {
+        "label": "Sync automatically every",
+        "help": "How often Conbert asks your directory who is in which group and who still exists. Every sign-in also syncs right away. 0 = only at sign-in and by button.",
+        "unit": "hours"
+      }
+    },
+    "test": {
+      "title": "Test the connection",
+      "intro": "Tries the settings above without saving them. Optionally enter an account to test a sign-in, too.",
+      "username": "Test user (optional)",
+      "password": "Password of the test user",
+      "run": "Test connection",
+      "connected": "Connection works: {{users}} users and {{groups}} groups found.",
+      "loginOk": "Signing in as “{{name}}” works.",
+      "inGroups": "Groups: {{groups}}",
+      "loginFailed": {
+        "notFound": "This user doesn't exist – or the user filter matches several accounts.",
+        "wrongPassword": "The user was found, but the password is wrong.",
+        "notInGroup": "The password is right, but the person is in no imported group and therefore may not sign in."
+      }
+    },
+    "sync": {
+      "run": "Sync now",
+      "done": "Sync finished: {{users}} LDAP accounts checked, {{disabled}} blocked.",
+      "last": "Last synced: {{when}} ({{users}} accounts, {{groups}} groups).",
+      "lastFailed": "Last sync on {{when}} failed: {{reason}}"
+    },
+    "import": {
+      "button": "Take over from LDAP",
+      "title": "Take groups over from LDAP",
+      "intro": "Choose the groups from your directory you want to use in Conbert. Their members are added automatically at every sign-in and sync. You decide afterwards which functions a group allows.",
+      "search": "Search group …",
+      "loading": "Loading groups …",
+      "none": "No groups found. Check the search base and group filter in the LDAP settings.",
+      "already": "already taken over",
+      "truncated": "There are more groups than fit here – enter a search term.",
+      "submit_one": "Take over {{count}} group",
+      "submit_other": "Take over {{count}} groups",
+      "done_one": "{{count}} group taken over. Now choose which functions it allows.",
+      "done_other": "{{count}} groups taken over. Now choose which functions they allow."
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { ownerMay } from '../auth/permissions';
 import { and, eq, inArray, isNull, lte, or } from 'drizzle-orm';
 import type { FastifyBaseLogger } from 'fastify';
 import type { z } from 'zod';
@@ -180,6 +181,8 @@ export async function runSubscription(
   row: BooruSubscriptionRecord,
 ): Promise<boolean> {
   if (hasActiveJob(ctx, row.id)) return false;
+  // The admin blocked the booru function for this user: the subscription rests.
+  if (!ownerMay(ctx.db, row.userId, 'booru')) return false;
   const options = row.options as SubscriptionOptions;
   const next = new Date(Date.now() + row.intervalHours * HOUR);
   try {

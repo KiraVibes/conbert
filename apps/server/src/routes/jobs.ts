@@ -18,6 +18,7 @@ import { createJobRequestSchema } from '@conbert/schemas';
 
 type CreateJobRequestParsed = ReturnType<typeof createJobRequestSchema.parse>;
 import { currentUser } from '../auth/plugin';
+import { AI_ENGINES, can } from '../auth/permissions';
 import type { AppContext } from '../context';
 import { jobs, type JobRecord } from '../db/schema';
 import { HttpError } from '../lib/http-error';
@@ -107,6 +108,8 @@ export async function startJob(
   userId: string,
   body: CreateJobRequestParsed,
   log: FastifyBaseLogger,
+  /** false = the user may not use the AI engines (Whisper, image AI). */
+  aiAllowed = true,
 ): Promise<JobRecord> {
   const { queue, runner } = ctx.jobs;
   const file = getOwnFile(ctx, userId, body.fileId);
@@ -123,6 +126,9 @@ export async function startJob(
             trim: body.mode === 'convert' && readTrim(body.options) !== null,
           });
   if (!route) throw new HttpError(422, 'NO_SERVER_ROUTE', `${file.ext} → ${body.outputExt}`);
+  if (!aiAllowed && route.steps.some((s) => AI_ENGINES.has(s.engineId))) {
+    throw new HttpError(403, 'FEATURE_FORBIDDEN', 'ai');
+  }
   const attachments = checkedAttachments(ctx, userId, route, body.attachments);
 
   const id = randomUUID();
@@ -165,7 +171,7 @@ export function registerJobRoutes(app: FastifyInstance, ctx: AppContext): void {
   app.post('/api/jobs', async (request, reply) => {
     const user = currentUser(request);
     const body = createJobRequestSchema.parse(request.body);
-    const job = await startJob(ctx, user.id, body, request.log);
+    const job = await startJob(ctx, user.id, body, request.log, can(ctx.db, user, 'ai'));
     reply.status(201);
     return { job: toJobDto(job) };
   });

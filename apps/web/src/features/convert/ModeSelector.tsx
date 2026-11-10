@@ -1,5 +1,7 @@
 import { CloudIcon, MonitorIcon, SparklesIcon, type LucideIcon } from 'lucide-react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCan } from '@/features/auth/use-auth';
 import type { ExecutionMode } from '@conbert/core';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
@@ -20,6 +22,12 @@ interface ModeSelectorProps {
 /** "On this device / On the server / Automatic" – always with a plain explanation. */
 export function ModeSelector({ value, onChange, compact = false, id }: ModeSelectorProps) {
   const { t } = useTranslation();
+  const serverAllowed = useCan('serverConvert');
+  // Without server conversions only "on this device" is left.
+  useEffect(() => {
+    if (!serverAllowed && value !== 'local') onChange('local');
+  }, [serverAllowed, value, onChange]);
+  const modes = serverAllowed ? MODES : MODES.filter((m) => m.mode === 'local');
   return (
     <div className="space-y-2">
       <ToggleGroup
@@ -33,7 +41,7 @@ export function ModeSelector({ value, onChange, compact = false, id }: ModeSelec
         }}
         aria-label={t('mode.label')}
       >
-        {MODES.map(({ mode, icon: Icon }) => (
+        {modes.map(({ mode, icon: Icon }) => (
           <ToggleGroupItem
             key={mode}
             value={mode}
@@ -49,6 +57,9 @@ export function ModeSelector({ value, onChange, compact = false, id }: ModeSelec
         ))}
       </ToggleGroup>
       {!compact && <p className="text-sm text-muted-foreground">{t(`mode.${value}.help`)}</p>}
+      {!compact && !serverAllowed && (
+        <p className="text-sm text-muted-foreground">{t('permissions.serverConvertOff')}</p>
+      )}
     </div>
   );
 }

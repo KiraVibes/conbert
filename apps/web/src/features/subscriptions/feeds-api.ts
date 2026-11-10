@@ -11,14 +11,17 @@ import {
 } from '@conbert/schemas';
 import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { subscribeToDownloads } from '@/lib/job-socket';
+import { useCan } from '@/features/auth/use-auth';
 
 export const FEEDS_KEY = ['downloader-feeds'] as const;
 
 /** Profiles, channels and threads the server checks regularly. */
 export function useFeeds() {
   const queryClient = useQueryClient();
+  const allowed = useCan('downloader');
   const query = useQuery({
     queryKey: FEEDS_KEY,
+    enabled: allowed,
     queryFn: ({ signal }) => apiGet('/api/downloader/feeds', feedsResponseSchema, { signal }),
     select: (data) => data.feeds,
     // Times ("next check in …") move on; a running check ends some time.

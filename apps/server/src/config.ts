@@ -38,6 +38,7 @@ const envSchema = z.object({
   CONBERT_SETUP_CODE: optionalString,
   /** Header with the user name set by a trusted reverse proxy, e.g. "Remote-User". */
   CONBERT_AUTH_PROXY_HEADER: optionalString,
+  CONBERT_PROXY_GROUPS_HEADER: optionalString,
   /** Comma-separated IPs/CIDRs of proxies allowed to set that header. */
   CONBERT_TRUSTED_PROXIES: optionalString,
   /**
@@ -61,6 +62,8 @@ const envSchema = z.object({
 
 export interface ProxyAuthConfig {
   header: string;
+  /** Header with the user's groups (comma or | separated), lowercase. Optional. */
+  groupsHeader?: string | undefined;
   trustedProxies: string[];
 }
 
@@ -137,7 +140,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     jobConcurrency: e.CONBERT_JOB_CONCURRENCY,
     setupCode: e.CONBERT_SETUP_CODE,
     proxyAuth: e.CONBERT_AUTH_PROXY_HEADER
-      ? { header: e.CONBERT_AUTH_PROXY_HEADER.toLowerCase(), trustedProxies }
+      ? {
+          header: e.CONBERT_AUTH_PROXY_HEADER.toLowerCase(),
+          groupsHeader: e.CONBERT_PROXY_GROUPS_HEADER?.toLowerCase(),
+          trustedProxies,
+        }
       : undefined,
     secret: e.CONBERT_SECRET,
     storageRoots,

@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { and, eq, gt, lt } from 'drizzle-orm';
-import type { Db } from '../db';
+import type { Db, DbOrTx } from '../db';
 import { sessions, users, type User } from '../db/schema';
 
 export const SESSION_COOKIE = 'conbert_session';
@@ -61,7 +61,7 @@ export function deleteSession(db: Db, token: string): void {
 }
 
 /** Signs a user out everywhere (after a password change or deletion). */
-export function deleteUserSessions(db: Db, userId: string, exceptToken?: string): void {
+export function deleteUserSessions(db: DbOrTx, userId: string, exceptToken?: string): void {
   const keep = exceptToken ? hashToken(exceptToken) : undefined;
   const rows = db
     .select({ id: sessions.id })

@@ -15,12 +15,15 @@ import {
 } from '@conbert/schemas';
 import { ApiRequestError, apiDelete, apiGet, apiPatch, apiPost, apiPut } from '@/lib/api';
 import { rememberServerFile, serverJobOf, uploadToServer } from '@/engines/server-convert';
+import { useCan } from '@/features/auth/use-auth';
 
 export const TARGETS_KEY = ['storage-targets'] as const;
 
 export function useTargets() {
+  const allowed = useCan('storage');
   return useQuery({
     queryKey: TARGETS_KEY,
+    enabled: allowed,
     queryFn: ({ signal }) => apiGet('/api/targets', targetsResponseSchema, { signal }),
     select: (data) => data.targets,
   });

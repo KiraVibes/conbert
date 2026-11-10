@@ -3,10 +3,12 @@ import fastifyCookie from '@fastify/cookie';
 import type { AppContext } from '../context';
 import type { User } from '../db/schema';
 import { HttpError } from '../lib/http-error';
+import { can, featureForPath } from './permissions';
 import { SESSION_COOKIE, validateSession } from './sessions';
 import { getAuthState } from './setup';
 import { validateApiToken } from './tokens';
 import { createProxyMatcher } from './trusted-proxies';
+import { createProxyGroupSync } from './proxy-groups';
 import { ensureProxyUser } from './users';
 
 declare module 'fastify' {
@@ -15,6 +17,8 @@ declare module 'fastify' {
     user: User | null;
     /** User name a trusted reverse proxy sent (whether or not proxy mode is active). */
     proxyUserName: string | null;
+    /** Groups a trusted reverse proxy sent (null = header not configured). */
+    proxyGroups: string | null;
     /** How the user signed in: browser session, reverse proxy or API token. */
     authMethod: 'session' | 'proxy' | 'token' | null;
   }
@@ -37,7 +41,14 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
  * What an API token may not do: manage tokens, users, passwords or the key
  * vault. A leaked token can convert files but not take over the account.
  */
-const NOT_WITH_TOKEN = ['/api/tokens', '/api/users', '/api/auth/', '/api/keys'];
+const NOT_WITH_TOKEN = [
+  '/api/tokens',
+  '/api/users',
+  '/api/groups',
+  '/api/admin/ldap',
+  '/api/auth/',
+  '/api/keys',
+];
 
 function bearerToken(request: FastifyRequest): string | null {
   const header = request.headers.authorization;
@@ -78,10 +89,12 @@ export async function registerAuth(app: FastifyInstance, ctx: AppContext): Promi
   await app.register(fastifyCookie);
   app.decorateRequest('user', null);
   app.decorateRequest('proxyUserName', null);
+  app.decorateRequest('proxyGroups', null);
   app.decorateRequest('authMethod', null);
 
   const proxy = ctx.config.proxyAuth;
   const isTrustedProxy = proxy ? createProxyMatcher(proxy.trustedProxies) : () => false;
+  const proxyGroups = createProxyGroupSync();
 
   app.addHook('onRequest', async (request) => {
     const path = pathOf(request.url);
@@ -93,6 +106,11 @@ export async function registerAuth(app: FastifyInstance, ctx: AppContext): Promi
       const value = request.headers[proxy.header];
       const name = Array.isArray(value) ? value[0] : value;
       request.proxyUserName = name?.trim() || null;
+      if (proxy.groupsHeader) {
+        const groups = request.headers[proxy.groupsHeader];
+        // A missing header means "in no group".
+        request.proxyGroups = (Array.isArray(groups) ? groups.join(',') : groups) ?? '';
+      }
     }
 
     const state = getAuthState(ctx.db);
@@ -100,10 +118,14 @@ export async function registerAuth(app: FastifyInstance, ctx: AppContext): Promi
     if (bearer && state.setupDone) {
       // Scripts and the CLI, in both login modes. A wrong token is no login.
       request.user = validateApiToken(ctx.db, bearer) ?? null;
-      if (!request.user) throw new HttpError(401, 'INVALID_TOKEN');
+      if (!request.user || request.user.disabled) throw new HttpError(401, 'INVALID_TOKEN');
       request.authMethod = 'token';
       if (path !== '/api/auth/status' && NOT_WITH_TOKEN.some((p) => path.startsWith(p))) {
         throw new HttpError(403, 'TOKEN_NOT_ALLOWED');
+      }
+      const feature = featureForPath(path);
+      if (feature && !can(ctx.db, request.user, feature)) {
+        throw new HttpError(403, 'FEATURE_FORBIDDEN', feature);
       }
       return;
     }
@@ -111,11 +133,28 @@ export async function registerAuth(app: FastifyInstance, ctx: AppContext): Promi
       if (request.proxyUserName) {
         request.user = ensureProxyUser(ctx.db, request.proxyUserName) ?? null;
         if (request.user) request.authMethod = 'proxy';
+        if (request.user && request.proxyGroups !== null && request.user.authSource === 'proxy') {
+          request.user = proxyGroups.apply(ctx.db, request.user, request.proxyGroups);
+        }
       }
     } else {
       const token = request.cookies[SESSION_COOKIE];
       if (token) request.user = validateSession(ctx.db, token, ctx.config.sessionDays) ?? null;
       if (request.user) request.authMethod = 'session';
+    }
+
+    // Accounts LDAP no longer knows can't do anything until they come back.
+    if (request.user?.disabled) {
+      request.user = null;
+      request.authMethod = null;
+    }
+
+    if (request.user) {
+      // Functions the admin blocked for this user or their groups.
+      const feature = featureForPath(path);
+      if (feature && !can(ctx.db, request.user, feature)) {
+        throw new HttpError(403, 'FEATURE_FORBIDDEN', feature);
+      }
     }
 
     // Unknown routes answer 404 (handled by the not-found handler).

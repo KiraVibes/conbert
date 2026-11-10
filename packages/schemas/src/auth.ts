@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { authSourceSchema, featureSchema, permissionOverridesSchema } from './permissions';
 
 export const PASSWORD_MIN_LENGTH = 10;
 
@@ -23,6 +24,16 @@ export const userSchema = z.object({
   createdAt: z.string(),
   /** Admin list only: the user locked the booru age ratings with a PIN. */
   booruPin: z.boolean().optional(),
+  /** Where the account comes from: Conbert itself, LDAP or the reverse proxy. */
+  authSource: authSourceSchema,
+  /** The functions this user may use (after groups and own settings). */
+  permissions: z.array(featureSchema),
+  /** Admin list only. */
+  groups: z.array(z.object({ id: z.string(), name: z.string() })).optional(),
+  /** Admin list only: the user's own allow/deny per function. */
+  permissionOverrides: permissionOverridesSchema.optional(),
+  /** Admin list only: LDAP no longer knows this user; they can't sign in. */
+  disabled: z.boolean().optional(),
 });
 export type UserDto = z.infer<typeof userSchema>;
 
@@ -37,6 +48,8 @@ export const authStatusResponseSchema = z.object({
   proxyAvailable: z.boolean(),
   /** A trusted proxy sent a user for this request (only during setup). */
   proxyUser: z.string().nullable(),
+  /** Sign-in with a directory account (LDAP) is switched on. */
+  ldap: z.boolean().optional(),
   user: userSchema.nullable(),
 });
 export type AuthStatusResponse = z.infer<typeof authStatusResponseSchema>;
@@ -92,6 +105,10 @@ export const updateUserRequestSchema = z
     displayName: z.string().trim().max(64).nullable().optional(),
     role: roleSchema.optional(),
     password: passwordSchema.optional(),
+    /** Replaces the user's own allow/deny settings. */
+    permissionOverrides: permissionOverridesSchema.optional(),
+    /** Replaces the hand-picked groups (LDAP/proxy memberships stay). */
+    groupIds: z.array(z.string().min(1).max(64)).max(1000).optional(),
   })
   .refine((v) => Object.keys(v).length > 0, 'nothing to update');
 export type UpdateUserRequest = z.input<typeof updateUserRequestSchema>;

@@ -29,9 +29,73 @@ export const users = sqliteTable('users', {
    * downloads), in bytes. Null = the default for everyone; -1 = no limit.
    */
   quotaBytes: integer('quota_bytes'),
+  /** Where the account comes from. LDAP and proxy users have no password here. */
+  authSource: text('auth_source', { enum: ['local', 'ldap', 'proxy'] })
+    .notNull()
+    .default('local'),
+  /** Distinguished name in LDAP (LDAP users only). */
+  ldapDn: text('ldap_dn'),
+  /** The user's own allow/deny per function: { downloader: 'deny', … }. */
+  permissionOverrides: text('permission_overrides', { mode: 'json' })
+    .$type<Partial<Record<string, 'allow' | 'deny'>>>()
+    .notNull()
+    .default(sql`'{}'`),
+  /** LDAP no longer knows this user: no sign-in until they show up again. */
+  disabled: integer('disabled', { mode: 'boolean' }).notNull().default(false),
   createdAt: createdAt(),
   updatedAt: integer('updated_at', { mode: 'timestamp_ms' }),
 });
+
+/** User groups. Functions are allowed per group (see packages/schemas permissions). */
+export const groups = sqliteTable(
+  'groups',
+  {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    description: text('description'),
+    /** 'everyone' = built-in group, every user is a member without a row. */
+    builtin: text('builtin', { enum: ['everyone'] }),
+    /** { downloader: true, booru: false, … } – missing = not allowed (everyone: allowed). */
+    permissions: text('permissions', { mode: 'json' })
+      .$type<Partial<Record<string, boolean>>>()
+      .notNull()
+      .default(sql`'{}'`),
+    /** Members from LDAP/proxy become administrators. */
+    grantsAdmin: integer('grants_admin', { mode: 'boolean' }).notNull().default(false),
+    /** Imported LDAP group (distinguished name). */
+    ldapDn: text('ldap_dn'),
+    /** Group name in the reverse proxy's groups header. */
+    proxyName: text('proxy_name'),
+    createdAt: createdAt(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }),
+  },
+  (t) => [
+    uniqueIndex('groups_name_idx').on(t.name),
+    uniqueIndex('groups_ldap_dn_idx').on(t.ldapDn),
+    uniqueIndex('groups_builtin_idx').on(t.builtin),
+  ],
+);
+export type Group = typeof groups.$inferSelect;
+
+export const groupMembers = sqliteTable(
+  'group_members',
+  {
+    groupId: text('group_id')
+      .notNull()
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    /** Who put the user there: the admin by hand, the LDAP sync or the proxy header. */
+    source: text('source', { enum: ['manual', 'ldap', 'proxy'] })
+      .notNull()
+      .default('manual'),
+  },
+  (t) => [
+    primaryKey({ columns: [t.groupId, t.userId] }),
+    index('group_members_user_idx').on(t.userId),
+  ],
+);
 
 export const sessions = sqliteTable(
   'sessions',

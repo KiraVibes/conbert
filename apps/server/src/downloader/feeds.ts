@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { ownerMay } from '../auth/permissions';
 import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { and, eq, inArray, isNull, lte, or } from 'drizzle-orm';
@@ -298,6 +299,8 @@ export function feedWaitsForDownload(ctx: AppContext, row: DownloadFeedRecord): 
  */
 export async function runFeed(ctx: AppContext, row: DownloadFeedRecord): Promise<boolean> {
   if (row.ended || activeCheck(ctx, row.id)) return false;
+  // The admin blocked the downloader for this user: the subscription rests.
+  if (!ownerMay(ctx.db, row.userId, 'downloader')) return false;
   if (feedWaitsForDownload(ctx, row)) {
     if (!row.nextCheckAt || row.nextCheckAt.getTime() > Date.now()) {
       ctx.db

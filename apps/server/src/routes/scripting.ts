@@ -8,6 +8,7 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { getFormat } from '@conbert/core';
 import { checkQuota, quotaOf, usageOf } from '../admin/quota';
+import { can } from '../auth/permissions';
 import { currentUser } from '../auth/plugin';
 import { dataPaths } from '../config';
 import type { AppContext } from '../context';
@@ -124,6 +125,7 @@ export function registerScriptingRoutes(app: FastifyInstance, ctx: AppContext): 
           mode: query.mode,
         },
         request.log,
+        can(ctx.db, user, 'ai'),
       );
       // The caller hung up: no need to keep working.
       let gone = false;

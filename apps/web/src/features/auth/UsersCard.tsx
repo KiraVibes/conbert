@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { KeyRoundIcon, LockKeyholeOpenIcon, Trash2Icon, UserPlusIcon } from 'lucide-react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  KeyRoundIcon,
+  LockKeyholeOpenIcon,
+  ShieldCheckIcon,
+  Trash2Icon,
+  UserPlusIcon,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
+  FEATURES,
   PASSWORD_MIN_LENGTH,
+  type Feature,
+  type PermissionOverrides,
   userResponseSchema,
-  usersResponseSchema,
   type CreateUserRequest,
   type Role,
   type UpdateUserRequest,
@@ -43,21 +51,15 @@ import {
 } from '@/components/ui/select';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
-import { ApiRequestError, apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api';
+import { ApiRequestError, apiDelete, apiPatch, apiPost } from '@/lib/api';
 import { FormField, PasswordField } from './FormField';
 import { useCurrentUser } from './use-auth';
-
-const USERS_KEY = ['users'] as const;
+import { USERS_KEY, useUsers } from './users-api';
+import { Badge } from '@/components/ui/badge';
+import { useGroups } from '@/features/admin/groups-api';
 
 function apiErrorOf(error: unknown): ApiRequestError | null {
   return error instanceof ApiRequestError ? error : null;
-}
-
-function useUsers() {
-  return useQuery({
-    queryKey: USERS_KEY,
-    queryFn: ({ signal }) => apiGet('/api/users', usersResponseSchema, { signal }),
-  });
 }
 
 function useUserMutations() {
@@ -266,6 +268,202 @@ function ResetPasswordDialog({ user }: { user: UserDto }) {
   );
 }
 
+type Choice = 'group' | 'allow' | 'deny';
+const CHOICES: readonly Choice[] = ['group', 'allow', 'deny'];
+
+/** Groups and own allow/deny per function for one user. */
+function AccessDialog({ user }: { user: UserDto }) {
+  const { t } = useTranslation();
+  const { update } = useUserMutations();
+  const groups = useGroups();
+  const [open, setOpen] = useState(false);
+  const [overrides, setOverrides] = useState<PermissionOverrides>({});
+  const [manual, setManual] = useState<Set<string>>(new Set());
+  const error = apiErrorOf(update.error);
+  const all = groups.data ?? [];
+  const own = all.filter((g) => g.builtin === null);
+  // Memberships from LDAP or the proxy can't be changed here.
+  const fixed = new Map(
+    all.flatMap((g) =>
+      g.members
+        .filter((m) => m.userId === user.id && m.source !== 'manual')
+        .map((m) => [g.id, m.source] as const),
+    ),
+  );
+  const memberOf = (id: string) => fixed.has(id) || manual.has(id);
+  // Preview: what the user may do with these settings.
+  const byGroups = (f: Feature) =>
+    all.some((g) =>
+      g.builtin === 'everyone'
+        ? g.permissions[f] !== false
+        : memberOf(g.id) && g.permissions[f] === true,
+    );
+  const effective = (f: Feature) =>
+    user.role === 'admin' || (overrides[f] ? overrides[f] === 'allow' : byGroups(f));
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) {
+          setOverrides(user.permissionOverrides ?? {});
+          setManual(
+            new Set(
+              all
+                .filter((g) => g.members.some((m) => m.userId === user.id && m.source === 'manual'))
+                .map((g) => g.id),
+            ),
+          );
+        } else update.reset();
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('auth.users.accessFor', { name: user.username })}
+          title={t('auth.users.accessFor', { name: user.username })}
+        >
+          <ShieldCheckIcon aria-hidden="true" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        <form
+          className="space-y-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            update.mutate(
+              { id: user.id, body: { permissionOverrides: overrides, groupIds: [...manual] } },
+              {
+                onSuccess: () => {
+                  toast.success(t('auth.users.accessSaved', { name: user.username }));
+                  setOpen(false);
+                },
+              },
+            );
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle>{t('auth.users.accessFor', { name: user.username })}</DialogTitle>
+            <DialogDescription>{t('auth.users.accessIntro')}</DialogDescription>
+          </DialogHeader>
+          {user.role === 'admin' && (
+            <p className="rounded-md bg-muted p-3 text-sm">{t('auth.users.adminAll')}</p>
+          )}
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium">{t('auth.users.groups')}</p>
+            {own.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('auth.users.noGroups')}</p>
+            ) : (
+              <ul className="max-h-40 divide-y overflow-y-auto rounded-md border">
+                {own.map((g) => {
+                  const source = fixed.get(g.id);
+                  return (
+                    <li key={g.id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
+                      <input
+                        id={`ug-${user.id}-${g.id}`}
+                        type="checkbox"
+                        className="size-4 accent-primary"
+                        checked={memberOf(g.id)}
+                        disabled={source !== undefined}
+                        onChange={(e) =>
+                          setManual((m) => {
+                            const next = new Set(m);
+                            if (e.target.checked) next.add(g.id);
+                            else next.delete(g.id);
+                            return next;
+                          })
+                        }
+                      />
+                      <label htmlFor={`ug-${user.id}-${g.id}`} className="flex-1">
+                        {g.name}
+                      </label>
+                      {source && (
+                        <span className="text-xs text-muted-foreground">
+                          {t(`groups.memberSource.${source}`)}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium">{t('auth.users.functions')}</p>
+              <HelpTip helpKey="auth.users.functionsHelp" labelKey="auth.users.functions" />
+            </div>
+            <ul className="divide-y rounded-md border">
+              {FEATURES.map((f) => {
+                const on = effective(f);
+                const state = t(on ? 'auth.users.allowed' : 'auth.users.blocked');
+                return (
+                  <li
+                    key={f}
+                    className="flex flex-wrap items-center justify-between gap-2 px-3 py-2"
+                  >
+                    <div className="flex items-center gap-1.5 text-sm">
+                      <span
+                        className={
+                          on ? 'text-emerald-600 dark:text-emerald-400' : 'text-destructive'
+                        }
+                        role="img"
+                        aria-label={state}
+                        title={state}
+                      >
+                        {on ? '●' : '○'}
+                      </span>
+                      {t(`permissions.${f}.name`)}
+                      <HelpTip
+                        helpKey={`permissions.${f}.help`}
+                        labelKey={`permissions.${f}.name`}
+                      />
+                    </div>
+                    <Select
+                      value={overrides[f] ?? 'group'}
+                      onValueChange={(v) =>
+                        setOverrides((o) => {
+                          const next = Object.fromEntries(
+                            Object.entries(o).filter(([key]) => key !== f),
+                          ) as PermissionOverrides;
+                          if (v !== 'group') next[f] = v as 'allow' | 'deny';
+                          return next;
+                        })
+                      }
+                    >
+                      <SelectTrigger
+                        className="h-8 w-44"
+                        aria-label={t('auth.users.choiceFor', { name: t(`permissions.${f}.name`) })}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CHOICES.map((c) => (
+                          <SelectItem key={c} value={c}>
+                            {t(`auth.users.choice.${c}`)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          {error && <ErrorMessage messageKey={error.messageKey} details={error.details} />}
+          <DialogFooter>
+            <Button type="submit" disabled={update.isPending}>
+              {t('auth.users.accessSave')}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function UserRow({ user, isSelf }: { user: UserDto; isSelf: boolean }) {
   const { t } = useTranslation();
   const { update, remove, resetPin } = useUserMutations();
@@ -275,16 +473,22 @@ function UserRow({ user, isSelf }: { user: UserDto; isSelf: boolean }) {
     <li className="space-y-2 py-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="font-medium">
+          <p className="flex flex-wrap items-center gap-1.5 font-medium">
             {user.displayName || user.username}
-            {isSelf && (
-              <span className="ml-2 text-xs text-muted-foreground">{t('auth.users.you')}</span>
-            )}
+            {isSelf && <span className="text-xs text-muted-foreground">{t('auth.users.you')}</span>}
+            {user.authSource === 'ldap' && <Badge variant="secondary">LDAP</Badge>}
+            {user.disabled && <Badge variant="destructive">{t('auth.users.disabled')}</Badge>}
           </p>
           <p className="text-sm text-muted-foreground">
             {user.username}
-            {!user.hasPassword && ` · ${t('auth.users.viaProxy')}`}
+            {user.authSource === 'proxy' && ` · ${t('auth.users.viaProxy')}`}
+            {user.authSource === 'ldap' && ` · ${t('auth.users.viaLdap')}`}
           </p>
+          {user.groups && user.groups.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {t('auth.users.inGroups', { groups: user.groups.map((g) => g.name).join(', ') })}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <Select
@@ -302,7 +506,8 @@ function UserRow({ user, isSelf }: { user: UserDto; isSelf: boolean }) {
               <SelectItem value="admin">{t('auth.roles.admin')}</SelectItem>
             </SelectContent>
           </Select>
-          {user.hasPassword && <ResetPasswordDialog user={user} />}
+          <AccessDialog user={user} />
+          {user.hasPassword && user.authSource === 'local' && <ResetPasswordDialog user={user} />}
           {user.booruPin && (
             <AlertDialog>
               <AlertDialogTrigger asChild>

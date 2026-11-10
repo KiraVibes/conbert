@@ -60,7 +60,7 @@ Alle Request/Response-Bodies sind über Zod-Schemas in `packages/schemas` defini
 
 ### Skripte, Tokens & CLI (2026-11-03)
 
-Anmeldung für Skripte: `Authorization: Bearer cbt_…` (Token unter Einstellungen → API-Zugang, nur einmal angezeigt, gespeichert als SHA-256; Ablauf 30/90/365 Tage oder unbegrenzt). Tokens dürfen alles wie der Nutzer, außer `/api/tokens`, `/api/users`, `/api/auth/*` (außer `status`) und `/api/keys` → `403 TOKEN_NOT_ALLOWED`. Falsches/abgelaufenes Token → `401 INVALID_TOKEN`.
+Anmeldung für Skripte: `Authorization: Bearer cbt_…` (Token unter Einstellungen → API-Zugang, nur einmal angezeigt, gespeichert als SHA-256; Ablauf 30/90/365 Tage oder unbegrenzt). Tokens dürfen alles wie der Nutzer, außer `/api/tokens`, `/api/users`, `/api/groups`, `/api/admin/ldap`, `/api/auth/*` (außer `status`) und `/api/keys` → `403 TOKEN_NOT_ALLOWED`. Falsches/abgelaufenes Token → `401 INVALID_TOKEN`.
 
 | Methode | Pfad | Zweck |
 |---|---|---|
@@ -86,3 +86,20 @@ Job-Schritte können `withOptions: true` tragen (KI-Schritt vor der Umwandlung b
 
 Uploads, `/api/files`, `/api/convert`, `/api/targets/:id/import` und `/api/downloader/jobs` antworten bei vollem Kontingent mit `413 QUOTA_EXCEEDED`.
 
+### Gruppen, Funktionsrechte & LDAP (2026-11-10)
+
+Funktionen (`FEATURES` in `packages/schemas/src/permissions.ts`): `convert`, `serverConvert`, `downloader`, `booru`, `workflows`, `storage`, `media`, `ai`, `workshop`, `pdf`, `apiTokens`. Wirksam: Admin → alles; sonst Nutzer-Übersteuerung (`allow`/`deny`) vor Gruppen; erlaubt, wenn mindestens eine Gruppe erlaubt. Eingebaute Gruppe `everyone` (jeder Nutzer, erlaubt, was sie nicht verbietet). Der Server sperrt nach Pfad (Session, Proxy und API-Token) → `403 FEATURE_FORBIDDEN`: `/api/jobs`, `/api/convert` (serverConvert), `/api/downloader` (downloader), `/api/booru`, `/api/subscriptions` (booru), `/api/workflows`, `/api/workflow-runs` (workflows), `/api/targets` (storage), `/api/media`, `/api/swipe` (media), `/api/tokens` (apiTokens); KI (Whisper, image-ai) beim Start eines Auftrags. `workshop`, `pdf` und lokales `convert` werden nur in der Oberfläche ausgeblendet. `UserDto` hat `authSource` (`local`/`ldap`/`proxy`) und `permissions` (wirksam); in der Admin-Liste zusätzlich `groups`, `permissionOverrides`, `disabled`.
+
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET/POST | `/api/groups` | Admin: Gruppen mit Mitgliedern (`source`: manual/ldap/proxy) / anlegen |
+| PATCH/DELETE | `/api/groups/:id` | Admin: Name, Beschreibung, `permissions`, `grantsAdmin`, `proxyName` / löschen (`everyone` → `400 GROUP_BUILTIN`) |
+| PUT | `/api/groups/:id/members` | Admin: `{ userIds }` – nur von Hand gewählte Mitglieder |
+| PATCH | `/api/users/:id` | zusätzlich `permissionOverrides`, `groupIds` (von Hand); Passwort nur bei lokalen Konten (`400 LDAP_MANAGED`) |
+| GET/PUT | `/api/admin/ldap` | Admin: LDAP-Einstellungen (`hasBindPassword`, nie das Passwort; `bindPassword` weglassen = behalten, `''` = löschen) |
+| POST | `/api/admin/ldap/test` | Admin: `{ settings, username?, password? }` – ungespeichert testen → Anzahl Nutzer/Gruppen, Test-Anmeldung |
+| GET | `/api/admin/ldap/groups?q=` | Admin: Gruppen im Verzeichnis (max. 300) |
+| POST | `/api/admin/ldap/import` | Admin: `{ dns }` – als Conbert-Gruppen übernehmen, danach Abgleich |
+| POST | `/api/admin/ldap/sync` | Admin: Abgleich jetzt (Gruppen, Anzeigenamen, verschwundene Konten → `disabled`) |
+
+`POST /api/auth/login`: lokales Konto mit Passwort zuerst; sonst LDAP (wenn eingeschaltet). Ein lokales Konto wird nie von LDAP übernommen. Verzeichnis nicht erreichbar → `502 LDAP_UNREACHABLE` (nur für Nicht-lokale Namen). `/api/auth/status` meldet `ldap: true`, wenn LDAP an ist. Proxy-Modus: `CONBERT_PROXY_GROUPS_HEADER` (Komma oder `|` getrennt, nur von vertrauenswürdigen Proxys) ordnet Gruppen über `proxyName` zu.

@@ -20,6 +20,7 @@ import {
 import { ApiRequestError, apiDelete, apiGet, apiPost, apiPut } from '@/lib/api';
 import { subscribeToBooru } from '@/lib/job-socket';
 import { markTaken, takenFiles } from '@/features/downloader/downloader-api';
+import { useCan } from '@/features/auth/use-auth';
 
 export const BOORU_SITES_KEY = ['booru-sites'] as const;
 export const BOORU_SETTINGS_KEY = ['booru-settings'] as const;
@@ -28,16 +29,20 @@ export const BOORU_JOBS_KEY = ['booru-jobs'] as const;
 const settingsResponse = z.object({ settings: booruSettingsSchema });
 
 export function useBooruSites() {
+  const allowed = useCan('booru');
   return useQuery({
     queryKey: BOORU_SITES_KEY,
+    enabled: allowed,
     queryFn: ({ signal }) => apiGet('/api/booru/sites', booruSitesResponseSchema, { signal }),
     select: (data) => data.sites,
   });
 }
 
 export function useBooruSettings() {
+  const allowed = useCan('booru');
   return useQuery({
     queryKey: BOORU_SETTINGS_KEY,
+    enabled: allowed,
     queryFn: ({ signal }) => apiGet('/api/booru/settings', settingsResponse, { signal }),
     select: (data) => data.settings,
   });
@@ -146,8 +151,10 @@ export async function takeBooruFiles(jobId: string): Promise<File[]> {
 export const SUBSCRIPTIONS_KEY = ['booru-subscriptions'] as const;
 
 export function useSubscriptions() {
+  const allowed = useCan('booru');
   return useQuery({
     queryKey: SUBSCRIPTIONS_KEY,
+    enabled: allowed,
     queryFn: ({ signal }) => apiGet('/api/subscriptions', subscriptionsResponseSchema, { signal }),
     select: (data) => data.subscriptions,
     refetchInterval: 60_000,

@@ -36,6 +36,10 @@ const DOWNLOAD_CONCURRENCY = 2;
 const BOORU_CONCURRENCY = 3;
 import { createSecretBox } from './lib/secret-box';
 import { prepareRclone } from './targets/rclone';
+import { registerGroupRoutes } from './routes/groups';
+import { registerLdapRoutes } from './routes/ldap';
+import { ldaptsConnector, type LdapConnector } from './auth/ldap/client';
+import { startLdapScheduler } from './auth/ldap/sync';
 import { registerUserRoutes } from './routes/users';
 import { registerWebSocket } from './routes/ws';
 import { JobEvents } from './queue/events';
@@ -81,6 +85,8 @@ export interface BuildAppOptions {
   workflowQueue?: (runner: WorkflowRunner) => JobQueue;
   /** Where Whisper models come from (tests use a local server). */
   whisperModelUrl?: string;
+  /** How LDAP connections are opened (tests use a fake directory). */
+  ldapConnector?: LdapConnector;
 }
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
@@ -138,6 +144,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     engines: options.engines ?? serverEngines,
     setupCode: config.setupCode ?? generateSetupCode(),
     secrets,
+    ldap: options.ldapConnector ?? ldaptsConnector,
     rclone: prepareRclone(config.rclonePath, paths.rclone),
   } as AppContext;
   // Whisper models: downloaded into the data folder on first use.
@@ -215,6 +222,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerHealthRoutes(app, ctx);
   registerAuthRoutes(app, ctx);
   registerUserRoutes(app, ctx);
+  registerGroupRoutes(app, ctx);
+  registerLdapRoutes(app, ctx);
   registerSettingsRoutes(app, ctx);
   registerEngineRoutes(app, ctx);
   registerJobRoutes(app, ctx);
@@ -253,6 +262,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     app.addHook('onClose', async () => stopSubscriptions());
     const stopMedia = startMediaScheduler(ctx, app.log);
     app.addHook('onClose', async () => stopMedia());
+    const stopLdap = startLdapScheduler(ctx, app.log);
+    app.addHook('onClose', async () => stopLdap());
     app.addHook('onClose', async () => stopCleanup());
   }
 

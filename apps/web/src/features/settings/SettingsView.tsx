@@ -16,6 +16,8 @@ import { ViewIntro } from '@/components/ViewIntro';
 import { ModeSelector } from '@/features/convert/ModeSelector';
 import { AccountCard } from '@/features/auth/AccountCard';
 import { UsersCard } from '@/features/auth/UsersCard';
+import { useCurrentUser } from '@/features/auth/use-auth';
+import type { Feature } from '@conbert/schemas';
 import { WhisperCard } from './WhisperCard';
 import { ImageAiCard } from './ImageAiCard';
 import { ApiTokensCard } from './ApiTokensCard';
@@ -34,6 +36,8 @@ const THEMES: readonly Theme[] = ['system', 'light', 'dark'];
 export function SettingsView({ children }: { children?: React.ReactNode }) {
   const { t } = useTranslation();
   const s = useSettings();
+  const permissions = useCurrentUser()?.permissions;
+  const can = (feature: Feature) => !permissions || permissions.includes(feature);
 
   return (
     <div className="space-y-6">
@@ -171,15 +175,15 @@ export function SettingsView({ children }: { children?: React.ReactNode }) {
         </CardContent>
       </Card>
 
-      <StorageCard />
-      <DownloaderSettingsCard />
-      {s.booruEnabled && <BooruSettingsCard />}
+      {can('storage') && <StorageCard />}
+      {can('downloader') && <DownloaderSettingsCard />}
+      {s.booruEnabled && can('booru') && <BooruSettingsCard />}
       <NotificationsCard />
       <EnginesCard />
       <OfflineCard />
       <WhisperCard />
       <ImageAiCard />
-      <ApiTokensCard />
+      {can('apiTokens') && <ApiTokensCard />}
       <UsersCard />
       {children}
 

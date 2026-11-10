@@ -90,7 +90,9 @@ export function AccountCard() {
             <p className="text-xs text-muted-foreground">{t('auth.account.otherDevices')}</p>
           </form>
         ) : (
-          <p className="text-sm text-muted-foreground">{t('auth.account.proxyUser')}</p>
+          <p className="text-sm text-muted-foreground">
+            {t(user.authSource === 'ldap' ? 'auth.account.ldapUser' : 'auth.account.proxyUser')}
+          </p>
         )}
       </CardContent>
     </Card>

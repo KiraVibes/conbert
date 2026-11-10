@@ -8,6 +8,7 @@ import {
 } from '@conbert/core';
 import { enginesResponseSchema, type Hardware } from '@conbert/schemas';
 import { apiGet } from '@/lib/api';
+import { useCan } from '@/features/auth/use-auth';
 import { useServerHealth } from '@/lib/use-server-health';
 import { useEngineStatus } from './engine-status-store';
 import { browserEngines } from './registry';
@@ -45,7 +46,10 @@ export interface AvailableEngines {
 /** Combines local (browser) engines with the ones the server reports. */
 export function useAvailableEngines(): AvailableEngines {
   const health = useServerHealth();
-  const serverEngines = useServerEngines();
+  // The admin can switch off server conversions for a user: then only this device.
+  const serverAllowed = useCan('serverConvert');
+  const allServerEngines = useServerEngines();
+  const serverEngines = serverAllowed ? allServerEngines : EMPTY;
   const statuses = useEngineStatus((s) => s.engines);
   const engines = useMemo(
     () => [
@@ -58,7 +62,7 @@ export function useAvailableEngines(): AvailableEngines {
     [serverEngines, statuses],
   );
   // The server counts only if it can actually run jobs right now.
-  const serverAvailable = health.isSuccess && health.data.queue !== 'unavailable';
+  const serverAvailable = serverAllowed && health.isSuccess && health.data.queue !== 'unavailable';
   const serverHasGpu = (useServerHardware()?.gpu ?? null) !== null;
   return { engines, serverAvailable, serverHasGpu };
 }

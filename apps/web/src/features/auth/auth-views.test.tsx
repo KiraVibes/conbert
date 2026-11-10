@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AuthStatusResponse } from '@conbert/schemas';
+import { FEATURES, type AuthStatusResponse } from '@conbert/schemas';
 import { renderWithProviders } from '@/test/render';
 import { AuthGate } from './AuthGate';
 
@@ -13,6 +13,8 @@ const user = {
   role: 'admin' as const,
   hasPassword: true,
   createdAt: new Date().toISOString(),
+  authSource: 'local' as const,
+  permissions: [...FEATURES],
 };
 
 function status(overrides: Partial<AuthStatusResponse>): AuthStatusResponse {
