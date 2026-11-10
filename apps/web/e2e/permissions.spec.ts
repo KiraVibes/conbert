@@ -5,21 +5,25 @@ test.use({ storageState: { cookies: [], origins: [] } });
 
 const MEMBER = { username: 'e2e-permissions', password: 'e2e permissions password' };
 
-test('a function blocked for everyone disappears for normal users', async ({
-  page,
-  playwright,
-}) => {
-  // The admin (shared session from global setup) blocks the downloader for everyone.
+test('a group that blocks a function hides it from its members', async ({ page, playwright }) => {
+  // The admin (shared session from global setup) puts the user into a group without the downloader.
   const api = await playwright.request.newContext({
     baseURL: test.info().project.use.baseURL,
     storageState: './e2e/.auth/state.json',
   });
   const created = await api.post('/api/users', { data: MEMBER });
   expect([201, 409]).toContain(created.status());
-  const blocked = await api.patch('/api/groups/everyone', {
-    data: { permissions: { downloader: false } },
+  const users = (await (await api.get('/api/users')).json()) as {
+    users: { id: string; username: string }[];
+  };
+  const member = users.users.find((u) => u.username === MEMBER.username);
+  expect(member).toBeDefined();
+  const group = await api.post('/api/groups', {
+    data: { name: `e2e-no-download-${Date.now()}`, permissions: { downloader: false } },
   });
-  expect(blocked.ok()).toBe(true);
+  expect(group.status()).toBe(201);
+  const { group: dto } = (await group.json()) as { group: { id: string } };
+  await api.put(`/api/groups/${dto.id}/members`, { data: { userIds: [member?.id] } });
 
   try {
     await page.goto('/');
@@ -34,7 +38,7 @@ test('a function blocked for everyone disappears for normal users', async ({
     await expect(page.getByText('Diese Funktion ist für dich gesperrt')).toBeVisible();
     expect((await page.request.get('/api/downloader/jobs')).status()).toBe(403);
   } finally {
-    await api.patch('/api/groups/everyone', { data: { permissions: {} } });
+    await api.delete(`/api/groups/${dto.id}`);
     await api.dispose();
   }
 });

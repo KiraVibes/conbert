@@ -49,6 +49,24 @@ async function everyoneGroup() {
   return group;
 }
 
+async function makeGroup(name: string, permissions: object, userIds: string[]) {
+  const created = await app.inject({
+    method: 'POST',
+    url: '/api/groups',
+    headers: { cookie: admin },
+    payload: { name, permissions },
+  });
+  expect(created.statusCode).toBe(201);
+  const { group } = groupResponseSchema.parse(created.json());
+  const members = await app.inject({
+    method: 'PUT',
+    url: `/api/groups/${group.id}/members`,
+    headers: { cookie: admin },
+    payload: { userIds },
+  });
+  return groupResponseSchema.parse(members.json()).group;
+}
+
 async function patchGroup(id: string, payload: object) {
   return app.inject({
     method: 'PATCH',
@@ -68,13 +86,12 @@ describe('permission rules', () => {
     expect(featureForPath('/api/jobsx')).toBeNull();
   });
 
-  it('"everyone" allows what it does not forbid, other groups only what they allow', () => {
+  it('"everyone" allows all, other groups block what is switched off', () => {
     expect(groupAllows({ builtin: 'everyone', permissions: {} }, 'booru')).toBe(true);
-    expect(groupAllows({ builtin: 'everyone', permissions: { booru: false } }, 'booru')).toBe(
-      false,
-    );
-    expect(groupAllows({ builtin: null, permissions: {} }, 'booru')).toBe(false);
+    expect(groupAllows({ builtin: 'everyone', permissions: { booru: false } }, 'booru')).toBe(true);
+    expect(groupAllows({ builtin: null, permissions: {} }, 'booru')).toBe(true);
     expect(groupAllows({ builtin: null, permissions: { booru: true } }, 'booru')).toBe(true);
+    expect(groupAllows({ builtin: null, permissions: { booru: false } }, 'booru')).toBe(false);
   });
 });
 
@@ -90,57 +107,42 @@ describe('groups and functions', () => {
     expect(list[0]).toMatchObject({ builtin: 'everyone', members: [] });
   });
 
-  it('blocks a function for everyone, a group gives it back, the user override wins', async () => {
+  it('a group blocks for its members, a block wins, the user override beats both', async () => {
     const { user, cookie } = await newUser();
-    const everyone = await everyoneGroup();
-    await patchGroup(everyone.id, { permissions: { downloader: false } });
+    const group = await makeGroup('Kinder', { downloader: false }, [user.id]);
+    const open = await makeGroup('Downloader', {}, [user.id]);
+    expect(open.members).toEqual([{ userId: user.id, username: 'bea', source: 'manual' }]);
 
+    // "Downloader" leaves it open, "Kinder" blocks it: the block wins.
     const blocked = await app.inject({ url: '/api/downloader/jobs', headers: { cookie } });
     expect(blocked.statusCode).toBe(403);
     expect(errorCode(blocked)).toBe('FEATURE_FORBIDDEN');
-    // Admins may always do everything.
+    // Other functions stay open, admins may always do everything.
+    expect((await app.inject({ url: '/api/booru/sites', headers: { cookie } })).statusCode).toBe(
+      200,
+    );
     expect(
       (await app.inject({ url: '/api/downloader/jobs', headers: { cookie: admin } })).statusCode,
     ).toBe(200);
 
-    const created = await app.inject({
-      method: 'POST',
-      url: '/api/groups',
-      headers: { cookie: admin },
-      payload: { name: 'Downloader', permissions: { downloader: true } },
-    });
-    expect(created.statusCode).toBe(201);
-    const { group } = groupResponseSchema.parse(created.json());
-    const members = await app.inject({
-      method: 'PUT',
-      url: `/api/groups/${group.id}/members`,
-      headers: { cookie: admin },
-      payload: { userIds: [user.id] },
-    });
-    expect(groupResponseSchema.parse(members.json()).group.members).toEqual([
-      { userId: user.id, username: 'bea', source: 'manual' },
-    ]);
-    expect(
-      (await app.inject({ url: '/api/downloader/jobs', headers: { cookie } })).statusCode,
-    ).toBe(200);
-
-    // The user's own "deny" beats the group.
+    // The user's own "allow" beats the group.
     const patched = await app.inject({
       method: 'PATCH',
       url: `/api/users/${user.id}`,
       headers: { cookie: admin },
-      payload: { permissionOverrides: { downloader: 'deny' } },
+      payload: { permissionOverrides: { downloader: 'allow' } },
     });
     const dto = userResponseSchema.parse(patched.json()).user;
-    expect(dto.permissions).not.toContain('downloader');
-    expect(dto.groups).toEqual([{ id: group.id, name: 'Downloader' }]);
+    expect(dto.permissions).toContain('downloader');
+    expect(dto.groups?.map((g) => g.name).sort()).toEqual(['Downloader', 'Kinder']);
     expect(
       (await app.inject({ url: '/api/downloader/jobs', headers: { cookie } })).statusCode,
-    ).toBe(403);
+    ).toBe(200);
+    expect(group.permissions).toEqual({ downloader: false });
   });
 
   it('applies to API tokens as well', async () => {
-    const { cookie } = await newUser();
+    const { user, cookie } = await newUser();
     const res = await app.inject({
       method: 'POST',
       url: '/api/tokens',
@@ -148,8 +150,7 @@ describe('groups and functions', () => {
       payload: { name: 'script', expiresInDays: null },
     });
     const { secret } = res.json() as { secret: string };
-    const everyone = await everyoneGroup();
-    await patchGroup(everyone.id, { permissions: { booru: false } });
+    const group = await makeGroup('Ohne Booru', { booru: false }, [user.id]);
     const blocked = await app.inject({
       url: '/api/booru/sites',
       headers: { authorization: `Bearer ${secret}` },
@@ -157,13 +158,17 @@ describe('groups and functions', () => {
     expect(blocked.statusCode).toBe(403);
     expect(errorCode(blocked)).toBe('FEATURE_FORBIDDEN');
     // Without the function, no new tokens either.
-    await patchGroup(everyone.id, { permissions: { apiTokens: false } });
+    await patchGroup(group.id, { permissions: { booru: false, apiTokens: false } });
     expect((await app.inject({ url: '/api/tokens', headers: { cookie } })).statusCode).toBe(403);
   });
 
   it('protects the built-in group and unique names', async () => {
     const everyone = await everyoneGroup();
     expect(errorCode(await patchGroup(everyone.id, { name: 'x' }))).toBe('GROUP_BUILTIN');
+    // "Everyone" always allows everything.
+    expect(errorCode(await patchGroup(everyone.id, { permissions: { booru: false } }))).toBe(
+      'GROUP_BUILTIN',
+    );
     const del = await app.inject({
       method: 'DELETE',
       url: `/api/groups/${everyone.id}`,

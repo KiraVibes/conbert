@@ -36,28 +36,21 @@ describe('groups from the reverse proxy', () => {
       payload: { mode: 'proxy', setupCode: TEST_SETUP_CODE },
     });
     const admin = { 'remote-user': 'chef', 'remote-groups': 'admins' };
-    const everyone = await app.inject({
-      method: 'PATCH',
-      url: '/api/groups/everyone',
-      headers: admin,
-      payload: { permissions: { downloader: false } },
-    });
-    expect(everyone.statusCode).toBe(200);
     const created = await app.inject({
       method: 'POST',
       url: '/api/groups',
       headers: admin,
-      payload: { name: 'Familie', proxyName: 'Family', permissions: { downloader: true } },
+      payload: { name: 'Kinder', proxyName: 'Kids', permissions: { downloader: false } },
     });
     const { group } = groupResponseSchema.parse(created.json());
 
     const without = (await status('gast')).json() as { user: { permissions: string[] } };
-    expect(without.user.permissions).not.toContain('downloader');
+    expect(without.user.permissions).toContain('downloader');
 
-    const withGroup = (await status('gast', 'users, family')).json() as {
+    const withGroup = (await status('gast', 'users, kids')).json() as {
       user: { id: string; permissions: string[] };
     };
-    expect(withGroup.user.permissions).toContain('downloader');
+    expect(withGroup.user.permissions).not.toContain('downloader');
     const list = groupsResponseSchema.parse(
       (await app.inject({ url: '/api/groups', headers: admin })).json(),
     );
@@ -67,7 +60,7 @@ describe('groups from the reverse proxy', () => {
 
     // Left the group at the proxy: the change counts right away.
     const left = (await status('gast', 'users')).json() as { user: { permissions: string[] } };
-    expect(left.user.permissions).not.toContain('downloader');
+    expect(left.user.permissions).toContain('downloader');
   });
 
   it('ignores the groups header from addresses that are not the proxy', async () => {

@@ -336,12 +336,8 @@ function AccessDialog({ user }: { user: UserDto }) {
   );
   const memberOf = (id: string) => fixed.has(id) || manual.has(id);
   // Preview: what the user may do with these settings.
-  const byGroups = (f: Feature) =>
-    all.some((g) =>
-      g.builtin === 'everyone'
-        ? g.permissions[f] !== false
-        : memberOf(g.id) && g.permissions[f] === true,
-    );
+  // Open unless one of the person's groups blocks it ("everyone" allows all).
+  const byGroups = (f: Feature) => own.every((g) => !memberOf(g.id) || g.permissions[f] !== false);
   const effective = (f: Feature) =>
     user.role === 'admin' || (overrides[f] ? overrides[f] === 'allow' : byGroups(f));
 

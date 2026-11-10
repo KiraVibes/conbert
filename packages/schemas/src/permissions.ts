@@ -21,6 +21,9 @@ export const FEATURES = [
   'apiTokens',
 ] as const;
 export type Feature = (typeof FEATURES)[number];
+
+/** Server engines that count as "AI tools" (feature 'ai'). */
+export const AI_ENGINE_IDS: readonly string[] = ['whisper', 'image-ai'];
 export const featureSchema = z.enum(FEATURES);
 
 /** Features the server can enforce (the rest is only hidden in the UI). */

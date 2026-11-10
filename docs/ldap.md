@@ -18,7 +18,7 @@ bisher.
 
 1. [Gruppen und Rechte in einer Minute](#1-gruppen-und-rechte-in-einer-minute)
 2. [Welche Funktionen kann ich sperren?](#2-welche-funktionen-kann-ich-sperren)
-3. [Beispiel: Nur die Familie darf Videos herunterladen](#3-beispiel-nur-die-familie-darf-videos-herunterladen)
+3. [Beispiel: Die Kinder dürfen keine Videos herunterladen](#3-beispiel-die-kinder-dürfen-keine-videos-herunterladen)
 4. [Was ist LDAP?](#4-was-ist-ldap)
 5. [LDAP einrichten](#5-ldap-einrichten)
 6. [Gruppen aus LDAP übernehmen](#6-gruppen-aus-ldap-übernehmen)
@@ -32,12 +32,15 @@ bisher.
 
 Du findest alles unter **Konto-Menü → Verwaltung → Gruppen**.
 
-- Jede Person ist automatisch in der Gruppe **„Alle Nutzer“**. Was dort
-  eingeschaltet ist, darf jeder.
-- Weitere Gruppen **erlauben zusätzlich** etwas. Eine Funktion ist frei, sobald
-  **mindestens eine** Gruppe der Person sie erlaubt.
-- Pro Person kannst du unter **Verwaltung → Benutzer verwalten → „Gruppen & Rechte“** einzelne Funktionen **immer erlauben** oder **immer
-  verbieten**. Das hat Vorrang vor allen Gruppen.
+- Jede Person ist automatisch in der Gruppe **„Alle Nutzer“**. Sie **erlaubt
+  alles** und lässt sich nicht ändern. Ohne weitere Gruppe darf also jeder
+  alles.
+- Eigene Gruppen **schränken ein**: Was in einer Gruppe ausgeschaltet ist, ist
+  für ihre Mitglieder gesperrt. Ist jemand in mehreren Gruppen, gilt **jede
+  Sperre** – auch wenn eine andere Gruppe die Funktion eingeschaltet hat.
+- Pro Person kannst du unter **Verwaltung → Benutzer verwalten → „Gruppen &
+  Rechte“** einzelne Funktionen **immer erlauben** oder **immer verbieten**.
+  Das hat Vorrang vor allen Gruppen.
 - **Administratoren dürfen immer alles.**
 
 Gesperrte Bereiche verschwinden aus der Navigation. Ruft jemand sie trotzdem auf,
@@ -68,13 +71,13 @@ wirklich – auch für API-Schlüssel.
 Abos und Workflows einer Person, der du die Funktion wegnimmst, ruhen
 automatisch, bis du sie wieder erlaubst.
 
-## 3. Beispiel: Nur die Familie darf Videos herunterladen
+## 3. Beispiel: Die Kinder dürfen keine Videos herunterladen
 
-1. **Verwaltung → Gruppen → „Alle Nutzer“ bearbeiten** (Stift) und
-   „Herunterladen“ ausschalten. Speichern.
-2. **Gruppe anlegen**: Name „Familie“, „Herunterladen“ einschalten, unten die
+1. **Verwaltung → Gruppen → „Gruppe anlegen“**: Name „Kinder“.
+2. „Herunterladen“ (und was sonst nicht sein soll) **ausschalten**, unten die
    Mitglieder anhaken. Speichern.
-3. Fertig. Wer nicht in „Familie“ ist, sieht „Herunterladen“ nicht mehr.
+3. Fertig. Wer in „Kinder“ ist, sieht „Herunterladen“ nicht mehr. Alle anderen
+   dürfen weiter alles.
 
 ## 4. Was ist LDAP?
 
@@ -143,8 +146,9 @@ Zwei Wege:
 ## 6. Gruppen aus LDAP übernehmen
 
 **Verwaltung → Gruppen → „Aus LDAP übernehmen“.** Such die Gruppen, hak sie an
-und übernimm sie. Danach legst du bei jeder Gruppe (Stift) fest, welche
-Funktionen sie erlaubt.
+und übernimm sie. Danach schaltest du bei jeder Gruppe (Stift) aus, was
+ihre Mitglieder nicht nutzen sollen. Frisch übernommene Gruppen schränken noch
+nichts ein.
 
 - Die Mitglieder trägt Conbert **selbst** ein – bei jeder Anmeldung und bei
   jedem Abgleich. Du musst dort nichts anhaken (die Namen stehen mit „aus LDAP“

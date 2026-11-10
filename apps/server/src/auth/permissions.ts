@@ -1,5 +1,5 @@
 import { and, eq, inArray, isNotNull } from 'drizzle-orm';
-import { FEATURES, type Feature } from '@conbert/schemas';
+import { AI_ENGINE_IDS, FEATURES, type Feature } from '@conbert/schemas';
 import type { DbOrTx } from '../db';
 import { groupMembers, groups, users, type Group, type User } from '../db/schema';
 
@@ -27,7 +27,7 @@ const FEATURE_ROUTES: [prefix: string, feature: Feature][] = [
 ];
 
 /** Engines that count as "AI" (checked when a job starts, see routes/jobs.ts). */
-export const AI_ENGINES = new Set(['whisper', 'image-ai']);
+export const AI_ENGINES = new Set(AI_ENGINE_IDS);
 
 export function featureForPath(path: string): Feature | null {
   for (const [prefix, feature] of FEATURE_ROUTES) {
@@ -49,13 +49,15 @@ export function everyoneGroup(db: DbOrTx): Group {
   return created;
 }
 
-/** Does this group allow the function? The "everyone" group allows what it doesn't forbid. */
+/**
+ * Does this group leave the function open? Groups only take away: a function
+ * switched off (false) is blocked for the members. "Everyone" allows all.
+ */
 export function groupAllows(
   group: Pick<Group, 'builtin' | 'permissions'>,
   feature: Feature,
 ): boolean {
-  const value = group.permissions[feature];
-  return group.builtin === 'everyone' ? value !== false : value === true;
+  return group.builtin === 'everyone' || group.permissions[feature] !== false;
 }
 
 /** The groups a user belongs to, including the built-in "everyone" group. */
@@ -73,7 +75,7 @@ export function userGroups(db: DbOrTx, userId: string): Group[] {
 
 /**
  * The functions a user may use: admins all; otherwise the user's own
- * allow/deny wins, else allowed if at least one group allows it.
+ * allow/deny wins, else allowed unless one of the user's groups blocks it.
  */
 export function effectivePermissions(
   db: DbOrTx,
@@ -85,7 +87,7 @@ export function effectivePermissions(
     const own = user.permissionOverrides[feature];
     if (own === 'deny') return false;
     if (own === 'allow') return true;
-    return memberOf.some((g) => groupAllows(g, feature));
+    return memberOf.every((g) => groupAllows(g, feature));
   });
 }
 

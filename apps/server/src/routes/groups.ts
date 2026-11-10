@@ -125,8 +125,11 @@ export function registerGroupRoutes(app: FastifyInstance, ctx: AppContext): void
     const { id } = idParams.parse(request.params);
     const body = updateGroupRequestSchema.parse(request.body);
     const group = findGroup(ctx.db, id);
-    if (group.builtin && (body.name !== undefined || body.grantsAdmin || body.proxyName)) {
-      // "Everyone" only has functions; renaming or admin rights make no sense there.
+    if (
+      group.builtin &&
+      (body.name !== undefined || body.grantsAdmin || body.proxyName || body.permissions)
+    ) {
+      // "Everyone" always allows everything; groups are what takes functions away.
       throw new HttpError(400, 'GROUP_BUILTIN');
     }
     if (body.name !== undefined && nameTaken(ctx.db, body.name, id)) {

@@ -113,6 +113,13 @@
       "when": 1794270987354,
       "tag": "0015_groups_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1794335847211,
+      "tag": "0016_groups_restrict",
+      "breakpoints": true
     }
   ]
 }

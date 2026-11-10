@@ -18,7 +18,7 @@ like before.
 
 1. [Groups and permissions in one minute](#1-groups-and-permissions-in-one-minute)
 2. [Which functions can I block?](#2-which-functions-can-i-block)
-3. [Example: only the family may download videos](#3-example-only-the-family-may-download-videos)
+3. [Example: the kids may not download videos](#3-example-the-kids-may-not-download-videos)
 4. [What is LDAP?](#4-what-is-ldap)
 5. [Setting up LDAP](#5-setting-up-ldap)
 6. [Taking groups over from LDAP](#6-taking-groups-over-from-ldap)
@@ -32,10 +32,12 @@ like before.
 
 You find everything under **account menu → Administration → Groups**.
 
-- Everyone is automatically in the group **“All users”**. Whatever is switched
-  on there, everyone may do.
-- Other groups **additionally allow** something. A function is available as soon
-  as **at least one** of the person's groups allows it.
+- Everyone is automatically in the group **“All users”**. It **allows
+  everything** and can't be changed. Without other groups, everyone may do
+  everything.
+- Own groups **restrict**: whatever is switched off in a group is blocked for
+  its members. If someone is in several groups, **every block counts** – even
+  if another group has the function switched on.
 - Per person you can **always allow** or **always block** single functions under
   **Administration → Manage users → “Groups & permissions”**. That wins
   over all groups.
@@ -69,13 +71,13 @@ keys) is really blocked by the server – for API keys, too.
 Subscriptions and workflows of a person whose function you take away rest
 automatically until you allow it again.
 
-## 3. Example: only the family may download videos
+## 3. Example: the kids may not download videos
 
-1. **Administration → Groups → edit “All users”** (pencil) and switch off
-   “Download”. Save.
-2. **Add group**: name “Family”, switch on “Download”, tick the members below.
-   Save.
-3. Done. Whoever is not in “Family” no longer sees “Download”.
+1. **Administration → Groups → “Add group”**: name “Kids”.
+2. **Switch off** “Download” (and whatever else shouldn't be), tick the members
+   below. Save.
+3. Done. Whoever is in “Kids” no longer sees “Download”. Everyone else may still
+   do everything.
 
 ## 4. What is LDAP?
 
@@ -142,8 +144,8 @@ Two ways:
 ## 6. Taking groups over from LDAP
 
 **Administration → Groups → “Take over from LDAP”.** Search the groups, tick
-them and take them over. Then decide per group (pencil) which functions it
-allows.
+them and take them over. Then switch off per group (pencil) what its members
+shouldn't use. Freshly taken-over groups don't restrict anything yet.
 
 - Conbert fills in the members **by itself** – at every sign-in and every sync.
   You don't need to tick anyone there (the names show “from LDAP” in the list).

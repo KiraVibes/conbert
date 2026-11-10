@@ -39,11 +39,14 @@ import { useUsers } from '@/features/auth/users-api';
 import { ApiRequestError } from '@/lib/api';
 import { groupName, useGroupMutations, useGroups } from './groups-api';
 
-/** Is the function switched on in this group? "Everyone" allows what it doesn't forbid. */
+/** Is the function open in this group? Groups only block; "everyone" allows all. */
 function isOn(group: Pick<GroupDto, 'builtin'>, permissions: FeatureMap, feature: Feature) {
-  return group.builtin === 'everyone'
-    ? permissions[feature] !== false
-    : permissions[feature] === true;
+  return group.builtin === 'everyone' || permissions[feature] !== false;
+}
+
+/** Only the blocked functions are stored (missing = open). */
+function blockedOnly(permissions: FeatureMap): FeatureMap {
+  return Object.fromEntries(Object.entries(permissions).filter(([, on]) => on === false));
 }
 
 /** One switch per function, each with a plain explanation. */
@@ -97,7 +100,6 @@ function GroupDialog({
   const { t } = useTranslation();
   const users = useUsers();
   const { create, update, setMembers } = useGroupMutations();
-  const everyone = group?.builtin === 'everyone';
   const [name, setName] = useState(group?.name ?? '');
   const [description, setDescription] = useState(group?.description ?? '');
   const [permissions, setPermissions] = useState<FeatureMap>(group?.permissions ?? {});
@@ -117,22 +119,18 @@ function GroupDialog({
   const save = async () => {
     try {
       let id = group?.id;
-      if (everyone) {
-        await update.mutateAsync({ id: id ?? '', body: { permissions } });
-      } else {
-        const body = {
-          name: name.trim(),
-          description: description.trim() || null,
-          permissions,
-          grantsAdmin,
-          proxyName: proxyName.trim() || null,
-        };
-        if (id) await update.mutateAsync({ id, body });
-        else
-          id = (await create.mutateAsync({ ...body, description: body.description ?? undefined }))
-            .group.id;
-        await setMembers.mutateAsync({ id, userIds: [...members] });
-      }
+      const body = {
+        name: name.trim(),
+        description: description.trim() || null,
+        permissions: blockedOnly(permissions),
+        grantsAdmin,
+        proxyName: proxyName.trim() || null,
+      };
+      if (id) await update.mutateAsync({ id, body });
+      else
+        id = (await create.mutateAsync({ ...body, description: body.description ?? undefined }))
+          .group.id;
+      await setMembers.mutateAsync({ id, userIds: [...members] });
       toast.success(t('groups.saved'));
       onOpenChange(false);
     } catch {
@@ -147,37 +145,31 @@ function GroupDialog({
           className="space-y-4"
           onSubmit={(event) => {
             event.preventDefault();
-            if (everyone || name.trim()) void save();
+            if (name.trim()) void save();
           }}
         >
           <DialogHeader>
             <DialogTitle>
               {group ? t('groups.editTitle', { name: groupName(t, group) }) : t('groups.addTitle')}
             </DialogTitle>
-            <DialogDescription>
-              {everyone ? t('groups.everyoneIntro') : t('groups.dialogIntro')}
-            </DialogDescription>
+            <DialogDescription>{t('groups.dialogIntro')}</DialogDescription>
           </DialogHeader>
-          {!everyone && (
-            <>
-              <FormField
-                id="group-name"
-                label={t('groups.name')}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                maxLength={64}
-                required
-              />
-              <FormField
-                id="group-description"
-                label={t('groups.description')}
-                hint={t('groups.descriptionHint')}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                maxLength={200}
-              />
-            </>
-          )}
+          <FormField
+            id="group-name"
+            label={t('groups.name')}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={64}
+            required
+          />
+          <FormField
+            id="group-description"
+            label={t('groups.description')}
+            hint={t('groups.descriptionHint')}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={200}
+          />
           <div className="space-y-1.5">
             <p className="text-sm font-medium">{t('groups.functions')}</p>
             <p className="text-xs text-muted-foreground">{t('groups.functionsHint')}</p>
@@ -187,75 +179,71 @@ function GroupDialog({
               onChange={(f, on) => setPermissions((p) => ({ ...p, [f]: on }))}
             />
           </div>
-          {!everyone && (
-            <>
-              <div className="space-y-1.5">
-                <p className="text-sm font-medium">{t('groups.members')}</p>
-                {users.data?.users.length ? (
-                  <ul className="max-h-48 divide-y overflow-y-auto rounded-md border">
-                    {users.data.users.map((u) => {
-                      const source = fixed.get(u.id);
-                      return (
-                        <li key={u.id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
-                          <input
-                            id={`member-${u.id}`}
-                            type="checkbox"
-                            className="size-4 accent-primary"
-                            checked={source !== undefined || members.has(u.id)}
-                            disabled={source !== undefined}
-                            onChange={(e) =>
-                              setMemberIds((m) => {
-                                const next = new Set(m);
-                                if (e.target.checked) next.add(u.id);
-                                else next.delete(u.id);
-                                return next;
-                              })
-                            }
-                          />
-                          <label htmlFor={`member-${u.id}`} className="flex-1">
-                            {u.displayName || u.username}
-                          </label>
-                          {source && (
-                            <span className="text-xs text-muted-foreground">
-                              {t(`groups.memberSource.${source}`)}
-                            </span>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground">{t('groups.noUsers')}</p>
-                )}
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5">
-                  <label htmlFor="group-admin" className="text-sm font-medium">
-                    {t('groups.grantsAdmin')}
-                  </label>
-                  <HelpTip helpKey="groups.grantsAdminHelp" labelKey="groups.grantsAdmin" />
-                </div>
-                <Switch id="group-admin" checked={grantsAdmin} onCheckedChange={setGrantsAdmin} />
-              </div>
-              <FormField
-                id="group-proxy"
-                label={t('groups.proxyName')}
-                hint={t('groups.proxyNameHint')}
-                helpKey="groups.proxyNameHelp"
-                value={proxyName}
-                onChange={(e) => setProxyName(e.target.value)}
-                maxLength={128}
-              />
-              {group?.ldapDn && (
-                <p className="text-xs break-all text-muted-foreground">
-                  {t('groups.ldapDn', { dn: group.ldapDn })}
-                </p>
-              )}
-            </>
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium">{t('groups.members')}</p>
+            {users.data?.users.length ? (
+              <ul className="max-h-48 divide-y overflow-y-auto rounded-md border">
+                {users.data.users.map((u) => {
+                  const source = fixed.get(u.id);
+                  return (
+                    <li key={u.id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
+                      <input
+                        id={`member-${u.id}`}
+                        type="checkbox"
+                        className="size-4 accent-primary"
+                        checked={source !== undefined || members.has(u.id)}
+                        disabled={source !== undefined}
+                        onChange={(e) =>
+                          setMemberIds((m) => {
+                            const next = new Set(m);
+                            if (e.target.checked) next.add(u.id);
+                            else next.delete(u.id);
+                            return next;
+                          })
+                        }
+                      />
+                      <label htmlFor={`member-${u.id}`} className="flex-1">
+                        {u.displayName || u.username}
+                      </label>
+                      {source && (
+                        <span className="text-xs text-muted-foreground">
+                          {t(`groups.memberSource.${source}`)}
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="text-sm text-muted-foreground">{t('groups.noUsers')}</p>
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5">
+              <label htmlFor="group-admin" className="text-sm font-medium">
+                {t('groups.grantsAdmin')}
+              </label>
+              <HelpTip helpKey="groups.grantsAdminHelp" labelKey="groups.grantsAdmin" />
+            </div>
+            <Switch id="group-admin" checked={grantsAdmin} onCheckedChange={setGrantsAdmin} />
+          </div>
+          <FormField
+            id="group-proxy"
+            label={t('groups.proxyName')}
+            hint={t('groups.proxyNameHint')}
+            helpKey="groups.proxyNameHelp"
+            value={proxyName}
+            onChange={(e) => setProxyName(e.target.value)}
+            maxLength={128}
+          />
+          {group?.ldapDn && (
+            <p className="text-xs break-all text-muted-foreground">
+              {t('groups.ldapDn', { dn: group.ldapDn })}
+            </p>
           )}
           {error && <ErrorMessage messageKey={error.messageKey} details={error.details} />}
           <DialogFooter>
-            <Button type="submit" disabled={pending || (!everyone && !name.trim())}>
+            <Button type="submit" disabled={pending || !name.trim()}>
               {t('groups.save')}
             </Button>
           </DialogFooter>
@@ -284,7 +272,7 @@ function GroupRow({ group, onEdit }: { group: GroupDto; onEdit: () => void }) {
             : t('groups.memberCount', { count: group.members.length })}
           {' · '}
           {allowed.length === FEATURES.length
-            ? t('groups.allFunctions')
+            ? t(group.builtin === 'everyone' ? 'groups.allFunctions' : 'groups.restrictsNothing')
             : allowed.length === 0
               ? t('groups.noFunctions')
               : t('groups.someFunctions', { count: allowed.length, total: FEATURES.length })}
@@ -292,15 +280,17 @@ function GroupRow({ group, onEdit }: { group: GroupDto; onEdit: () => void }) {
         {group.description && <p className="text-sm text-muted-foreground">{group.description}</p>}
       </div>
       <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onEdit}
-          aria-label={t('groups.editTitle', { name: groupName(t, group) })}
-          title={t('groups.editTitle', { name: groupName(t, group) })}
-        >
-          <PencilIcon aria-hidden="true" />
-        </Button>
+        {group.builtin === null && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onEdit}
+            aria-label={t('groups.editTitle', { name: groupName(t, group) })}
+            title={t('groups.editTitle', { name: groupName(t, group) })}
+          >
+            <PencilIcon aria-hidden="true" />
+          </Button>
+        )}
         {group.builtin === null && (
           <AlertDialog>
             <AlertDialogTrigger asChild>

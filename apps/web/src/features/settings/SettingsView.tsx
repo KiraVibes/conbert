@@ -180,8 +180,8 @@ export function SettingsView({ children }: { children?: React.ReactNode }) {
       <NotificationsCard />
       <EnginesCard />
       <OfflineCard />
-      <WhisperCard />
-      <ImageAiCard />
+      {can('ai') && <WhisperCard />}
+      {can('ai') && <ImageAiCard />}
       {can('apiTokens') && <ApiTokensCard />}
       {children}
 

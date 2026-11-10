@@ -6,7 +6,7 @@ import {
   type ExecutionMode,
   type Runtime,
 } from '@conbert/core';
-import { enginesResponseSchema, type Hardware } from '@conbert/schemas';
+import { AI_ENGINE_IDS, enginesResponseSchema, type Hardware } from '@conbert/schemas';
 import { apiGet } from '@/lib/api';
 import { useCan } from '@/features/auth/use-auth';
 import { useServerHealth } from '@/lib/use-server-health';
@@ -48,8 +48,17 @@ export function useAvailableEngines(): AvailableEngines {
   const health = useServerHealth();
   // The admin can switch off server conversions for a user: then only this device.
   const serverAllowed = useCan('serverConvert');
+  const aiAllowed = useCan('ai');
   const allServerEngines = useServerEngines();
-  const serverEngines = serverAllowed ? allServerEngines : EMPTY;
+  const serverEngines = useMemo(
+    () =>
+      !serverAllowed
+        ? EMPTY
+        : aiAllowed
+          ? allServerEngines
+          : allServerEngines.filter((engine) => !AI_ENGINE_IDS.includes(engine.id)),
+    [allServerEngines, serverAllowed, aiAllowed],
+  );
   const statuses = useEngineStatus((s) => s.engines);
   const engines = useMemo(
     () => [
