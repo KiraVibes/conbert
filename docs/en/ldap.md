@@ -37,7 +37,7 @@ You find everything under **account menu → Administration → Groups**.
 - Other groups **additionally allow** something. A function is available as soon
   as **at least one** of the person's groups allows it.
 - Per person you can **always allow** or **always block** single functions under
-  **Settings → Manage users → shield button (“Permissions of …”)**. That wins
+  **Administration → Manage users → “Groups & permissions”**. That wins
   over all groups.
 - **Administrators may always do everything.**
 

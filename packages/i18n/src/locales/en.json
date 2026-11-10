@@ -2304,7 +2304,7 @@
       "intro": "Sign in with your Conbert account.",
       "proxyIntro": "Sign-in is handled by your reverse proxy.",
       "submit": "Sign in",
-      "forgot": "Forgot your password? An administrator can set a new one in the settings.",
+      "forgot": "Forgot your password? An administrator can set a new one under Administration.",
       "introLdap": "Sign in with your Conbert account or your directory account (LDAP)."
     },
     "menu": {
@@ -2329,7 +2329,7 @@
     },
     "users": {
       "title": "Manage users",
-      "intro": "Everyone has their own settings and only sees their own files and jobs.",
+      "intro": "Everyone has their own settings and only sees their own files and jobs. With “Groups & permissions” you decide which groups someone is in and what they may use.",
       "add": "Add user",
       "addTitle": "Add a new user",
       "addIntro": "Give the person their user name and a starting password. They can change it themselves afterwards.",
@@ -2355,8 +2355,11 @@
       "booruPinReset": "The booru PIN of “{{name}}” was removed.",
       "viaLdap": "signs in through LDAP",
       "disabled": "blocked",
-      "inGroups": "Groups: {{groups}}",
-      "accessFor": "Permissions of {{name}}",
+      "accessFor": "Groups & permissions of {{name}}",
+      "access": "Groups & permissions",
+      "onlyEveryone": "Only in “All users”",
+      "addGroups": "Groups",
+      "addGroupsHint": "Optional. You can change the groups any time later with “Groups & permissions”.",
       "accessIntro": "Choose the person's groups. For single functions you can also decide that they are allowed or blocked no matter what the groups say.",
       "adminAll": "Administrators may always do everything. The settings here only apply once the person is a normal user again.",
       "groups": "Groups",
@@ -3487,7 +3490,7 @@
       "ageNo": "Cancel",
       "pin": "PIN to lock",
       "pinLocked": "PIN (locked)",
-      "pinHelp": "With a PIN, the age levels can only be changed with that PIN – e.g. on a family account. At least 4 characters. Forgot the PIN? An administrator can remove it under Settings → Manage users.",
+      "pinHelp": "With a PIN, the age levels can only be changed with that PIN – e.g. on a family account. At least 4 characters. Forgot the PIN? An administrator can remove it under Administration → Manage users.",
       "lock": "Lock",
       "unlock": "Unlock",
       "locked": "The age levels are now locked with the PIN.",
@@ -5915,7 +5918,7 @@
       "downloadsValue": "{{running}} running · {{queued}} waiting"
     },
     "users": {
-      "title": "Users & storage quotas",
+      "title": "Storage quotas",
       "help": "A quota decides how much a user may have on the server at the same time: uploaded files, finished results and downloads waiting to be picked up. When it is full, Conbert takes no new files until space frees up (which happens by itself after the cleanup time). What goes to storage locations like the NAS doesn’t count.",
       "defaultQuota": "Default for everyone:",
       "admin": "Admin",

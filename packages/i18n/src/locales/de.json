@@ -2304,7 +2304,7 @@
       "intro": "Melde dich mit deinem Conbert-Konto an.",
       "proxyIntro": "Die Anmeldung läuft über deinen Reverse-Proxy.",
       "submit": "Anmelden",
-      "forgot": "Passwort vergessen? Ein Administrator kann es dir in den Einstellungen neu setzen.",
+      "forgot": "Passwort vergessen? Ein Administrator kann es dir in der Verwaltung neu setzen.",
       "introLdap": "Melde dich mit deinem Conbert-Konto oder deinem Konto aus dem Verzeichnis (LDAP) an."
     },
     "menu": {
@@ -2329,7 +2329,7 @@
     },
     "users": {
       "title": "Benutzer verwalten",
-      "intro": "Jede Person hat eigene Einstellungen und sieht nur ihre eigenen Dateien und Aufträge.",
+      "intro": "Jede Person hat eigene Einstellungen und sieht nur ihre eigenen Dateien und Aufträge. Über „Gruppen & Rechte“ legst du fest, in welchen Gruppen jemand ist und was die Person nutzen darf.",
       "add": "Benutzer anlegen",
       "addTitle": "Neuen Benutzer anlegen",
       "addIntro": "Gib der Person ihren Benutzernamen und das Start-Passwort. Sie kann es danach selbst ändern.",
@@ -2355,8 +2355,11 @@
       "booruPinReset": "Die Booru-PIN von „{{name}}“ wurde entfernt.",
       "viaLdap": "meldet sich über LDAP an",
       "disabled": "gesperrt",
-      "inGroups": "Gruppen: {{groups}}",
-      "accessFor": "Rechte von {{name}}",
+      "accessFor": "Gruppen & Rechte von {{name}}",
+      "access": "Gruppen & Rechte",
+      "onlyEveryone": "Nur in „Alle Nutzer“",
+      "addGroups": "Gruppen",
+      "addGroupsHint": "Optional. Du kannst die Gruppen später jederzeit über „Gruppen & Rechte“ ändern.",
       "accessIntro": "Wähle die Gruppen der Person. Bei einzelnen Funktionen kannst du außerdem festlegen, dass sie unabhängig von den Gruppen erlaubt oder verboten sind.",
       "adminAll": "Administratoren dürfen immer alles. Die Einstellungen hier gelten erst, wenn die Person wieder normaler Nutzer ist.",
       "groups": "Gruppen",
@@ -3487,7 +3490,7 @@
       "ageNo": "Abbrechen",
       "pin": "PIN zum Sperren",
       "pinLocked": "PIN (gesperrt)",
-      "pinHelp": "Mit einer PIN kann die Auswahl der Altersstufen nur noch mit dieser PIN geändert werden – z. B. auf einem Familien-Konto. Mindestens 4 Zeichen. PIN vergessen? Ein Administrator kann sie unter Einstellungen → Benutzer verwalten entfernen.",
+      "pinHelp": "Mit einer PIN kann die Auswahl der Altersstufen nur noch mit dieser PIN geändert werden – z. B. auf einem Familien-Konto. Mindestens 4 Zeichen. PIN vergessen? Ein Administrator kann sie unter Verwaltung → Benutzer verwalten entfernen.",
       "lock": "Sperren",
       "unlock": "Entsperren",
       "locked": "Die Altersstufen sind jetzt mit der PIN gesperrt.",
@@ -5915,7 +5918,7 @@
       "downloadsValue": "{{running}} laufen · {{queued}} warten"
     },
     "users": {
-      "title": "Nutzer & Speicher-Kontingente",
+      "title": "Speicher-Kontingente",
       "help": "Ein Kontingent legt fest, wie viel ein Nutzer gleichzeitig auf dem Server liegen haben darf: hochgeladene Dateien, fertige Ergebnisse und Downloads, die auf Abholung warten. Ist es voll, nimmt Conbert keine neuen Dateien an, bis Platz frei wird (das passiert nach der Aufräumzeit von selbst). Was auf Speicherorten wie der NAS landet, zählt nicht.",
       "defaultQuota": "Standard für alle:",
       "admin": "Admin",

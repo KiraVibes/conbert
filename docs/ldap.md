@@ -36,8 +36,7 @@ Du findest alles unter **Konto-Menü → Verwaltung → Gruppen**.
   eingeschaltet ist, darf jeder.
 - Weitere Gruppen **erlauben zusätzlich** etwas. Eine Funktion ist frei, sobald
   **mindestens eine** Gruppe der Person sie erlaubt.
-- Pro Person kannst du unter **Einstellungen → Benutzer verwalten → Schild-Knopf
-  („Rechte von …“)** einzelne Funktionen **immer erlauben** oder **immer
+- Pro Person kannst du unter **Verwaltung → Benutzer verwalten → „Gruppen & Rechte“** einzelne Funktionen **immer erlauben** oder **immer
   verbieten**. Das hat Vorrang vor allen Gruppen.
 - **Administratoren dürfen immer alles.**
 

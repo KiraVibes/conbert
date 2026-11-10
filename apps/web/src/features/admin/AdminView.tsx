@@ -19,6 +19,7 @@ import { HelpTip } from '@/components/HelpTip';
 import { ViewIntro } from '@/components/ViewIntro';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlenderCard } from './BlenderCard';
+import { UsersCard } from '@/features/auth/UsersCard';
 import { GroupsCard } from './GroupsCard';
 import { LdapCard, LdapImportDialog } from './LdapCard';
 import { useLdapSettings } from './ldap-api';
@@ -437,6 +438,7 @@ export function AdminView() {
           </CardContent>
         </Card>
       </div>
+      <UsersCard />
       <GroupsCard importButton={ldapOn ? <LdapImportDialog /> : undefined} />
       <LdapCard />
       <BlenderCard />

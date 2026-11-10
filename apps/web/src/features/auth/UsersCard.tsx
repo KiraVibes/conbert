@@ -56,7 +56,7 @@ import { FormField, PasswordField } from './FormField';
 import { useCurrentUser } from './use-auth';
 import { USERS_KEY, useUsers } from './users-api';
 import { Badge } from '@/components/ui/badge';
-import { useGroups } from '@/features/admin/groups-api';
+import { GROUPS_KEY, useGroups } from '@/features/admin/groups-api';
 
 function apiErrorOf(error: unknown): ApiRequestError | null {
   return error instanceof ApiRequestError ? error : null;
@@ -64,7 +64,11 @@ function apiErrorOf(error: unknown): ApiRequestError | null {
 
 function useUserMutations() {
   const queryClient = useQueryClient();
-  const refresh = () => queryClient.invalidateQueries({ queryKey: USERS_KEY });
+  const refresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: USERS_KEY });
+    // Group lists show their members, so they change along.
+    await queryClient.invalidateQueries({ queryKey: GROUPS_KEY });
+  };
   return {
     create: useMutation({
       mutationFn: (body: CreateUserRequest) => apiPost('/api/users', body, userResponseSchema),
@@ -88,13 +92,15 @@ function useUserMutations() {
 
 function CreateUserDialog() {
   const { t } = useTranslation();
-  const { create } = useUserMutations();
+  const { create, update } = useUserMutations();
+  const ownGroups = (useGroups().data ?? []).filter((g) => g.builtin === null);
+  const [groupIds, setGroupIds] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<Role>('user');
   const valid = username.trim().length >= 2 && password.length >= PASSWORD_MIN_LENGTH;
-  const error = apiErrorOf(create.error);
+  const error = apiErrorOf(create.error) ?? apiErrorOf(update.error);
 
   return (
     <Dialog
@@ -105,7 +111,9 @@ function CreateUserDialog() {
           setUsername('');
           setPassword('');
           setRole('user');
+          setGroupIds(new Set());
           create.reset();
+          update.reset();
         }
       }}
     >
@@ -124,9 +132,16 @@ function CreateUserDialog() {
             create.mutate(
               { username, password, role },
               {
-                onSuccess: () => {
-                  toast.success(t('auth.users.created', { name: username }));
-                  setOpen(false);
+                onSuccess: async ({ user }) => {
+                  try {
+                    if (groupIds.size > 0) {
+                      await update.mutateAsync({ id: user.id, body: { groupIds: [...groupIds] } });
+                    }
+                    toast.success(t('auth.users.created', { name: username }));
+                    setOpen(false);
+                  } catch {
+                    // The account exists; the error shows in the dialog.
+                  }
                 },
               },
             );
@@ -154,9 +169,38 @@ function CreateUserDialog() {
             autoComplete="new-password"
           />
           <RoleSelect id="new-user-role" value={role} onChange={setRole} />
+          {ownGroups.length > 0 && (
+            <fieldset className="space-y-1.5">
+              <legend className="text-sm font-medium">{t('auth.users.addGroups')}</legend>
+              <ul className="max-h-40 divide-y overflow-y-auto rounded-md border">
+                {ownGroups.map((g, i) => (
+                  <li key={g.id} className="flex items-center gap-2 px-3 py-1.5 text-sm">
+                    <input
+                      id={`new-user-group-${i}`}
+                      type="checkbox"
+                      className="size-4 accent-primary"
+                      checked={groupIds.has(g.id)}
+                      onChange={(e) =>
+                        setGroupIds((ids) => {
+                          const next = new Set(ids);
+                          if (e.target.checked) next.add(g.id);
+                          else next.delete(g.id);
+                          return next;
+                        })
+                      }
+                    />
+                    <label htmlFor={`new-user-group-${i}`} className="flex-1">
+                      {g.name}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted-foreground">{t('auth.users.addGroupsHint')}</p>
+            </fieldset>
+          )}
           {error && <ErrorMessage messageKey={error.messageKey} details={error.details} />}
           <DialogFooter>
-            <Button type="submit" disabled={!valid || create.isPending}>
+            <Button type="submit" disabled={!valid || create.isPending || update.isPending}>
               {t('auth.users.addSubmit')}
             </Button>
           </DialogFooter>
@@ -320,12 +364,13 @@ function AccessDialog({ user }: { user: UserDto }) {
     >
       <DialogTrigger asChild>
         <Button
-          variant="ghost"
-          size="icon"
+          variant="outline"
+          size="sm"
           aria-label={t('auth.users.accessFor', { name: user.username })}
           title={t('auth.users.accessFor', { name: user.username })}
         >
           <ShieldCheckIcon aria-hidden="true" />
+          <span className="hidden sm:inline">{t('auth.users.access')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
@@ -484,11 +529,18 @@ function UserRow({ user, isSelf }: { user: UserDto; isSelf: boolean }) {
             {user.authSource === 'proxy' && ` · ${t('auth.users.viaProxy')}`}
             {user.authSource === 'ldap' && ` · ${t('auth.users.viaLdap')}`}
           </p>
-          {user.groups && user.groups.length > 0 && (
-            <p className="text-xs text-muted-foreground">
-              {t('auth.users.inGroups', { groups: user.groups.map((g) => g.name).join(', ') })}
-            </p>
-          )}
+          <p
+            className="mt-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+            aria-label={t('auth.users.groups')}
+          >
+            {user.groups && user.groups.length > 0
+              ? user.groups.map((g) => (
+                  <Badge key={g.id} variant="outline">
+                    {g.name}
+                  </Badge>
+                ))
+              : t('auth.users.onlyEveryone')}
+          </p>
         </div>
         <div className="flex items-center gap-1">
           <Select

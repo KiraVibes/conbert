@@ -15,7 +15,6 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ViewIntro } from '@/components/ViewIntro';
 import { ModeSelector } from '@/features/convert/ModeSelector';
 import { AccountCard } from '@/features/auth/AccountCard';
-import { UsersCard } from '@/features/auth/UsersCard';
 import { useCurrentUser } from '@/features/auth/use-auth';
 import type { Feature } from '@conbert/schemas';
 import { WhisperCard } from './WhisperCard';
@@ -184,7 +183,6 @@ export function SettingsView({ children }: { children?: React.ReactNode }) {
       <WhisperCard />
       <ImageAiCard />
       {can('apiTokens') && <ApiTokensCard />}
-      <UsersCard />
       {children}
 
       <Separator />
