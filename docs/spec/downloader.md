@@ -52,7 +52,7 @@ Download von Bild-Boards im Booru-Stil, **einzeln per URL oder als Crawl nach Ta
 - Eingabefeld für Tags mit **Autovervollständigung** über die API der Seite (inkl. Anzahl Treffer pro Tag und Tag-Kategorie wie Künstler, Figur, Serie, allgemein – farbig markiert).
 - Unterstützt die Such-Syntax der Seite: mehrere Tags (UND), Ausschluss mit `-tag`, `order:score`, `score:>50`, Seitengrößen-Filter usw. Für Laien zusätzlich ein **Formular** (Tags hinzufügen / ausschließen, Mindest-Score, Mindest-Auflösung, Zeitraum, Sortierung, Dateityp Bild/Animation/Video), das die Syntax automatisch erzeugt. Beide Ansichten sind synchron.
 - **Rating-Filter** (General / Sensitive / Questionable / Explicit bzw. Safe/Questionable/Explicit je nach Seite). Standard: nur jugendfreie Inhalte. Nicht jugendfreie Ratings müssen in den Einstellungen ausdrücklich freigeschaltet werden (mit Altersbestätigung) und lassen sich per Passwort sperren.
-- **Limit** für die Anzahl der Posts (Standard 100, Hinweis ab 1.000), damit niemand versehentlich zehntausende Dateien lädt.
+- **Limit** für die Anzahl der Posts (Standard 50, höchstens 50.000, Hinweis ab 200), damit niemand versehentlich zehntausende Dateien lädt.
 - **Vorschau-Raster** vor dem Download: Thumbnails der Treffer, einzeln an- und abwählbar, „Alle auswählen“, geschätzte Gesamtgröße.
 - Seitenlimits der APIs beachten (z. B. maximale Seitenzahl ohne Account) und dem Nutzer verständlich erklären, wenn ein Account/API-Key mehr Ergebnisse erlauben würde.
 

@@ -5,7 +5,13 @@ import path from 'node:path';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
-import { canSubscribe, defaultFeedInterval, feedNewestFirst, minFeedInterval } from '@conbert/core';
+import {
+  canSubscribe,
+  defaultFeedInterval,
+  feedNewestFirst,
+  MAX_DOWNLOAD_LIMIT,
+  minFeedInterval,
+} from '@conbert/core';
 import type { FeedDto } from '@conbert/schemas';
 import { downloads, type DownloadRecord } from '../db/schema';
 import { API_ERROR_KEYS } from '../lib/http-error';
@@ -151,7 +157,7 @@ describe('subscriptions API', () => {
       recordOnly: true,
       stopAtKnown: false,
       // A thread is gone through completely, the archive skips the known posts.
-      limit: 1000,
+      limit: MAX_DOWNLOAD_LIMIT,
       archiveFile: feedArchive(app.conbert, feed),
       // The thread's title becomes the folder on the storage location.
       sourceName: 'Werkbank',
@@ -239,7 +245,7 @@ describe('subscriptions API', () => {
     expect(download(queued[1] ?? '')?.options).toMatchObject({
       parts: ['posts', 'reels'],
       stopAtKnown: false,
-      limit: 1000,
+      limit: MAX_DOWNLOAD_LIMIT,
       recordOnly: false,
     });
     // After that check, it stops at known items again.

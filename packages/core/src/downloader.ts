@@ -153,7 +153,7 @@ export type DownloadQuality = (typeof DOWNLOAD_QUALITIES)[number];
 
 /** Up to this many items without a hint; more needs a deliberate choice. */
 export const DEFAULT_DOWNLOAD_LIMIT = 50;
-export const MAX_DOWNLOAD_LIMIT = 1000;
+export const MAX_DOWNLOAD_LIMIT = 50_000;
 
 /** Pause between requests (seconds): protects your accounts from being blocked. */
 export const DEFAULT_SLEEP_SECONDS = 2;

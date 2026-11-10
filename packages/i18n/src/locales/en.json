@@ -5528,7 +5528,7 @@
       "open": "Edit subscription",
       "quality": "Quality",
       "limit": "At most per check",
-      "limitHelp": "A check loads at most this many new posts. If more arrive at once, the next check gets the rest. When new parts (e.g. reels) are added, the first check after that loads everything missing – up to 1,000.",
+      "limitHelp": "A check loads at most this many new posts. If more arrive at once, the next check gets the rest. When new parts (e.g. reels) are added, the first check after that loads everything missing – up to 50,000.",
       "parts": "What to load?",
       "catchUpHint": "Newly added parts are fetched completely at the next check – it starts right after saving.",
       "destination": "Where to?",

@@ -331,7 +331,7 @@ curl -H "Authorization: Bearer DEIN_TOKEN" -H "Content-Type: application/json" \
 | `url`                     | der Link                                                          |
 | `quality`                 | `best` (Standard), `1080`, `720`, `480` oder `audio` (nur Ton)    |
 | `parts`                   | bei Instagram-Profilen: `posts`, `reels`, `stories`, `highlights` |
-| `limit`                   | höchstens so viele Beiträge (Standard 50, höchstens 1000)         |
+| `limit`                   | höchstens so viele Beiträge (Standard 50, höchstens 50000)        |
 | `dateAfter`, `dateBefore` | nur aus diesem Zeitraum (`2026-01-31`)                            |
 | `targetIds`               | Speicherorte, auf denen die Dateien landen sollen                 |
 | `toList`                  | `true` = Dateien bleiben auf dem Server zum Abholen (Standard)    |

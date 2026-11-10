@@ -5528,7 +5528,7 @@
       "open": "Abo bearbeiten",
       "quality": "Qualität",
       "limit": "Höchstens pro Prüfung",
-      "limitHelp": "So viele neue Beiträge lädt eine Prüfung höchstens. Kommen auf einmal mehr dazu, holt die nächste Prüfung den Rest. Kommen neue Teile (z. B. Reels) dazu, lädt die erste Prüfung danach alles Fehlende – bis zu 1.000.",
+      "limitHelp": "So viele neue Beiträge lädt eine Prüfung höchstens. Kommen auf einmal mehr dazu, holt die nächste Prüfung den Rest. Kommen neue Teile (z. B. Reels) dazu, lädt die erste Prüfung danach alles Fehlende – bis zu 50.000.",
       "parts": "Was laden?",
       "catchUpHint": "Neu dazugekommene Teile werden bei der nächsten Prüfung komplett nachgeladen – die startet gleich nach dem Speichern.",
       "destination": "Wohin?",
