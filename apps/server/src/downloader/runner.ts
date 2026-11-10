@@ -246,8 +246,9 @@ export function galleryDlArgs(
     folder,
     '--range',
     `1-${options.limit}`,
-    '--sleep',
-    String(options.sleepSeconds),
+    // The pause before each file – pointless while only remembering what exists
+    // (a subscription's first run would wait sleepSeconds per item for nothing).
+    ...(options.recordOnly ? [] : ['--sleep', String(options.sleepSeconds)]),
     '--sleep-request',
     String(options.sleepSeconds),
     ...(instagram && options.parts.length > 0 ? ['-o', `include=${options.parts.join(',')}`] : []),
@@ -476,8 +477,10 @@ export class DownloadRunner {
             if (Number.isFinite(count) && count > 0) total = Math.min(count, options.limit);
             // Picture and sound each count 0–100 %; the overall bar never goes back.
             this.current.set(id, Number(m[3]) || 0);
-          } else if (line.startsWith('#')) {
+          } else if (line.startsWith('#') || options.recordOnly) {
             // gallery-dl: "# path" = skipped, it had been downloaded before.
+            // With --no-download (only remembering) every line is such an item,
+            // printed without the "#".
             if (!resumeArchive) known += 1;
           } else {
             // gallery-dl prints each finished file.

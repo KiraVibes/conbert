@@ -85,6 +85,10 @@ describe('subscription rules', () => {
       null,
     );
     expect(gdRecord).toContain('--no-download');
+    // Only remembering: no pause per item, only between requests.
+    expect(gd).toContain('--sleep');
+    expect(gdRecord).not.toContain('--sleep');
+    expect(gdRecord).toContain('--sleep-request');
     expect(gdRecord).not.toContain('--abort');
     expect(gdRecord.slice(-2)).toEqual(['--', 'https://instagram.com/x']);
   });
