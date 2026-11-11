@@ -5747,7 +5747,8 @@
       "deletePost_other": "{{count}} Beiträge ganz gelöscht"
     },
     "holdDelete": "Gedrückt halten (oder Umschalt+←): alle Seiten dieses Pixiv-Beitrags löschen",
-    "postDeleted": "Alle Seiten dieses Pixiv-Beitrags werden gelöscht. Mit „Zurück“ holst du sie wieder."
+    "postDeleted": "Alle Seiten dieses Pixiv-Beitrags werden gelöscht. Mit „Zurück“ holst du sie wieder.",
+    "wholePostOf": "Alle Seiten von Beitrag {{id}}"
   },
   "similar": {
     "tabs": {

@@ -29,6 +29,7 @@ import { useView } from '@/lib/use-view';
 import { cn } from '@/lib/utils';
 import { FullscreenViewer } from './FullscreenViewer';
 import { HoldButton } from './HoldButton';
+import type { WholePostState } from './WholePostOverlay';
 import { exitBrowserFullscreen } from './zoom';
 import { ReorganizeCard } from './ReorganizeCard';
 import { SourcePicker } from './SourcePicker';
@@ -162,6 +163,12 @@ export function SwipeView() {
 
   /** The next left swipe deletes the whole Pixiv work (set by holding X or Shift+←). */
   const wholePost = useRef(false);
+  /** Shown on the picture: X is being held, or the whole work is about to go. */
+  const [postHold, setPostHold] = useState<WholePostState>(null);
+  const armWholePost = useCallback(() => {
+    wholePost.current = true;
+    setPostHold('armed');
+  }, []);
   const decide = useCallback(
     (direction: SwipeDirection) => {
       const item = deck[0];
@@ -169,6 +176,7 @@ export function SwipeView() {
       // Held X (or Shift+←): every page of the Pixiv work goes.
       const post = direction === 'left' && wholePost.current ? pixivPostOf(item.path) : null;
       wholePost.current = false;
+      setPostHold(null);
       const action = post && mode === 'normal' ? 'deletePost' : actionFor(mode, direction);
       setDeck((d) =>
         d.slice(1).filter((x) => action !== 'deletePost' || !post || !inPixivPost(x.path, post)),
@@ -234,13 +242,14 @@ export function SwipeView() {
       if (command === 'undo') void undo();
       else if (command === 'fullscreen') openTop();
       else if (deck[0]) {
-        if (command === 'left' && e.shiftKey) wholePost.current = true;
+        const isPost = mode === 'normal' && pixivPostOf(deck[0].path) !== null;
+        if (command === 'left' && e.shiftKey && isPost) armWholePost();
         gesture.fly(command);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [deck, gesture, undo, openTop]);
+  }, [deck, gesture, undo, openTop, mode, armWholePost]);
 
   const sync = async () => {
     try {
@@ -301,7 +310,8 @@ export function SwipeView() {
   const [LeftIcon, RightIcon, UpIcon] = icons as [typeof XIcon, typeof XIcon, typeof XIcon];
 
   // Holding X deletes every page of a Pixiv work (only for such a card).
-  const topIsPost = mode === 'normal' && !!top && pixivPostOf(top.path) !== null;
+  const topPost = mode === 'normal' && top ? pixivPostOf(top.path) : null;
+  const topIsPost = topPost !== null;
   const leftLabel = t(`swipe.buttons.${actionFor(mode, 'left')}`);
 
   /** The round buttons: below the cards and in the full-screen view. */
@@ -319,11 +329,13 @@ export function SwipeView() {
         onHold={
           topIsPost
             ? () => {
-                wholePost.current = true;
+                armWholePost();
                 fly('left');
               }
             : null
         }
+        onHoldChange={(holding) => setPostHold(holding ? 'holding' : null)}
+        holdBadge={t('swipe.holdDelete')}
         aria-label={leftLabel}
         title={topIsPost ? `${leftLabel} (←) · ${t('swipe.holdDelete')}` : `${leftLabel} (←)`}
       >
@@ -461,6 +473,8 @@ export function SwipeView() {
                     bind: gesture.bind,
                     onOpen: openTop,
                     paused: fullscreen,
+                    wholePost: postHold,
+                    postId: topPost?.id ?? null,
                   })}
                 />
               ))}
@@ -481,6 +495,11 @@ export function SwipeView() {
           </div>
 
           {decisionButtons(gesture.fly)}
+          {topIsPost && (
+            <p className="text-center text-xs font-medium text-red-600 dark:text-red-400">
+              {t('swipe.holdDelete')}
+            </p>
+          )}
           <p className="text-center text-xs text-muted-foreground">
             {t(mode === 'favorites' ? 'swipe.legendFavorites' : 'swipe.legend')}
           </p>
@@ -512,9 +531,9 @@ export function SwipeView() {
           mode,
           onSwipe: decide,
           onUndo: () => void undo(),
-          onWholePost: () => {
-            wholePost.current = true;
-          },
+          onWholePost: armWholePost,
+          wholePost: postHold,
+          postId: topPost?.id ?? null,
           still,
           controls: (fly) => decisionButtons(fly, true),
           placeholder: loading ? (

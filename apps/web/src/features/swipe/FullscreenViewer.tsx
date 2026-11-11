@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
+import { WholePostOverlay, type WholePostState } from './WholePostOverlay';
 import type { SwipeMode } from '@conbert/schemas';
 import {
   SIDE_THRESHOLD,
@@ -53,6 +54,10 @@ export interface ViewerSwipe {
   onUndo: () => void;
   /** Shift+←: the next left swipe deletes the whole Pixiv work. */
   onWholePost: () => void;
+  /** X is held / the whole Pixiv work goes. */
+  wholePost: WholePostState;
+  /** The Pixiv work of the picture (null for other files). */
+  postId: string | null;
   /** The buttons below the picture; `fly` lets the picture leave in that direction. */
   controls: (fly: (direction: SwipeDirection) => void) => React.ReactNode;
   /** Shown while there is no picture (loading or all sorted). */
@@ -330,7 +335,7 @@ export function FullscreenViewer({
     if (command === 'undo') swipe?.onUndo();
     else if (command === 'fullscreen') onClose();
     else if (command) {
-      if (command === 'left' && e.shiftKey) swipe?.onWholePost();
+      if (command === 'left' && e.shiftKey && swipe?.postId) swipe.onWholePost();
       fly(command);
     } else if (e.key === '+' || e.key === '=') zoomBy(1.5);
     else if (e.key === '-') zoomBy(1 / 1.5);
@@ -362,7 +367,7 @@ export function FullscreenViewer({
             direction: drag.x > 0 ? 'right' : 'left',
             strength: Math.min(1, Math.abs(drag.x) / (box.w * SIDE_THRESHOLD)),
           };
-  const stamp = swipe && hint ? actionFor(swipe.mode, hint.direction) : null;
+  const stamp = swipe && hint && !swipe.wholePost ? actionFor(swipe.mode, hint.direction) : null;
   const mediaClass =
     'absolute inset-0 h-full w-full object-contain select-none pointer-events-none';
 
@@ -493,6 +498,7 @@ export function FullscreenViewer({
             onPointerCancel={onPointerUp}
           >
             {media}
+            {swipe && item && <WholePostOverlay state={swipe.wholePost} postId={swipe.postId} />}
             {stamp && hint && (
               <span
                 className={cn(

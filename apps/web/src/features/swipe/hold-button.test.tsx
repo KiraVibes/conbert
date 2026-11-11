@@ -8,12 +8,13 @@ afterEach(() => vi.useRealTimers());
 function setup(withHold = true) {
   const onPress = vi.fn();
   const onHold = vi.fn();
+  const onHoldChange = vi.fn();
   renderWithProviders(
-    <HoldButton onPress={onPress} onHold={withHold ? onHold : null}>
+    <HoldButton onPress={onPress} onHold={withHold ? onHold : null} onHoldChange={onHoldChange}>
       x
     </HoldButton>,
   );
-  return { onPress, onHold, button: screen.getByRole('button', { name: 'x' }) };
+  return { onPress, onHold, onHoldChange, button: screen.getByRole('button', { name: 'x' }) };
 }
 
 describe('the delete button that can be held', () => {
@@ -28,13 +29,28 @@ describe('the delete button that can be held', () => {
 
   it('holding calls the other action, and the click after it is ignored', () => {
     vi.useFakeTimers();
-    const { onPress, onHold, button } = setup();
+    const { onPress, onHold, onHoldChange, button } = setup();
     fireEvent.pointerDown(button, { button: 0 });
+    // The ring fills while held.
+    expect(onHoldChange).toHaveBeenLastCalledWith(true);
+    expect(screen.getByTestId('hold-ring')).toHaveAttribute('data-holding', 'true');
     act(() => vi.advanceTimersByTime(HOLD_MS + 10));
+    expect(onHoldChange).toHaveBeenLastCalledWith(false);
     fireEvent.pointerUp(button);
     fireEvent.click(button);
     expect(onHold).toHaveBeenCalledOnce();
     expect(onPress).not.toHaveBeenCalled();
+  });
+
+  it('letting go early cancels the hold', () => {
+    vi.useFakeTimers();
+    const { onHold, onHoldChange, button } = setup();
+    fireEvent.pointerDown(button, { button: 0 });
+    act(() => vi.advanceTimersByTime(HOLD_MS / 2));
+    fireEvent.pointerUp(button);
+    expect(onHoldChange).toHaveBeenLastCalledWith(false);
+    act(() => vi.advanceTimersByTime(HOLD_MS));
+    expect(onHold).not.toHaveBeenCalled();
   });
 
   it('without a hold action it stays a normal button', () => {

@@ -5747,7 +5747,8 @@
       "deletePost_other": "{{count}} posts deleted completely"
     },
     "holdDelete": "Hold (or Shift+←): delete every page of this Pixiv post",
-    "postDeleted": "Every page of this Pixiv post will be deleted. “Back” brings them back."
+    "postDeleted": "Every page of this Pixiv post will be deleted. “Back” brings them back.",
+    "wholePostOf": "Every page of post {{id}}"
   },
   "similar": {
     "tabs": {

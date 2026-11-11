@@ -16,6 +16,8 @@ function setup(patch: Partial<ViewerSwipe> = {}) {
     onSwipe: vi.fn(),
     onUndo: vi.fn(),
     onWholePost: vi.fn(),
+    wholePost: null,
+    postId: '42',
     still: true,
     controls: (fly) => (
       <button type="button" onClick={() => fly('up')}>
@@ -78,6 +80,13 @@ describe('swiping in the full-screen view', () => {
     }
   });
 
+  it('shows over the picture that the whole post goes while X is held', () => {
+    setup({ wholePost: 'holding' });
+    const overlay = screen.getByTestId('whole-post-overlay');
+    expect(overlay).toHaveAttribute('data-state', 'holding');
+    expect(overlay).toHaveTextContent('42');
+  });
+
   it('shows what comes when there is no picture', () => {
     renderWithProviders(
       <FullscreenViewer
@@ -89,6 +98,8 @@ describe('swiping in the full-screen view', () => {
           onSwipe: vi.fn(),
           onUndo: vi.fn(),
           onWholePost: vi.fn(),
+          wholePost: null,
+          postId: null,
           still: true,
           controls: () => null,
           placeholder: <p>all sorted</p>,

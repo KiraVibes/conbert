@@ -5,6 +5,7 @@ import type { SwipeItem, SwipeMode } from '@conbert/schemas';
 import { cn } from '@/lib/utils';
 import { cardUrl } from './swipe-api';
 import { STAMP_CLASS, actionFor, type SwipeDirection } from './use-swipe';
+import { WholePostOverlay, type WholePostState } from './WholePostOverlay';
 
 /** The picture, GIF or video itself. */
 function Media({ item, play }: { item: SwipeItem; play: boolean }) {
@@ -63,6 +64,8 @@ export function SwipeCard({
   bind,
   onOpen,
   paused = false,
+  wholePost = null,
+  postId = null,
 }: {
   item: SwipeItem;
   mode: SwipeMode;
@@ -77,6 +80,9 @@ export function SwipeCard({
   onOpen?: () => void;
   /** Stops the video (e.g. while it is shown full screen). */
   paused?: boolean;
+  /** X is held / the whole Pixiv work goes (only on the top card). */
+  wholePost?: WholePostState;
+  postId?: string | null;
 }) {
   const { t } = useTranslation();
   const leaving = drag?.leaving;
@@ -86,7 +92,8 @@ export function SwipeCard({
     ? `translate(${String(x)}px, ${String(y)}px) rotate(${String(x / 20)}deg)`
     : 'scale(0.95) translateY(12px)';
   const premium = item.status === 'premium';
-  const action = hint ? actionFor(mode, hint.direction) : null;
+  // While the whole work goes, its own overlay says so instead of the stamp.
+  const action = hint && !wholePost ? actionFor(mode, hint.direction) : null;
   const folder = item.path.slice(0, item.path.length - item.name.length - 1);
   return (
     <div
@@ -104,6 +111,7 @@ export function SwipeCard({
       <div className="relative flex h-full flex-col overflow-hidden rounded-[0.9rem] border bg-neutral-950 shadow-xl">
         <div className="relative min-h-0 flex-1">
           <Media item={item} play={active && !paused} />
+          {active && <WholePostOverlay state={wholePost} postId={postId} />}
           {active && onOpen && (
             <button
               type="button"
