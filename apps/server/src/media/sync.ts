@@ -11,6 +11,7 @@ import {
 } from '@conbert/core';
 import type { MediaStatus } from '@conbert/schemas';
 import type { AppContext } from '../context';
+import { userName } from '../logs/who';
 import { mediaItems } from '../db/schema';
 import { HttpError } from '../lib/http-error';
 import { connect, resolveRecord } from '../targets/service';
@@ -112,8 +113,9 @@ export async function syncMedia(
     write();
     // Only after a walk that found something: an empty answer may also mean
     // a share that is mounted wrong – then nothing is thrown away.
+    let vanished = 0;
     if (mine.seen > 0) {
-      ctx.db
+      vanished = ctx.db
         .update(mediaItems)
         .set({ status: 'deleted', sortedAt: now })
         .where(
@@ -123,12 +125,27 @@ export async function syncMedia(
             ne(mediaItems.status, 'deleted'),
           ),
         )
-        .run();
+        .run().changes;
     }
+    ctx.log.info(
+      {
+        area: 'swipe',
+        user: userName(ctx, userId),
+        target: record.name,
+        seen: mine.seen,
+        added: mine.added,
+        vanished,
+      },
+      'storage location synced',
+    );
     await rememberKnown(ctx, userId, knownItems);
     return { seen: mine.seen, added: mine.added };
   } catch (error) {
     mine.error = error instanceof HttpError ? error.code : 'STORAGE_FAILED';
+    ctx.log.warn(
+      { area: 'swipe', user: userName(ctx, userId), target: record.name, errorKey: mine.error },
+      'sync with the storage location failed',
+    );
     throw error;
   } finally {
     mine.running = false;

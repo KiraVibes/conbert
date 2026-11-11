@@ -99,3 +99,95 @@ export const adminOverviewSchema = z.object({
   ),
 });
 export type AdminOverview = z.infer<typeof adminOverviewSchema>;
+
+// --- Server log (GET/PUT /api/admin/logs/settings, GET /api/admin/logs) ---
+
+/** How much goes into the log: only errors, the important events, or everything. */
+export const LOG_DETAILS = ['errors', 'normal', 'detailed'] as const;
+export const logDetailSchema = z.enum(LOG_DETAILS);
+export type LogDetail = z.infer<typeof logDetailSchema>;
+
+/** Which part of Conbert an entry comes from. */
+export const LOG_AREAS = [
+  'system',
+  'http',
+  'process',
+  'auth',
+  'job',
+  'download',
+  'feed',
+  'booru',
+  'workflow',
+  'storage',
+  'swipe',
+  'ldap',
+] as const;
+export const logAreaSchema = z.enum(LOG_AREAS);
+export type LogArea = z.infer<typeof logAreaSchema>;
+
+export const LOG_LIMIT_MB = { min: 1, max: 500, default: 20 } as const;
+export const LOG_LIMIT_LINES = { min: 1000, max: 1_000_000, default: 50_000 } as const;
+
+export const logLimitSchema = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('size'),
+    mb: z.number().int().min(LOG_LIMIT_MB.min).max(LOG_LIMIT_MB.max),
+  }),
+  z.object({
+    kind: z.literal('lines'),
+    count: z.number().int().min(LOG_LIMIT_LINES.min).max(LOG_LIMIT_LINES.max),
+  }),
+]);
+export type LogLimit = z.infer<typeof logLimitSchema>;
+
+export const logSettingsSchema = z.object({
+  detail: logDetailSchema,
+  limit: logLimitSchema,
+});
+export type LogSettings = z.infer<typeof logSettingsSchema>;
+
+export const DEFAULT_LOG_SETTINGS: LogSettings = {
+  detail: 'normal',
+  limit: { kind: 'size', mb: LOG_LIMIT_MB.default },
+};
+
+export const logSettingsResponseSchema = logSettingsSchema.extend({
+  /** What the log holds right now. */
+  usedBytes: z.number().int(),
+  usedLines: z.number().int(),
+  /** false when the server writes no log file (only in tests). */
+  enabled: z.boolean(),
+});
+export type LogSettingsResponse = z.infer<typeof logSettingsResponseSchema>;
+
+export const logLevelSchema = z.enum(['error', 'warn', 'info', 'debug']);
+export type LogLevel = z.infer<typeof logLevelSchema>;
+
+export const logQuerySchema = z.object({
+  /** Shows this level and the more important ones. */
+  level: logLevelSchema.default('debug'),
+  area: logAreaSchema.optional(),
+  q: z.string().trim().max(200).optional(),
+  /** Older entries than this cursor (from the last page). */
+  before: z.string().max(40).optional(),
+  limit: z.coerce.number().int().min(1).max(500).default(100),
+});
+
+export const logEntrySchema = z.object({
+  /** Where the entry sits – also the cursor for older ones. */
+  id: z.string(),
+  time: z.string(),
+  level: logLevelSchema,
+  area: z.string().nullable(),
+  msg: z.string(),
+  /** Everything else that came with it (user, duration, program output …). */
+  details: z.record(z.string(), z.unknown()),
+});
+export type LogEntry = z.infer<typeof logEntrySchema>;
+
+export const logPageSchema = z.object({
+  entries: z.array(logEntrySchema),
+  /** null = nothing older. */
+  next: z.string().nullable(),
+});
+export type LogPage = z.infer<typeof logPageSchema>;

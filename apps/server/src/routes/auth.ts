@@ -111,6 +111,10 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
     const wait = limiter.retryAfter(limitKey);
     if (wait > 0) {
       reply.header('Retry-After', String(wait));
+      ctx.log.warn(
+        { area: 'auth', user: body.username, ip: request.ip, waitSeconds: wait },
+        'sign-in blocked after too many attempts',
+      );
       throw new HttpError(429, 'TOO_MANY_ATTEMPTS');
     }
 
@@ -126,9 +130,22 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
     }
     if (!user || user.disabled) {
       limiter.fail(limitKey);
+      ctx.log.warn(
+        {
+          area: 'auth',
+          user: body.username,
+          ip: request.ip,
+          reason: user?.disabled ? 'account disabled' : 'wrong name or password',
+        },
+        'sign-in failed',
+      );
       throw new HttpError(401, 'INVALID_LOGIN');
     }
     limiter.reset(limitKey);
+    ctx.log.info(
+      { area: 'auth', user: user.username, ip: request.ip, source: user.authSource },
+      'signed in',
+    );
     setSessionCookie(ctx, request, reply, user);
     return { user: toUserDto(ctx.db, user) };
   });
@@ -155,6 +172,7 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext): void 
       .run();
     // Sign out all other devices, keep this one.
     deleteUserSessions(ctx.db, user.id, request.cookies[SESSION_COOKIE]);
+    ctx.log.info({ area: 'auth', user: user.username }, 'password changed');
     return { ok: true };
   });
 }

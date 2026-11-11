@@ -54,15 +54,21 @@ async function main(): Promise<void> {
   const pretty = config.env === 'development' && process.stdout.isTTY;
   const app = await buildApp({
     config,
-    logger: {
-      level: config.logLevel,
-      ...(pretty ? { transport: { target: 'pino-pretty' } } : {}),
+    logging: {
+      // The container's output keeps CONBERT_LOG_LEVEL; the admin's log file
+      // follows the detail chosen in the admin area.
+      console: {
+        level: config.logLevel,
+        stream: pretty ? (await import('pino-pretty')).default({ colorize: true }) : process.stdout,
+      },
+      file: true,
     },
     onSetupRequired: printSetupCode,
   });
+  app.log.info({ area: 'system', version: process.env['npm_package_version'] }, 'server started');
 
   const shutdown = async (signal: string) => {
-    app.log.info({ signal }, 'shutting down');
+    app.log.info({ area: 'system', signal }, 'shutting down');
     await app.close();
     process.exit(0);
   };

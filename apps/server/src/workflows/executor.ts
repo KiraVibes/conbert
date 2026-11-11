@@ -36,6 +36,7 @@ import {
 import type { WorkflowRunDto, WorkflowRunFile } from '@conbert/schemas';
 import { dataPaths } from '../config';
 import type { AppContext } from '../context';
+import { userName } from '../logs/who';
 import {
   files,
   storageTargets,
@@ -178,6 +179,20 @@ export class WorkflowRunner {
         this.update(id, { results });
       }
       const finished = this.update(id, { status: 'done', results, finishedAt: new Date() });
+      const failed = results.filter((r) => r.status === 'error');
+      this.ctx.log[failed.length > 0 ? 'warn' : 'info'](
+        {
+          area: 'workflow',
+          run: id,
+          user: userName(this.ctx, row.userId),
+          name: row.name,
+          files: results.length,
+          failed: failed.length,
+          ...(failed[0]?.error && { firstError: failed[0].error.messageKey }),
+          ...(row.test && { test: true }),
+        },
+        'workflow finished',
+      );
       if (row.dropInputs) await this.dropInputs(row, results);
       if (finished && !row.test) await this.report(finished, channels);
     } catch (error) {
@@ -189,6 +204,16 @@ export class WorkflowRunner {
         results,
         finishedAt: new Date(),
       });
+      this.ctx.log[cancelled ? 'info' : 'warn'](
+        {
+          area: 'workflow',
+          run: id,
+          user: userName(this.ctx, row.userId),
+          name: row.name,
+          ...(!cancelled && { err: error }),
+        },
+        cancelled ? 'workflow cancelled' : 'workflow failed',
+      );
     } finally {
       this.running.delete(id);
       await rm(base, { recursive: true, force: true });

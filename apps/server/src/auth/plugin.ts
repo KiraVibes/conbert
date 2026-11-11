@@ -46,6 +46,7 @@ const NOT_WITH_TOKEN = [
   '/api/users',
   '/api/groups',
   '/api/admin/ldap',
+  '/api/admin/logs',
   '/api/auth/',
   '/api/keys',
 ];

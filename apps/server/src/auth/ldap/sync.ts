@@ -26,7 +26,7 @@ async function importedGroupMembers(
     const entry = await readGroup(conn, settings, row.ldapDn);
     if (entry) result.set(row.id, membersOf(settings, entry));
     else {
-      log.warn({ group: row.ldapDn }, 'ldap group no longer exists');
+      log.warn({ area: 'ldap', group: row.ldapDn }, 'ldap group no longer exists');
       result.set(row.id, new Set());
     }
   }
@@ -107,14 +107,14 @@ export async function syncLdap(ctx: AppContext, log: FastifyBaseLogger): Promise
       await conn.close();
     }
   } catch (error) {
-    log.warn({ err: error }, 'ldap sync failed');
+    log.warn({ area: 'ldap', err: error }, 'ldap sync failed');
     const code = error instanceof HttpError ? error.code : 'LDAP_UNREACHABLE';
     status = { at, ok: false, users: 0, groups: 0, disabled: 0, errorKey: API_ERROR_KEYS[code] };
     setLastSync(ctx.db, status);
     throw error instanceof HttpError ? error : new HttpError(502, 'LDAP_UNREACHABLE');
   }
   setLastSync(ctx.db, status);
-  log.info(status, 'ldap sync done');
+  log.info({ area: 'ldap', ...status }, 'ldap sync done');
   return status;
 }
 

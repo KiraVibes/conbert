@@ -11,7 +11,7 @@ import {
   type GroupsResponse,
 } from '@conbert/schemas';
 import { everyoneGroup } from '../auth/permissions';
-import { requireAdmin } from '../auth/plugin';
+import { currentUser, requireAdmin } from '../auth/plugin';
 import type { AppContext } from '../context';
 import type { DbOrTx } from '../db';
 import { groupMembers, groups, users, type Group } from '../db/schema';
@@ -117,6 +117,15 @@ export function registerGroupRoutes(app: FastifyInstance, ctx: AppContext): void
     const body = createGroupRequestSchema.parse(request.body);
     if (nameTaken(ctx.db, body.name)) throw new HttpError(409, 'GROUP_NAME_TAKEN');
     const group = insertGroup(ctx.db, body);
+    ctx.log.info(
+      {
+        area: 'auth',
+        group: group.name,
+        permissions: group.permissions,
+        by: currentUser(request).username,
+      },
+      'group created',
+    );
     reply.status(201);
     return { group: toGroupDto(ctx.db, group) };
   });
@@ -147,7 +156,18 @@ export function registerGroupRoutes(app: FastifyInstance, ctx: AppContext): void
       })
       .where(eq(groups.id, id))
       .run();
-    return { group: toGroupDto(ctx.db, findGroup(ctx.db, id)) };
+    const changed = findGroup(ctx.db, id);
+    ctx.log.info(
+      {
+        area: 'auth',
+        group: changed.name,
+        permissions: changed.permissions,
+        grantsAdmin: changed.grantsAdmin,
+        by: currentUser(request).username,
+      },
+      'group changed',
+    );
+    return { group: toGroupDto(ctx.db, changed) };
   });
 
   // Hand-picked members; members from LDAP or the proxy stay as they are.
@@ -182,6 +202,10 @@ export function registerGroupRoutes(app: FastifyInstance, ctx: AppContext): void
         }
       }
     });
+    ctx.log.info(
+      { area: 'auth', group: group.name, members: wanted.size, by: currentUser(request).username },
+      'group members changed',
+    );
     return { group: toGroupDto(ctx.db, findGroup(ctx.db, id)) };
   });
 
@@ -191,6 +215,10 @@ export function registerGroupRoutes(app: FastifyInstance, ctx: AppContext): void
     if (group.builtin) throw new HttpError(400, 'GROUP_BUILTIN');
     // Memberships go with the group (ON DELETE CASCADE).
     ctx.db.delete(groups).where(eq(groups.id, id)).run();
+    ctx.log.info(
+      { area: 'auth', group: group.name, by: currentUser(request).username },
+      'group deleted',
+    );
     reply.status(204);
   });
 }

@@ -1,3 +1,5 @@
+import type { FastifyBaseLogger } from 'fastify';
+import type { LogHub } from './logs/hub';
 import type { Engine } from '@conbert/core';
 import type { Config } from './config';
 import type { Db } from './db';
@@ -14,6 +16,10 @@ import type { JobRunner } from './queue/runner';
 /** Everything route handlers and workers need, passed around explicitly. */
 export interface AppContext {
   config: Config;
+  /** The server log (console and, in the container, the admin's log file). */
+  log: FastifyBaseLogger;
+  /** Log file and its settings (admin area). */
+  logs: LogHub;
   db: Db;
   engines: readonly Engine[];
   /** One-time code required by the first-start setup page. */

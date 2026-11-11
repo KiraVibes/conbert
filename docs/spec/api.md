@@ -60,7 +60,7 @@ Alle Request/Response-Bodies sind über Zod-Schemas in `packages/schemas` defini
 
 ### Skripte, Tokens & CLI (2026-11-03)
 
-Anmeldung für Skripte: `Authorization: Bearer cbt_…` (Token unter Einstellungen → API-Zugang, nur einmal angezeigt, gespeichert als SHA-256; Ablauf 30/90/365 Tage oder unbegrenzt). Tokens dürfen alles wie der Nutzer, außer `/api/tokens`, `/api/users`, `/api/groups`, `/api/admin/ldap`, `/api/auth/*` (außer `status`) und `/api/keys` → `403 TOKEN_NOT_ALLOWED`. Falsches/abgelaufenes Token → `401 INVALID_TOKEN`.
+Anmeldung für Skripte: `Authorization: Bearer cbt_…` (Token unter Einstellungen → API-Zugang, nur einmal angezeigt, gespeichert als SHA-256; Ablauf 30/90/365 Tage oder unbegrenzt). Tokens dürfen alles wie der Nutzer, außer `/api/tokens`, `/api/users`, `/api/groups`, `/api/admin/ldap`, `/api/admin/logs`, `/api/auth/*` (außer `status`) und `/api/keys` → `403 TOKEN_NOT_ALLOWED`. Falsches/abgelaufenes Token → `401 INVALID_TOKEN`.
 
 | Methode | Pfad | Zweck |
 |---|---|---|
@@ -101,5 +101,9 @@ Funktionen (`FEATURES` in `packages/schemas/src/permissions.ts`): `convert`, `se
 | GET | `/api/admin/ldap/groups?q=` | Admin: Gruppen im Verzeichnis (max. 300) |
 | POST | `/api/admin/ldap/import` | Admin: `{ dns }` – als Conbert-Gruppen übernehmen, danach Abgleich |
 | POST | `/api/admin/ldap/sync` | Admin: Abgleich jetzt (Gruppen, Anzeigenamen, verschwundene Konten → `disabled`) |
+| GET/PUT | `/api/admin/logs/settings` | Admin: `{ detail: 'errors'\|'normal'\|'detailed', limit: { kind: 'size', mb } \| { kind: 'lines', count } }`, dazu `usedBytes`, `usedLines`; gilt sofort |
+| GET | `/api/admin/logs?level=&area=&q=&before=&limit=` | Admin: neueste Einträge zuerst (`{ entries, next }`, `next` als `before` für ältere) |
+| GET | `/api/admin/logs/download` | Admin: das ganze Log als Textdatei (eine JSON-Zeile pro Eintrag) |
+| DELETE | `/api/admin/logs` | Admin: Log leeren |
 
 `POST /api/auth/login`: lokales Konto mit Passwort zuerst; sonst LDAP (wenn eingeschaltet). Ein lokales Konto wird nie von LDAP übernommen. Verzeichnis nicht erreichbar → `502 LDAP_UNREACHABLE` (nur für Nicht-lokale Namen). `/api/auth/status` meldet `ldap: true`, wenn LDAP an ist. Proxy-Modus: `CONBERT_PROXY_GROUPS_HEADER` (Komma oder `|` getrennt, nur von vertrauenswürdigen Proxys) ordnet Gruppen über `proxyName` zu.

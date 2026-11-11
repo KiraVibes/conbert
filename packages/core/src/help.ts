@@ -53,6 +53,7 @@ export const GLOSSARY_TERMS = [
   'hash',
   'https',
   'ldap',
+  'log',
   'lossless',
   'lossy',
   'magicBytes',

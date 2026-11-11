@@ -26,6 +26,7 @@ import type { AfterDownload, BooruJobDto, BooruSettings, HiddenCounts } from '@c
 import { runAfter } from '../workflows/service';
 import { dataPaths } from '../config';
 import type { AppContext } from '../context';
+import { userName } from '../logs/who';
 import { booruArchive, booruJobs, storageTargets, type BooruJobRecord } from '../db/schema';
 import { API_ERROR_KEYS, HttpError } from '../lib/http-error';
 import type { JobEvents } from '../queue/events';
@@ -441,6 +442,21 @@ export class BooruRunner {
       resumeAt: null,
       ...patch,
     });
+    if (row) {
+      const entry = {
+        area: 'booru',
+        crawl: row.id,
+        user: userName(this.ctx, row.userId),
+        site: row.siteId,
+        query: row.query,
+        files: state.files.length,
+        ...(row.subscriptionId && { subscription: row.subscriptionId }),
+      };
+      if (status === 'error') {
+        this.ctx.log.warn({ ...entry, errorKey: row.errorKey }, 'booru crawl failed');
+      } else
+        this.ctx.log.info({ ...entry, note: row.errorKey ?? undefined }, 'booru crawl finished');
+    }
     if (row && this.onFinished) void Promise.resolve(this.onFinished(row)).catch(() => undefined);
   }
 

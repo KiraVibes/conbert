@@ -20,6 +20,7 @@ import { dataPaths } from '../config';
 import type { AppContext } from '../context';
 import { downloads, storageTargets, type DownloadRecord } from '../db/schema';
 import { API_ERROR_KEYS, HttpError } from '../lib/http-error';
+import { tail, userName } from '../logs/who';
 import { ProcessError, runProcess } from '../lib/run-process';
 import type { JobEvents } from '../queue/events';
 import { deleteFileRecord, recordFile } from '../storage/uploads';
@@ -629,7 +630,57 @@ export class DownloadRunner {
 
   private finish(id: string, status: DownloadRecord['status'], patch: Partial<DownloadRecord>) {
     const row = this.update(id, { ...patch, status, finishedAt: new Date() });
+    if (row) this.logFinished(row);
     if (row?.feedId) feedDownloadFinished(this.ctx, row);
+  }
+
+  private logFinished(row: DownloadRecord): void {
+    const options = row.options as DownloadOptions;
+    const files = row.files as DownloadedFile[];
+    const entry = {
+      area: row.feedId ? 'feed' : 'download',
+      download: row.id,
+      user: userName(this.ctx, row.userId),
+      platform: row.platform,
+      tool: row.tool,
+      title: row.title,
+      url: row.url,
+      files: files.length,
+      skipped: row.skipped,
+      known: row.known,
+      ...(options.recordOnly && { recordOnly: true }),
+      ...(row.finishedAt && {
+        seconds: Math.round((row.finishedAt.getTime() - row.createdAt.getTime()) / 1000),
+      }),
+      ...(row.savedTo && { savedTo: row.savedTo }),
+      saveErrors: files.filter((f) => f.saveError).length,
+    };
+    if (row.status === 'error') {
+      this.ctx.log.warn(
+        { ...entry, errorKey: row.errorKey, details: tail(row.errorDetails) },
+        'download failed',
+      );
+    } else {
+      this.ctx.log.info(
+        entry,
+        row.status === 'cancelled' ? 'download cancelled' : 'download finished',
+      );
+    }
+    // "Detailed": every file with where it went.
+    for (const file of files) {
+      this.ctx.log.debug(
+        {
+          area: entry.area,
+          download: row.id,
+          name: file.name,
+          bytes: file.size,
+          savedTo: file.savedTo,
+          ...(file.alreadyThere && { alreadyThere: true }),
+          ...(file.saveError && { saveError: file.saveError }),
+        },
+        'downloaded file',
+      );
+    }
   }
 
   /** The cover yt-dlp wrote for an item, if any. */

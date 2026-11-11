@@ -1,4 +1,5 @@
 import { spawn, type ChildProcess } from 'node:child_process';
+import path from 'node:path';
 import { setPriority } from 'node:os';
 import { StringDecoder } from 'node:string_decoder';
 
@@ -32,6 +33,44 @@ export class ProcessError extends Error {
     this.name = 'ProcessError';
   }
 }
+
+/** What the log learns about a finished program ("detailed" log only). */
+export interface ProcessLogEntry {
+  program: string;
+  args: string[];
+  code: number | null;
+  ms: number;
+  outcome: 'ok' | 'exit' | 'timeout' | 'aborted' | 'spawn';
+  /** The last lines of the error output (only when something went wrong). */
+  stderr?: string;
+}
+
+let processLog: ((entry: ProcessLogEntry) => void) | null = null;
+
+/** The app sets where finished programs are reported (the server log). */
+export function setProcessLog(log: ((entry: ProcessLogEntry) => void) | null): void {
+  processLog = log;
+}
+
+/** Values after these options are secrets and never logged. */
+const SECRET_OPTIONS = /^--?(password|pass|token|api-?key|secret|auth|cookies?|refresh-token)$/i;
+
+/** Arguments as they may appear in the log: secrets hidden, long ones cut. */
+export function argsForLog(args: readonly string[]): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < args.length && out.length < 80; i++) {
+    const arg = args[i] ?? '';
+    const previous = args[i - 1] ?? '';
+    if (SECRET_OPTIONS.test(previous) || /^--?(password|token|api-?key|secret)=/i.test(arg)) {
+      out.push(arg.includes('=') ? `${arg.slice(0, arg.indexOf('=') + 1)}[secret]` : '[secret]');
+    } else out.push(arg.length > 300 ? `${arg.slice(0, 300)}…` : arg);
+  }
+  if (args.length > 80) out.push(`… (${String(args.length - 80)} more)`);
+  return out;
+}
+
+const tailLines = (text: string, lines: number) =>
+  text.trimEnd().split(/\r?\n/).slice(-lines).join('\n');
 
 /** Keeps the last part of a stream – enough for error messages, never unbounded. */
 const MAX_OUTPUT = 64 * 1024;
@@ -98,6 +137,7 @@ export function runProcess(
   args: readonly string[],
   options: RunOptions = {},
 ): Promise<RunResult> {
+  const started = Date.now();
   return new Promise((resolve, reject) => {
     let settled = false;
     const child = spawn(command, args, {
@@ -151,6 +191,20 @@ export function runProcess(
       // Helpers that outlived the main program (daemons, child workers) go too.
       if (USE_GROUPS) killTree(child);
       const result = { code, stdout: out.text(), stderr: errOut.text() };
+      if (processLog) {
+        try {
+          processLog({
+            program: path.basename(command),
+            args: argsForLog(args),
+            code,
+            ms: Date.now() - started,
+            outcome: error ? error.reason : 'ok',
+            ...(error && { stderr: tailLines(result.stderr, 20) }),
+          });
+        } catch {
+          // The log must never break a conversion.
+        }
+      }
       if (error) reject(error);
       else resolve(result);
     };

@@ -71,6 +71,10 @@ export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void 
       passwordHash: await hashPassword(body.password),
       role: body.role,
     });
+    ctx.log.info(
+      { area: 'auth', user: user.username, role: user.role, by: currentUser(request).username },
+      'user created',
+    );
     reply.status(201);
     return { user: toUserDto(ctx.db, user, { admin: true }) };
   });
@@ -101,6 +105,18 @@ export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void 
     });
     // A password reset signs the user out everywhere.
     if (passwordHash) deleteUserSessions(ctx.db, id);
+    ctx.log.info(
+      {
+        area: 'auth',
+        user: user.username,
+        by: currentUser(request).username,
+        changed: Object.keys(body).filter((k) => k !== 'password'),
+        ...(body.password && { passwordReset: true }),
+        ...(body.role && { role: body.role }),
+        ...(body.permissionOverrides && { permissionOverrides: body.permissionOverrides }),
+      },
+      'user changed',
+    );
     const updated = findUserById(ctx.db, id);
     if (!updated) throw new HttpError(404, 'NOT_FOUND');
     return { user: toUserDto(ctx.db, updated, { admin: true }) };
@@ -116,7 +132,10 @@ export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void 
       .set({ lockHash: null, updatedAt: new Date() })
       .where(eq(booruSettings.userId, id))
       .run();
-    request.log.info({ userId: id }, 'booru PIN reset by an administrator');
+    request.log.info(
+      { area: 'auth', user: user.username, by: currentUser(request).username },
+      'booru PIN reset by an administrator',
+    );
     reply.status(204);
   });
 
@@ -130,6 +149,10 @@ export function registerUserRoutes(app: FastifyInstance, ctx: AppContext): void 
     }
     // Sessions, settings, files and jobs go with the user (ON DELETE CASCADE).
     ctx.db.delete(users).where(eq(users.id, id)).run();
+    ctx.log.info(
+      { area: 'auth', user: user.username, by: currentUser(request).username },
+      'user deleted',
+    );
     reply.status(204);
   });
 }

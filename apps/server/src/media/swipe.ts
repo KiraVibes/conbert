@@ -36,6 +36,7 @@ import type {
 } from '@conbert/schemas';
 import { dataPaths } from '../config';
 import type { AppContext } from '../context';
+import { userName } from '../logs/who';
 import { appSettings, mediaItems, swipeActions, type MediaItemRecord } from '../db/schema';
 import { HttpError } from '../lib/http-error';
 import type { RcloneConnection } from '../targets/rclone';
@@ -371,6 +372,24 @@ async function commit(
       .where(eq(swipeActions.id, a.id))
       .run();
     out.push({ itemId: a.itemId, name: item?.name ?? '', action, ok: !error, error });
+  }
+  if (out.length > 0) {
+    const failed = out.filter((o) => !o.ok);
+    ctx.log[failed.length > 0 ? 'warn' : 'info'](
+      {
+        area: 'swipe',
+        user: userName(ctx, userId),
+        done: out.length - failed.length,
+        failed: failed.map((f) => `${f.name}: ${f.error ?? ''}`).slice(0, 20),
+        actions: out.reduce<Record<string, number>>(
+          (n, o) => ({ ...n, [o.action]: (n[o.action] ?? 0) + 1 }),
+          {},
+        ),
+      },
+      'swipe decisions carried out',
+    );
+    for (const o of out)
+      ctx.log.debug({ area: 'swipe', action: o.action, name: o.name, ok: o.ok }, 'swipe decision');
   }
   return out;
 }

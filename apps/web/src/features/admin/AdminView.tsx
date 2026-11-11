@@ -21,6 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BlenderCard } from './BlenderCard';
 import { UsersCard } from '@/features/auth/UsersCard';
 import { GroupsCard } from './GroupsCard';
+import { LogCard } from './LogCard';
 import { LdapCard, LdapImportDialog } from './LdapCard';
 import { useLdapSettings } from './ldap-api';
 import { Progress } from '@/components/ui/progress';
@@ -374,6 +375,8 @@ export function AdminView() {
           )}
         </CardContent>
       </Card>
+
+      <LogCard />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>

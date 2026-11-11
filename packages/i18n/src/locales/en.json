@@ -5968,7 +5968,142 @@
       },
       "notLoaded": "not downloaded yet"
     },
-    "metrics": "For Prometheus/Grafana: metrics at"
+    "metrics": "For Prometheus/Grafana: metrics at",
+    "log": {
+      "title": "Log",
+      "intro": "What happened on the server – sign-ins, conversions, downloads, subscriptions, errors. You decide here how detailed it is.",
+      "help": "The log is the server's diary. When something doesn't work, it usually says why. Passwords, keys and cookies are never written down. The log lives in the data folder under logs/ and never grows beyond the limit you set – the oldest entries go then.",
+      "detail": "How detailed?",
+      "detailHelp": "The more detailed, the more entries – and the sooner the limit is reached. “Normal” is enough for every day. Switch on “Detailed” when you are tracking down a problem.",
+      "details": {
+        "errors": {
+          "label": "Errors only",
+          "help": "Only what went wrong. Very few entries."
+        },
+        "normal": {
+          "label": "Normal",
+          "help": "Errors, warnings and important events: sign-ins, finished conversions, downloads, subscription runs, workflows, changes to users and groups."
+        },
+        "detailed": {
+          "label": "Detailed",
+          "help": "Also every request to the server, every program started (ffmpeg, gallery-dl, rclone …) with its duration and error output, and every single file. Good for finding problems, but grows fast."
+        }
+      },
+      "limit": "At most",
+      "limitHelp": "So the log doesn't fill your storage: when the limit is reached, the oldest entries go. Give it as a file size (MB) or as a number of lines (one line = one entry).",
+      "limitKind": "Limit as",
+      "bySize": "Size",
+      "byLines": "Lines",
+      "linesUnit": "lines",
+      "limitRange": "Allowed: {{min}} to {{max}}.",
+      "saveLimit": "Save limit",
+      "saved": "Saved.",
+      "used": "In use: {{size}} · {{lines}} entries",
+      "noFile": "This server writes no log file.",
+      "filterLevel": "Which entries",
+      "from": {
+        "debug": "All entries",
+        "info": "Without detail entries",
+        "warn": "Warnings and errors",
+        "error": "Errors only"
+      },
+      "filterArea": "Area",
+      "allAreas": "All areas",
+      "search": "Search the log …",
+      "live": "Keep updating",
+      "download": "Download",
+      "clear": "Clear",
+      "clearTitle": "Clear the log?",
+      "clearWarning": "All entries are deleted. This can't be undone.",
+      "clearConfirm": "Clear",
+      "cleared": "The log is empty.",
+      "loading": "Loading the log …",
+      "empty": "No entries – or none that fit your choice.",
+      "older": "Load older",
+      "levels": {
+        "error": "Error",
+        "warn": "Warning",
+        "info": "Info",
+        "debug": "Detail"
+      },
+      "areas": {
+        "system": "System",
+        "http": "Requests",
+        "process": "Programs",
+        "auth": "Sign-in & users",
+        "job": "Convert",
+        "download": "Downloads",
+        "feed": "Subscriptions",
+        "booru": "Booru",
+        "workflow": "Workflows",
+        "storage": "Storage locations",
+        "swipe": "Swipe",
+        "ldap": "LDAP"
+      },
+      "fields": {
+        "user": "user",
+        "ip": "IP",
+        "group": "group",
+        "platform": "platform",
+        "title": "title",
+        "site": "site",
+        "query": "search",
+        "name": "file",
+        "from": "from",
+        "to": "to",
+        "files": "files",
+        "failed": "failed",
+        "seconds": "seconds",
+        "target": "location",
+        "program": "program",
+        "method": "method",
+        "path": "path",
+        "status": "status",
+        "ms": "ms"
+      },
+      "msg": {
+        "server started": "Server started",
+        "shutting down": "Shutting down",
+        "request": "Request",
+        "unhandled error": "Unhandled error",
+        "program finished": "Program finished",
+        "sign-in blocked after too many attempts": "Sign-in blocked after too many attempts",
+        "sign-in failed": "Sign-in failed",
+        "signed in": "Signed in",
+        "password changed": "Password changed",
+        "user created": "User created",
+        "user changed": "User changed",
+        "user deleted": "User deleted",
+        "booru PIN reset by an administrator": "Booru PIN removed by an administrator",
+        "group created": "Group created",
+        "group changed": "Group changed",
+        "group members changed": "Group members changed",
+        "group deleted": "Group deleted",
+        "conversion finished": "Conversion finished",
+        "conversion cancelled": "Conversion cancelled",
+        "conversion failed": "Conversion failed",
+        "download finished": "Download finished",
+        "download cancelled": "Download cancelled",
+        "download failed": "Download failed",
+        "downloaded file": "Downloaded file",
+        "booru crawl finished": "Booru crawl finished",
+        "booru crawl failed": "Booru crawl failed",
+        "workflow finished": "Workflow finished",
+        "workflow cancelled": "Workflow cancelled",
+        "workflow failed": "Workflow failed",
+        "file saved": "File saved",
+        "saving to a storage location failed": "Saving to a storage location failed",
+        "storage location synced": "Storage location synced",
+        "sync with the storage location failed": "Sync with the storage location failed",
+        "swipe decisions carried out": "Swipe decisions carried out",
+        "swipe decision": "Swipe decision",
+        "ldap group no longer exists": "LDAP group no longer exists",
+        "ldap sync failed": "LDAP sync failed",
+        "ldap sync done": "LDAP sync done",
+        "log settings changed": "Log settings changed",
+        "log cleared": "Log cleared"
+      }
+    }
   },
   "quota": {
     "title": "Storage on the server",
@@ -6049,7 +6184,7 @@
       },
       "admin": {
         "title": "Administration",
-        "body": "For admins only: create more accounts, reset passwords, set storage quotas and see how busy the server is. Under “Groups” you decide who may use which functions, and under “Sign-in through LDAP” you connect Conbert to your user directory."
+        "body": "For admins only: create more accounts, reset passwords, set storage quotas and see how busy the server is. Under “Groups” you decide who may use which functions, and under “Sign-in through LDAP” you connect Conbert to your user directory. The “Log” shows what happened on the server – you choose there how detailed it is."
       }
     },
     "faq": {
@@ -6226,6 +6361,10 @@
       "userGroup": {
         "term": "Group (user group)",
         "text": "Several accounts that get the same permissions together. Example: the group “Family” may download videos, everyone else may not. That way the admin doesn't have to set up every person on their own."
+      },
+      "log": {
+        "term": "Log",
+        "text": "The server's diary: every line records what happened when – for example “Download failed” with the reason. Helps to find problems. The admin decides how detailed it is."
       }
     },
     "guides": {

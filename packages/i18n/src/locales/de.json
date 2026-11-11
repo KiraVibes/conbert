@@ -5968,7 +5968,142 @@
       },
       "notLoaded": "noch nicht geladen"
     },
-    "metrics": "Für Prometheus/Grafana: Metriken unter"
+    "metrics": "Für Prometheus/Grafana: Metriken unter",
+    "log": {
+      "title": "Log",
+      "intro": "Was auf dem Server passiert ist – Anmeldungen, Umwandlungen, Downloads, Abos, Fehler. Wie ausführlich, bestimmst du hier.",
+      "help": "Das Log ist ein Tagebuch des Servers. Wenn etwas nicht klappt, steht hier meist, warum. Passwörter, Schlüssel und Cookies werden nie aufgeschrieben. Das Log liegt im Datenordner unter logs/ und wird nie größer als die Grenze, die du einstellst – die ältesten Einträge fallen dann weg.",
+      "detail": "Wie ausführlich?",
+      "detailHelp": "Je ausführlicher, desto mehr Einträge – und desto schneller ist die Grenze erreicht. Für den Alltag reicht „Normal“. Schalte „Ausführlich“ ein, wenn du einem Fehler auf der Spur bist.",
+      "details": {
+        "errors": {
+          "label": "Nur Fehler",
+          "help": "Nur was schiefging. Sehr wenige Einträge."
+        },
+        "normal": {
+          "label": "Normal",
+          "help": "Fehler, Warnungen und wichtige Ereignisse: Anmeldungen, fertige Umwandlungen, Downloads, Abo-Läufe, Workflows, Änderungen an Nutzern und Gruppen."
+        },
+        "detailed": {
+          "label": "Ausführlich",
+          "help": "Zusätzlich jede Anfrage an den Server, jedes gestartete Programm (ffmpeg, gallery-dl, rclone …) mit Dauer und Fehlerausgabe und jede einzelne Datei. Gut zur Fehlersuche, wächst aber schnell."
+        }
+      },
+      "limit": "Höchstens",
+      "limitHelp": "Damit das Log den Speicher nicht füllt: Wird die Grenze erreicht, fallen die ältesten Einträge weg. Du kannst sie als Dateigröße (MB) oder als Anzahl Zeilen (eine Zeile = ein Eintrag) angeben.",
+      "limitKind": "Grenze als",
+      "bySize": "Größe",
+      "byLines": "Zeilen",
+      "linesUnit": "Zeilen",
+      "limitRange": "Erlaubt sind {{min}} bis {{max}}.",
+      "saveLimit": "Grenze speichern",
+      "saved": "Gespeichert.",
+      "used": "Belegt: {{size}} · {{lines}} Einträge",
+      "noFile": "Dieser Server schreibt kein Log in eine Datei.",
+      "filterLevel": "Welche Einträge",
+      "from": {
+        "debug": "Alle Einträge",
+        "info": "Ohne Detail-Einträge",
+        "warn": "Warnungen und Fehler",
+        "error": "Nur Fehler"
+      },
+      "filterArea": "Bereich",
+      "allAreas": "Alle Bereiche",
+      "search": "Im Log suchen …",
+      "live": "Laufend aktualisieren",
+      "download": "Herunterladen",
+      "clear": "Leeren",
+      "clearTitle": "Log leeren?",
+      "clearWarning": "Alle Einträge werden gelöscht. Das lässt sich nicht rückgängig machen.",
+      "clearConfirm": "Leeren",
+      "cleared": "Das Log ist leer.",
+      "loading": "Log wird geladen …",
+      "empty": "Keine Einträge – oder keine, die zu deiner Auswahl passen.",
+      "older": "Ältere laden",
+      "levels": {
+        "error": "Fehler",
+        "warn": "Warnung",
+        "info": "Info",
+        "debug": "Detail"
+      },
+      "areas": {
+        "system": "System",
+        "http": "Anfragen",
+        "process": "Programme",
+        "auth": "Anmeldung & Nutzer",
+        "job": "Umwandeln",
+        "download": "Downloads",
+        "feed": "Abos",
+        "booru": "Booru",
+        "workflow": "Workflows",
+        "storage": "Speicherorte",
+        "swipe": "Swipen",
+        "ldap": "LDAP"
+      },
+      "fields": {
+        "user": "Nutzer",
+        "ip": "IP",
+        "group": "Gruppe",
+        "platform": "Plattform",
+        "title": "Titel",
+        "site": "Seite",
+        "query": "Suche",
+        "name": "Datei",
+        "from": "von",
+        "to": "nach",
+        "files": "Dateien",
+        "failed": "fehlgeschlagen",
+        "seconds": "Sekunden",
+        "target": "Speicherort",
+        "program": "Programm",
+        "method": "Methode",
+        "path": "Pfad",
+        "status": "Status",
+        "ms": "ms"
+      },
+      "msg": {
+        "server started": "Server gestartet",
+        "shutting down": "Server wird beendet",
+        "request": "Anfrage",
+        "unhandled error": "Unerwarteter Fehler",
+        "program finished": "Programm beendet",
+        "sign-in blocked after too many attempts": "Anmeldung nach zu vielen Versuchen gesperrt",
+        "sign-in failed": "Anmeldung fehlgeschlagen",
+        "signed in": "Angemeldet",
+        "password changed": "Passwort geändert",
+        "user created": "Nutzer angelegt",
+        "user changed": "Nutzer geändert",
+        "user deleted": "Nutzer gelöscht",
+        "booru PIN reset by an administrator": "Booru-PIN vom Admin entfernt",
+        "group created": "Gruppe angelegt",
+        "group changed": "Gruppe geändert",
+        "group members changed": "Mitglieder einer Gruppe geändert",
+        "group deleted": "Gruppe gelöscht",
+        "conversion finished": "Umwandlung fertig",
+        "conversion cancelled": "Umwandlung abgebrochen",
+        "conversion failed": "Umwandlung fehlgeschlagen",
+        "download finished": "Download fertig",
+        "download cancelled": "Download abgebrochen",
+        "download failed": "Download fehlgeschlagen",
+        "downloaded file": "Datei geladen",
+        "booru crawl finished": "Booru-Suche fertig",
+        "booru crawl failed": "Booru-Suche fehlgeschlagen",
+        "workflow finished": "Workflow fertig",
+        "workflow cancelled": "Workflow abgebrochen",
+        "workflow failed": "Workflow fehlgeschlagen",
+        "file saved": "Datei gespeichert",
+        "saving to a storage location failed": "Speichern auf einem Speicherort fehlgeschlagen",
+        "storage location synced": "Speicherort abgeglichen",
+        "sync with the storage location failed": "Abgleich mit dem Speicherort fehlgeschlagen",
+        "swipe decisions carried out": "Swipe-Entscheidungen ausgeführt",
+        "swipe decision": "Swipe-Entscheidung",
+        "ldap group no longer exists": "LDAP-Gruppe gibt es nicht mehr",
+        "ldap sync failed": "LDAP-Abgleich fehlgeschlagen",
+        "ldap sync done": "LDAP-Abgleich fertig",
+        "log settings changed": "Log-Einstellungen geändert",
+        "log cleared": "Log geleert"
+      }
+    }
   },
   "quota": {
     "title": "Speicher auf dem Server",
@@ -6049,7 +6184,7 @@
       },
       "admin": {
         "title": "Verwaltung",
-        "body": "Nur für Admins: weitere Konten anlegen, Passwörter zurücksetzen, Speicher-Kontingente festlegen und sehen, wie stark der Server ausgelastet ist. Unter „Gruppen“ legst du fest, wer welche Funktionen nutzen darf, und unter „Anmeldung über LDAP“ verbindest du Conbert mit deinem Benutzerverzeichnis."
+        "body": "Nur für Admins: weitere Konten anlegen, Passwörter zurücksetzen, Speicher-Kontingente festlegen und sehen, wie stark der Server ausgelastet ist. Unter „Gruppen“ legst du fest, wer welche Funktionen nutzen darf, und unter „Anmeldung über LDAP“ verbindest du Conbert mit deinem Benutzerverzeichnis. Im „Log“ siehst du, was auf dem Server passiert ist – wie ausführlich, stellst du dort ein."
       }
     },
     "faq": {
@@ -6226,6 +6361,10 @@
       "userGroup": {
         "term": "Gruppe (Benutzergruppe)",
         "text": "Mehrere Konten, die zusammen dieselben Rechte bekommen. Beispiel: Die Gruppe „Familie“ darf Videos herunterladen, alle anderen nicht. So muss der Admin nicht jede Person einzeln einstellen."
+      },
+      "log": {
+        "term": "Log",
+        "text": "Ein Tagebuch des Servers: Jede Zeile hält fest, was wann passiert ist – zum Beispiel „Download fehlgeschlagen“ mit dem Grund. Hilft, Fehler zu finden. Wie ausführlich es ist, stellt der Admin ein."
       }
     },
     "guides": {

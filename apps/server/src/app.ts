@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
+import Fastify, { type FastifyBaseLogger, type FastifyInstance } from 'fastify';
 import fastifyStatic from '@fastify/static';
 import { ZodError } from 'zod';
 import type { Engine } from '@conbert/core';
@@ -62,6 +62,9 @@ import { configureImageAi } from './engines/image-ai';
 import { configureBlender } from './engines/blender';
 import { BlenderInstaller } from './blender/installer';
 import { registerBlenderRoutes } from './routes/blender';
+import { LogHub, logDir, readLogSettings } from './logs/hub';
+import { registerLogRoutes } from './routes/logs';
+import { setProcessLog } from './lib/run-process';
 
 export { API_ERROR_KEYS } from './lib/http-error';
 
@@ -70,7 +73,14 @@ export interface BuildAppOptions {
   /** Defaults to the database file in the data directory. */
   db?: Db;
   engines?: readonly Engine[];
-  logger?: FastifyServerOptions['logger'];
+  /**
+   * The console (the container's output) and the log file in the data folder
+   * that the admin reads. Default: neither (tests).
+   */
+  logging?: {
+    console?: { level: string; stream: { write(line: string): unknown } } | null;
+    file?: boolean;
+  };
   /** Called with the one-time setup code when the first-start setup is pending. */
   onSetupRequired?: (setupCode: string) => void;
   /** Timers and the BullMQ worker (off in tests, which run jobs inline). Default: on. */
@@ -91,8 +101,17 @@ export interface BuildAppOptions {
 
 export async function buildApp(options: BuildAppOptions): Promise<FastifyInstance> {
   const { config } = options;
+  const db = options.db ?? openDatabase(dataPaths(config).database, config.migrationsDir);
+  const logs = new LogHub({
+    dir: options.logging?.file ? logDir(config.dataDir) : null,
+    console: options.logging?.console ?? null,
+    settings: readLogSettings(db),
+  });
   const app = Fastify({
-    logger: options.logger ?? false,
+    // pino's own type is wider than Fastify's logger type; the instance is the same.
+    loggerInstance: logs.logger as FastifyBaseLogger,
+    // Requests are logged by the hook below (only with "detailed").
+    disableRequestLogging: true,
     // Uploads go through tus; plain JSON bodies stay small.
     bodyLimit: 1024 * 1024,
     // Behind a reverse proxy, request.ip must be the real client.
@@ -124,11 +143,10 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
       return reply.status(status).send(apiError('BAD_REQUEST', message));
     }
     // Technical details go to the log only, never to the client.
-    request.log.error({ err: error }, 'unhandled error');
+    request.log.error({ area: 'http', err: error }, 'unhandled error');
     return reply.status(500).send(apiError('INTERNAL'));
   });
 
-  const db = options.db ?? openDatabase(dataPaths(config).database, config.migrationsDir);
   const events = new JobEvents();
   const paths = dataPaths(config);
   const secrets = createSecretBox(config.secret, paths.secretKey);
@@ -146,7 +164,40 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     secrets,
     ldap: options.ldapConnector ?? ldaptsConnector,
     rclone: prepareRclone(config.rclonePath, paths.rclone),
+    log: app.log,
+    logs,
   } as AppContext;
+  app.addHook('onClose', async () => logs.close());
+  // "Detailed": every API request with its answer and duration.
+  app.addHook('onResponse', async (request, reply) => {
+    const url = request.url.split('?')[0] ?? '';
+    if (!url.startsWith('/api/') || url === '/api/health') return;
+    request.log.debug(
+      {
+        area: 'http',
+        method: request.method,
+        path: url,
+        status: reply.statusCode,
+        ms: Math.round(reply.elapsedTime),
+        user: request.user?.username,
+      },
+      'request',
+    );
+  });
+  // "Detailed": every program Conbert starts (ffmpeg, gallery-dl, rclone …).
+  setProcessLog((entry) => {
+    const dataDir = config.dataDir;
+    const short = (text: string) => text.split(dataDir).join('<data>');
+    app.log.debug(
+      {
+        area: 'process',
+        ...entry,
+        args: entry.args.map(short),
+        ...(entry.stderr && { stderr: short(entry.stderr) }),
+      },
+      'program finished',
+    );
+  });
   // Whisper models: downloaded into the data folder on first use.
   configureWhisper(
     new ModelStore(
@@ -240,6 +291,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerScriptingRoutes(app, ctx);
   registerOpenApiRoutes(app, pkg.version);
   registerAdminRoutes(app, ctx);
+  registerLogRoutes(app, ctx);
   await registerWebSocket(app, ctx);
   const uploads = registerUploads(app, ctx);
 

@@ -14,6 +14,7 @@ import {
 import type { AppContext } from '../context';
 import { files, jobs, type JobRecord } from '../db/schema';
 import { isSystemKill } from '../lib/run-process';
+import { tail, userName } from '../logs/who';
 import { jobDir } from '../storage/cleanup';
 import { toJobDto, type JobEvents } from './events';
 
@@ -205,6 +206,30 @@ export class JobRunner {
       expiresAt: new Date(Date.now() + this.ctx.config.cleanupAfterMs),
       ...patch,
     });
+    const job = this.ctx.db.select().from(jobs).where(eq(jobs.id, jobId)).get();
+    if (!job) return;
+    const entry = {
+      area: 'job',
+      job: job.id,
+      user: userName(this.ctx, job.userId),
+      mode: job.mode,
+      from: job.inputExt,
+      to: job.outputExt,
+      engines: (job.steps as Step[]).map((s) => s.engineId),
+      ...(job.startedAt &&
+        job.finishedAt && {
+          seconds: Math.round((job.finishedAt.getTime() - job.startedAt.getTime()) / 100) / 10,
+        }),
+      ...(job.resultSize !== null && { resultBytes: job.resultSize }),
+    };
+    if (job.status === 'done') this.ctx.log.info(entry, 'conversion finished');
+    else if (job.status === 'cancelled') this.ctx.log.info(entry, 'conversion cancelled');
+    else {
+      this.ctx.log.warn(
+        { ...entry, errorKey: job.errorKey, details: tail(job.errorDetails) },
+        'conversion failed',
+      );
+    }
   }
 
   private engine(id: string): Engine {

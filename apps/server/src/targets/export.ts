@@ -3,6 +3,7 @@ import type { z } from 'zod';
 import { downloadFolder, joinStoragePath, numberedName, safeName } from '@conbert/core';
 import type { ExportResult, exportRequestSchema } from '@conbert/schemas';
 import type { AppContext } from '../context';
+import { userName } from '../logs/who';
 import { API_ERROR_KEYS, HttpError } from '../lib/http-error';
 import { indexSavedFile, knownFile, sha256OfFile } from '../media/known';
 import { StorageError } from './rclone';
@@ -124,8 +125,20 @@ export async function exportFile(
       await storageCall(() => connection.upload(source.filePath, destination));
       if (fingerprint) indexSavedFile(ctx, userId, targetId, { path: destination, ...fingerprint });
       results.push({ targetId, status: 'saved', path: destination, error: null });
+      ctx.log.debug({ area: 'storage', target: record.name, path: destination }, 'file saved');
     } catch (error) {
       if (!(error instanceof HttpError)) throw error;
+      ctx.log.warn(
+        {
+          area: 'storage',
+          user: userName(ctx, userId),
+          target: targetId,
+          name,
+          errorKey: API_ERROR_KEYS[error.code],
+          details: error.details,
+        },
+        'saving to a storage location failed',
+      );
       results.push({
         targetId,
         status: 'error',
