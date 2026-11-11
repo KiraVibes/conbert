@@ -86,6 +86,15 @@ export function inHiddenFolder(folder: string, full: string): boolean {
     .slice(0, -1)
     .some((part) => part.startsWith('.'));
 }
+/**
+ * The work folder gallery-dl made for a Pixiv work with several pages
+ * ("151308310"), or null for a file directly in the download folder.
+ */
+export function postFolderOf(folder: string, full: string): string | null {
+  const parts = path.relative(folder, full).split(path.sep);
+  return parts.length === 2 && /^\d+$/.test(parts[0] ?? '') ? (parts[0] ?? null) : null;
+}
+
 /** yt-dlp puts the covers here (inside the download folder, not results). */
 const THUMBS = '.thumbs';
 
@@ -235,6 +244,11 @@ export function galleryDlArgs(
     const [y, m, d] = iso.split('-').map(Number);
     return `datetime(${y}, ${m}, ${d})`;
   };
+  // Pixiv works with several pages go into a folder named after the work
+  // ("151308310/151308310_p76.jpg"); single pictures stay as they are.
+  const where = pixiv
+    ? ['-d', folder, '-o', `directory=${JSON.stringify({ 'page_count > 1': ['{id}'], '': [] })}`]
+    : ['-D', folder];
   const filters = [
     ...(options.dateAfter ? [`date >= ${date(options.dateAfter)}`] : []),
     ...(options.dateBefore ? [`date < ${date(options.dateBefore)}`] : []),
@@ -244,8 +258,7 @@ export function galleryDlArgs(
   return [
     '--config-ignore',
     ...(config ? ['-c', config] : []),
-    '-D',
-    folder,
+    ...where,
     '--range',
     `1-${options.limit}`,
     // The pause before each file – pointless while only remembering what exists
@@ -358,6 +371,8 @@ export class DownloadRunner {
     let progress = 0;
     let lastEmit = 0;
     const taken = new Set<string>();
+    /** Pixiv works with several pages: file id → the work's folder. */
+    const subfolders: Record<string, string> = {};
     /** One file at a time: take it over, save it to the chosen locations. */
     let chain: Promise<void> = Promise.resolve();
 
@@ -390,6 +405,9 @@ export class DownloadRunner {
           return;
         }
         const fileId = randomUUID();
+        // A Pixiv work with several pages came in its own folder: keep it.
+        const sub = row.platform === 'pixiv' ? postFolderOf(folder, full) : null;
+        if (sub) subfolders[fileId] = sub;
         const target = path.join(paths.uploads, fileId);
         await rename(full, target);
         const saved = await recordFile(this.ctx, {
@@ -432,6 +450,7 @@ export class DownloadRunner {
               platformFolder: platformFolder(row.platform, row.url),
               source: options.sourceName ?? undefined,
               sameFileSkips: true,
+              subfolder: sub ?? undefined,
             },
           ).catch(() => []);
           entry.savedTo = results
@@ -555,6 +574,7 @@ export class DownloadRunner {
             ...(options.sourceName && { source: options.sourceName }),
             platformFolder: platformFolder(row.platform, row.url),
             sameFileSkips: true,
+            ...(Object.keys(subfolders).length > 0 && { subfolders }),
           },
         ).catch(() => undefined);
       }

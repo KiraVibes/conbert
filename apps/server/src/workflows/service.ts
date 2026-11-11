@@ -245,6 +245,8 @@ export async function runAfter(
     platformFolder?: string;
     /** Downloads: a file already at the destination (same name and size) is skipped. */
     sameFileSkips?: boolean;
+    /** Downloads: an own folder per file id (Pixiv works with several pages). */
+    subfolders?: Record<string, string>;
   },
 ) {
   const base = resolveAfter(ctx, userId, after);
@@ -266,6 +268,7 @@ export async function runAfter(
                 ...(options.source && { source: options.source }),
                 ...(options.platformFolder && { platformFolder: options.platformFolder }),
                 ...(options.sameFileSkips && { sameFileSkips: true }),
+                ...(options.subfolders && { subfolders: options.subfolders }),
               }
             : s,
         )

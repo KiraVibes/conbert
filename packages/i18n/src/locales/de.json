@@ -5615,7 +5615,7 @@
   "swipe": {
     "title": "Swipen",
     "intro": "Sortiere deine Downloads wie bei Tinder: links löschen, rechts behalten, nach oben in die Favoriten.",
-    "help": "Conbert zeigt dir zufällige Bilder, GIFs und Videos von deinem Standard-Speicherort. Wisch eine Karte nach links, um sie zu löschen – Conbert merkt sich, dass es sie gab, und lädt sie nie wieder herunter, auch nicht durch Abos. Nach rechts behältst du sie; sie kommt dann nicht noch einmal. Nach oben wandert sie in den Ordner „Favoriten“, mit derselben Ordnerstruktur (aus Instagram/KawaiiQueen/ wird Favoriten/Instagram/KawaiiQueen/). Im Favoriten-Modus holt dich links eine Karte zurück in den normalen Ordner, oben macht sie zur Premium-Karte mit goldenem Rahmen. Statt zu wischen gehen auch die Knöpfe oder die Pfeiltasten. Die letzten 5 Entscheidungen kannst du zurücknehmen – gelöscht oder verschoben wird erst danach. Tipp auf ein Bild oder Video (oder drück F), um es im Vollbild anzusehen und hineinzuzoomen. Auch dort wischst du weiter wie auf den Karten, danach kommt gleich das nächste Bild. Der Favoriten-Modus hört nie auf: Hast du alle Favoriten gesehen, kommen sie neu gemischt noch einmal.",
+    "help": "Conbert zeigt dir zufällige Bilder, GIFs und Videos von deinem Standard-Speicherort. Wisch eine Karte nach links, um sie zu löschen – Conbert merkt sich, dass es sie gab, und lädt sie nie wieder herunter, auch nicht durch Abos. Nach rechts behältst du sie; sie kommt dann nicht noch einmal. Nach oben wandert sie in den Ordner „Favoriten“, mit derselben Ordnerstruktur (aus Instagram/KawaiiQueen/ wird Favoriten/Instagram/KawaiiQueen/). Im Favoriten-Modus holt dich links eine Karte zurück in den normalen Ordner, oben macht sie zur Premium-Karte mit goldenem Rahmen. Statt zu wischen gehen auch die Knöpfe oder die Pfeiltasten. Die letzten 5 Entscheidungen kannst du zurücknehmen – gelöscht oder verschoben wird erst danach. Tipp auf ein Bild oder Video (oder drück F), um es im Vollbild anzusehen und hineinzuzoomen. Auch dort wischst du weiter wie auf den Karten, danach kommt gleich das nächste Bild. Halte X gedrückt (oder Umschalt+←), um alle Seiten eines Pixiv-Beitrags auf einmal zu löschen. Hast du Dateien von Hand gelöscht, verschwinden sie nach dem nächsten „Abgleichen“ aus dem Stapel. Der Favoriten-Modus hört nie auf: Hast du alle Favoriten gesehen, kommen sie neu gemischt noch einmal.",
     "loading": "Lädt …",
     "mode": "Modus",
     "modes": {
@@ -5638,14 +5638,16 @@
       "keep": "Behalten",
       "favorite": "Favorit",
       "unfavorite": "Zurück",
-      "premium": "Premium"
+      "premium": "Premium",
+      "deletePost": "Alles weg"
     },
     "buttons": {
       "delete": "Löschen",
       "keep": "Behalten",
       "favorite": "Zu den Favoriten",
       "unfavorite": "Aus den Favoriten nehmen",
-      "premium": "Premium machen"
+      "premium": "Premium machen",
+      "deletePost": "Ganzen Beitrag löschen"
     },
     "legend": "← löschen · → behalten · ↑ Favorit",
     "legendFavorites": "← zurück in den normalen Ordner · → bleibt Favorit · ↑ Premium",
@@ -5687,7 +5689,7 @@
     },
     "tidy": {
       "title": "Ordner aufräumen",
-      "intro": "Downloads landen jetzt in einem Ordner pro Plattform (Instagram/…, YouTube/…, 4chan/Board/…, Gelbooru/…). Ältere Download-Ordner, die noch direkt im Speicherort liegen, kann Conbert dorthin verschieben – du siehst vorher genau, was passiert.",
+      "intro": "Downloads landen jetzt in einem Ordner pro Plattform (Instagram/…, YouTube/…, 4chan/Board/…, Gelbooru/…), und Pixiv-Beiträge mit mehreren Seiten bekommen einen eigenen Ordner. Ältere Downloads kann Conbert dorthin verschieben – du siehst vorher genau, was passiert.",
       "check": "Ordner prüfen",
       "nothing": "Alles ordentlich – es gibt nichts zu verschieben.",
       "reasons": {
@@ -5702,7 +5704,12 @@
       "apply_other": "{{count}} Änderungen ausführen",
       "done": "Aufgeräumt: {{moved}} Ordner verschoben, {{deleted}} Cache-Dateien gelöscht.",
       "failed_one": "1 Ordner oder Datei konnte nicht verschoben werden.",
-      "failed_other": "{{count}} Ordner oder Dateien konnten nicht verschoben werden."
+      "failed_other": "{{count}} Ordner oder Dateien konnten nicht verschoben werden.",
+      "posts_one": "1 Pixiv-Beitrag mit {{pages}} Seiten bekommt einen eigenen Ordner, z. B. {{example}}",
+      "posts_other": "{{count}} Pixiv-Beiträge mit zusammen {{pages}} Seiten bekommen je einen eigenen Ordner, z. B. {{example}}",
+      "postsHint": "Gefunden im eingelesenen Verzeichnis – drück vorher „Abgleichen“, wenn du gerade erst etwas geladen hast.",
+      "donePosts_one": "1 Pixiv-Beitrag hat jetzt einen eigenen Ordner.",
+      "donePosts_other": "{{count}} Pixiv-Beiträge haben jetzt einen eigenen Ordner."
     },
     "undoInfo": "Du kannst deine letzten 5 Entscheidungen zurücknehmen – gelöscht oder verschoben wird erst danach.",
     "viewer": {
@@ -5735,8 +5742,12 @@
       "unfavorite_one": "{{count}} zurück in den normalen Ordner",
       "unfavorite_other": "{{count}} zurück in den normalen Ordner",
       "premium_one": "{{count}} Premium",
-      "premium_other": "{{count}} Premium"
-    }
+      "premium_other": "{{count}} Premium",
+      "deletePost_one": "{{count}} Beitrag ganz gelöscht",
+      "deletePost_other": "{{count}} Beiträge ganz gelöscht"
+    },
+    "holdDelete": "Gedrückt halten (oder Umschalt+←): alle Seiten dieses Pixiv-Beitrags löschen",
+    "postDeleted": "Alle Seiten dieses Pixiv-Beitrags werden gelöscht. Mit „Zurück“ holst du sie wieder."
   },
   "similar": {
     "tabs": {

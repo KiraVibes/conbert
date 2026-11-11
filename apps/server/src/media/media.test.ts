@@ -105,17 +105,20 @@ describe.skipIf(!hasRclone)('swipe game (real rclone)', () => {
     expect(app.conbert.db.select().from(booruArchive).all()).toMatchObject([
       { siteId: 'gelbooru', postId: 4711 },
     ]);
-    // A file that disappears stays in the index.
+    // A file deleted by hand counts as deleted: no longer swiped, still known.
     rmSync(path.join(storage, 'Instagram/KawaiiQueen/1.jpg'));
     put('Instagram/KawaiiQueen/2.jpg');
     const second = await sync();
-    expect(second.items).toBe(4);
+    expect(second.items).toBe(3);
     const sources = (await api('GET', '/api/swipe/sources')).json<{ sources: SwipeSource[] }>();
     expect(sources.sources.map((s) => `${s.name}:${String(s.count)}`)).toEqual([
       'Gelbooru:1',
-      'Instagram:2',
+      'Instagram:1',
       'YouTube:1',
     ]);
+    expect((await next()).map((i) => i.name)).not.toContain('1.jpg');
+    const gone = app.conbert.db.select().from(mediaItems).where(eq(mediaItems.name, '1.jpg')).get();
+    expect(gone?.status).toBe('deleted');
   });
 
   it('swipes with five steps to take back, then carries out', async () => {
@@ -291,6 +294,47 @@ describe.skipIf(!hasRclone)('swipe game (real rclone)', () => {
       'Instagram/KawaiiQueen/1.jpg',
       'Urlaub/strand.jpg',
     ]);
+  });
+
+  it('holding X deletes every page of a Pixiv work, nothing else', async () => {
+    put('Pixiv/x/42/42_p0.jpg');
+    put('Pixiv/x/42/42_p1.jpg');
+    put('Pixiv/x/42/42_p2.jpg');
+    put('Pixiv/x/421_p0.jpg');
+    await sync();
+    const first = byName(await next(), '42_p0.jpg');
+    const state = await swipe(first, 'deletePost');
+    expect(state.pending).toBe(1);
+    // The other pages wait for the same decision: no cards for them any more.
+    expect((await next()).map((i) => i.name)).toEqual(['421_p0.jpg']);
+    const flushed = (await api('POST', '/api/swipe/flush')).json<SwipeState>();
+    expect(flushed.done.filter((d) => d.ok && d.action === 'delete')).toHaveLength(3);
+    expect(there('Pixiv/x/42/42_p0.jpg')).toBe(false);
+    expect(there('Pixiv/x/42/42_p2.jpg')).toBe(false);
+    expect(there('Pixiv/x/421_p0.jpg')).toBe(true);
+  });
+
+  it('tidying up gives loose Pixiv works with several pages their own folder', async () => {
+    put('Pixiv/y/7_p0.png');
+    put('Pixiv/y/7_p1.png');
+    put('Pixiv/y/8_p0.png');
+    put('Pixiv/y/9/9_p0.png');
+    put('Pixiv/y/9/9_p1.png');
+    await sync();
+    const plan = (await api('GET', '/api/media/reorganize')).json<ReorganizePlan>();
+    expect(plan.posts).toEqual([{ folder: 'Pixiv/y', id: '7', pages: 2 }]);
+    const done = await api('POST', '/api/media/reorganize', {
+      moves: [],
+      leftovers: [],
+      posts: [{ folder: 'Pixiv/y', id: '7' }],
+    });
+    expect(done.json()).toMatchObject({ posts: 1, failed: [] });
+    expect(there('Pixiv/y/7/7_p0.png')).toBe(true);
+    expect(there('Pixiv/y/7/7_p1.png')).toBe(true);
+    expect(there('Pixiv/y/7_p0.png')).toBe(false);
+    expect(there('Pixiv/y/8_p0.png')).toBe(true);
+    // The index moved along.
+    expect((await next()).map((i) => i.path)).toContain('Pixiv/y/7/7_p1.png');
   });
 
   it('keeps every user to their own cards', async () => {

@@ -64,6 +64,8 @@ export type WorkflowStep =
       platformFolder?: string;
       /** Set by downloads: a file already there with the same name and size is skipped. */
       sameFileSkips?: boolean;
+      /** Set by downloads: an own folder per input file id (a Pixiv work with several pages). */
+      subfolders?: Record<string, string>;
     }
   /** FileWizard workshop trick (see WORKFLOW_TRICKS for the ones a workflow can run). */
   | { kind: 'workshop'; trick: string; params: Record<string, unknown> }

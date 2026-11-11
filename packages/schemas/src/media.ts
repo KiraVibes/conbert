@@ -5,7 +5,15 @@ import { z } from 'zod';
 export const swipeModeSchema = z.enum(['normal', 'favorites']);
 export type SwipeMode = z.infer<typeof swipeModeSchema>;
 
-export const swipeActionSchema = z.enum(['delete', 'keep', 'favorite', 'unfavorite', 'premium']);
+/** deletePost: every page of the card's Pixiv work (same folder, same number) goes. */
+export const swipeActionSchema = z.enum([
+  'delete',
+  'keep',
+  'favorite',
+  'unfavorite',
+  'premium',
+  'deletePost',
+]);
 export type SwipeAction = z.infer<typeof swipeActionSchema>;
 
 /** Why the swipe game can't use the default location (null = it can). */
@@ -119,16 +127,24 @@ export const reorganizePlanSchema = z.object({
   unknown: z.array(z.string()),
   /** Stray tool caches (gallery-dl's cache.sqlite3) that can be deleted. */
   leftovers: z.array(z.string()),
+  /** Pixiv works with several pages lying loose: they get a folder each ("<folder>/<id>/"). */
+  posts: z.array(z.object({ folder: z.string(), id: z.string(), pages: z.number().int() })),
 });
 export type ReorganizePlan = z.infer<typeof reorganizePlanSchema>;
 
 export const reorganizeRequestSchema = z.object({
   moves: z.array(z.object({ from: z.string().max(500), to: z.string().max(500) })).max(2000),
   leftovers: z.array(z.string().max(1000)).max(5000),
+  posts: z
+    .array(z.object({ folder: z.string().max(500), id: z.string().regex(/^\d{1,20}$/) }))
+    .max(50_000)
+    .default([]),
 });
 
 export const reorganizeResultSchema = z.object({
   moved: z.number().int(),
+  /** Pixiv works that got their own folder. */
+  posts: z.number().int().default(0),
   deleted: z.number().int(),
   failed: z.array(z.object({ path: z.string(), error: z.string() })),
 });

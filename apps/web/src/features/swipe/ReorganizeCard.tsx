@@ -18,6 +18,8 @@ export function ReorganizeCard() {
   const queryClient = useQueryClient();
   const [plan, setPlan] = useState<ReorganizePlan | null>(null);
   const [skip, setSkip] = useState<Set<string>>(new Set());
+  /** Pixiv works with several pages: all of them or none (there can be thousands). */
+  const [withPosts, setWithPosts] = useState(true);
   const [busy, setBusy] = useState<'plan' | 'apply' | null>(null);
 
   const load = async () => {
@@ -25,6 +27,7 @@ export function ReorganizeCard() {
     try {
       setPlan(await planReorganize());
       setSkip(new Set());
+      setWithPosts(true);
     } catch (error) {
       toast.error(
         t(`${error instanceof ApiRequestError ? error.messageKey : 'errors.network'}.what`),
@@ -41,13 +44,19 @@ export function ReorganizeCard() {
       const result = await applyReorganize({
         moves: plan.moves.filter((m) => !skip.has(m.from)).map(({ from, to }) => ({ from, to })),
         leftovers: plan.leftovers.filter((l) => !skip.has(l)),
+        posts: withPosts ? plan.posts.map(({ folder, id }) => ({ folder, id })) : [],
       });
       if (result.failed.length > 0) {
         toast.error(t('swipe.tidy.failed', { count: result.failed.length }), {
           description: result.failed.map((f) => f.path).join(', '),
         });
       } else {
-        toast.success(t('swipe.tidy.done', { moved: result.moved, deleted: result.deleted }));
+        toast.success(
+          [
+            t('swipe.tidy.done', { moved: result.moved, deleted: result.deleted }),
+            ...(result.posts > 0 ? [t('swipe.tidy.donePosts', { count: result.posts })] : []),
+          ].join(' '),
+        );
       }
       setPlan(null);
       await queryClient.invalidateQueries({ queryKey: MEDIA_STATUS_KEY });
@@ -69,11 +78,14 @@ export function ReorganizeCard() {
       return next;
     });
 
-  const nothing = plan && plan.moves.length === 0 && plan.leftovers.length === 0;
+  const nothing =
+    plan && plan.moves.length === 0 && plan.leftovers.length === 0 && plan.posts.length === 0;
   const chosen = plan
     ? plan.moves.filter((m) => !skip.has(m.from)).length +
-      plan.leftovers.filter((l) => !skip.has(l)).length
+      plan.leftovers.filter((l) => !skip.has(l)).length +
+      (withPosts ? plan.posts.length : 0)
     : 0;
+  const firstPost = plan?.posts[0];
 
   return (
     <details className="rounded-lg border px-3 py-2 text-sm">
@@ -131,6 +143,26 @@ export function ReorganizeCard() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+            {plan.posts.length > 0 && firstPost && (
+              <div className="space-y-1">
+                <label className="flex cursor-pointer items-start gap-2 rounded-md border px-3 py-1.5">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 size-4 accent-primary"
+                    checked={withPosts}
+                    onChange={(e) => setWithPosts(e.target.checked)}
+                  />
+                  <span>
+                    {t('swipe.tidy.posts', {
+                      count: plan.posts.length,
+                      pages: plan.posts.reduce((sum, p) => sum + p.pages, 0),
+                      example: `${firstPost.folder ? `${firstPost.folder}/` : ''}${firstPost.id}/`,
+                    })}
+                  </span>
+                </label>
+                <p className="text-xs text-muted-foreground">{t('swipe.tidy.postsHint')}</p>
               </div>
             )}
             {plan.unknown.length > 0 && (

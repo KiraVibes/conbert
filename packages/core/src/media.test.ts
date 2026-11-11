@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   favoritePath,
   folderPlatform,
+  inPixivPost,
   isFavoritePath,
   isPremiumPath,
   knownItemOf,
   mediaKind,
   normalPath,
+  pixivPostOf,
   premiumPath,
   sourceFolder,
 } from './media';
@@ -61,5 +63,27 @@ describe('file names lead back to the downloaded item', () => {
       platform: 'instagram',
     });
     expect(folderPlatform('Danbooru/tag/x.jpg')).toEqual({ booruSite: 'danbooru' });
+  });
+});
+
+describe('pages of a Pixiv work belong together', () => {
+  it('finds the work of a page, in its own folder or loose', () => {
+    expect(pixivPostOf('Pixiv/x/151308310/151308310_p76.jpg')).toEqual({
+      folder: 'Pixiv/x/151308310',
+      id: '151308310',
+    });
+    expect(pixivPostOf('Pixiv/x/151308310_p0_master1200.jpg')).toEqual({
+      folder: 'Pixiv/x',
+      id: '151308310',
+    });
+    expect(pixivPostOf('Instagram/a/151308310.jpg')).toBeNull();
+    expect(pixivPostOf('Instagram/a/1_photo.jpg')).toBeNull();
+  });
+
+  it('only the same number in the same folder counts', () => {
+    const post = { folder: 'Pixiv/x', id: '42' };
+    expect(inPixivPost('Pixiv/x/42_p3.png', post)).toBe(true);
+    expect(inPixivPost('Pixiv/x/421_p0.png', post)).toBe(false);
+    expect(inPixivPost('Pixiv/y/42_p0.png', post)).toBe(false);
   });
 });

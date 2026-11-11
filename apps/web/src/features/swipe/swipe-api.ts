@@ -84,6 +84,7 @@ export const planReorganize = () => apiGet('/api/media/reorganize', reorganizePl
 export const applyReorganize = (body: {
   moves: { from: string; to: string }[];
   leftovers: string[];
+  posts: { folder: string; id: string }[];
 }) => apiPost('/api/media/reorganize', body, reorganizeResultSchema);
 
 export type { ReorganizePlan, SwipeItem };

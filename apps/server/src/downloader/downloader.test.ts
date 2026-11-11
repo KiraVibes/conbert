@@ -34,6 +34,7 @@ import {
   galleryDlArgs,
   inHiddenFolder,
   isToolLeftover,
+  postFolderOf,
   resumeDownloads,
   ytDlpArgs,
   type DownloadOptions,
@@ -169,6 +170,16 @@ describe('downloader helpers', () => {
     );
     expect(px.slice(0, 3)).toEqual(['--config-ignore', '-c', '/tmp/pixiv.json']);
     expect(px).toEqual(expect.arrayContaining(['--ugoira', 'mp4', '--filter', 'x_restrict == 0']));
+    // Works with several pages get their own folder, single pictures don't.
+    expect(px).toEqual(
+      expect.arrayContaining(['-d', '/tmp/x', '-o', 'directory={"page_count > 1":["{id}"],"":[]}']),
+    );
+    expect(px).not.toContain('-D');
+    expect(gd).toEqual(expect.arrayContaining(['-D', '/tmp/x']));
+    expect(postFolderOf('/tmp/x', path.join('/tmp/x', '151308310', '151308310_p76.jpg'))).toBe(
+      '151308310',
+    );
+    expect(postFolderOf('/tmp/x', path.join('/tmp/x', '151308310_p0.jpg'))).toBeNull();
     const pxAll = galleryDlArgs(
       'https://www.pixiv.net/users/11',
       'pixiv',

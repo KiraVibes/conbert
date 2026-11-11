@@ -15,6 +15,7 @@ function setup(patch: Partial<ViewerSwipe> = {}) {
     mode: 'normal',
     onSwipe: vi.fn(),
     onUndo: vi.fn(),
+    onWholePost: vi.fn(),
     still: true,
     controls: (fly) => (
       <button type="button" onClick={() => fly('up')}>
@@ -49,6 +50,11 @@ describe('swiping in the full-screen view', () => {
     expect(swipe.onSwipe).toHaveBeenLastCalledWith('right');
     fireEvent.keyDown(dialog, { key: 'Backspace' });
     expect(swipe.onUndo).toHaveBeenCalledOnce();
+    // Shift+←: the whole Pixiv work.
+    expect(swipe.onWholePost).not.toHaveBeenCalled();
+    fireEvent.keyDown(dialog, { key: 'ArrowLeft', shiftKey: true });
+    expect(swipe.onWholePost).toHaveBeenCalledOnce();
+    expect(swipe.onSwipe).toHaveBeenLastCalledWith('left');
   });
 
   it('decides by dragging sideways or up, like on the card', () => {
@@ -82,6 +88,7 @@ describe('swiping in the full-screen view', () => {
           mode: 'normal',
           onSwipe: vi.fn(),
           onUndo: vi.fn(),
+          onWholePost: vi.fn(),
           still: true,
           controls: () => null,
           placeholder: <p>all sorted</p>,

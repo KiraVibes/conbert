@@ -1,10 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, ne, sql } from 'drizzle-orm';
 import {
   BOORU_SITES,
   FAVORITES_FOLDER,
   PLATFORM_FOLDERS,
   RETIRED_SITES,
+  baseName,
+  inPixivPost,
+  numberedName,
+  pixivPostOf,
   platformFolder,
   safeName,
 } from '@conbert/core';
@@ -79,13 +83,47 @@ function historyFolders(
   return out;
 }
 
+/** Index entries of the location that are still there (not deleted). */
+function presentItems(ctx: AppContext, targetId: string) {
+  return ctx.db
+    .select({ id: mediaItems.id, path: mediaItems.path })
+    .from(mediaItems)
+    .where(and(eq(mediaItems.targetId, targetId), ne(mediaItems.status, 'deleted')))
+    .all();
+}
+
+/**
+ * Pixiv works with at least two pages whose pages lie loose in a folder
+ * (downloaded before works got their own folder). From the index – sync first.
+ */
+function loosePosts(ctx: AppContext, targetId: string): ReorganizePlan['posts'] {
+  const groups = new Map<string, { folder: string; id: string; pages: number }>();
+  for (const item of presentItems(ctx, targetId)) {
+    const post = pixivPostOf(item.path);
+    // Already in its own folder ("…/151308310/151308310_p0.jpg").
+    if (!post || baseName(post.folder) === post.id) continue;
+    const key = `${post.folder}\n${post.id}`;
+    const group = groups.get(key) ?? { ...post, pages: 0 };
+    group.pages++;
+    groups.set(key, group);
+  }
+  return [...groups.values()]
+    .filter((g) => g.pages > 1)
+    .sort((a, b) => a.folder.localeCompare(b.folder) || a.id.localeCompare(b.id));
+}
+
 export async function planReorganize(ctx: AppContext, userId: string): Promise<ReorganizePlan> {
   const record = requireDefaultTarget(ctx, userId);
   const connection = connect(ctx, resolveRecord(ctx, record));
   const root = await storageCall(() => connection.list(''));
   const done = settled();
   const history = historyFolders(ctx, userId);
-  const plan: ReorganizePlan = { moves: [], unknown: [], leftovers: [] };
+  const plan: ReorganizePlan = {
+    moves: [],
+    unknown: [],
+    leftovers: [],
+    posts: loosePosts(ctx, record.id),
+  };
   for (const entry of root.entries) {
     if (!entry.isDir || done.has(entry.name) || entry.name.startsWith('.')) continue;
     const booru = BOORU_NAMES.get(entry.name.toLowerCase());
@@ -157,14 +195,46 @@ async function merge(
   await connection.removeEmptyFolders(from).catch(() => undefined);
 }
 
+/** The pages of one Pixiv work move into "<folder>/<id>/" (names kept free). */
+async function groupPost(
+  ctx: AppContext,
+  targetId: string,
+  connection: RcloneConnection,
+  post: { folder: string; id: string },
+): Promise<void> {
+  const folder = post.folder ? relativePath(post.folder) : '';
+  const into = folder ? `${folder}/${post.id}` : post.id;
+  const pages = presentItems(ctx, targetId).filter((item) =>
+    inPixivPost(item.path, { folder, id: post.id }),
+  );
+  for (const page of pages) {
+    const name = baseName(page.path);
+    let destination = `${into}/${name}`;
+    for (let n = 2; await connection.stat(destination); n++) {
+      if (n > 999) throw new HttpError(409, 'STORAGE_FAILED', 'too many copies');
+      destination = `${into}/${numberedName(name, n)}`;
+    }
+    await connection.move(page.path, destination);
+    ctx.db
+      .update(mediaItems)
+      .set({ path: destination, name: baseName(destination) })
+      .where(eq(mediaItems.id, page.id))
+      .run();
+  }
+}
+
 export async function applyReorganize(
   ctx: AppContext,
   userId: string,
-  body: { moves: { from: string; to: string }[]; leftovers: string[] },
+  body: {
+    moves: { from: string; to: string }[];
+    leftovers: string[];
+    posts?: { folder: string; id: string }[];
+  },
 ): Promise<ReorganizeResult> {
   const record = requireDefaultTarget(ctx, userId);
   const connection = connect(ctx, resolveRecord(ctx, record));
-  const result: ReorganizeResult = { moved: 0, deleted: 0, failed: [] };
+  const result: ReorganizeResult = { moved: 0, deleted: 0, posts: 0, failed: [] };
   const fail = (path: string, error: unknown) =>
     result.failed.push({
       path,
@@ -210,6 +280,15 @@ export async function applyReorganize(
       result.moved++;
     } catch (error) {
       fail(move.from, error);
+    }
+  }
+  // Works last: the folder moves above may have changed where their pages are.
+  for (const post of body.posts ?? []) {
+    try {
+      await groupPost(ctx, record.id, connection, post);
+      result.posts++;
+    } catch (error) {
+      fail(`${post.folder}/${post.id}`, error);
     }
   }
   return result;

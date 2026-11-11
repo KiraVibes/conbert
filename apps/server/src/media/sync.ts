@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { and, eq, inArray, max, ne, notLike, sql } from 'drizzle-orm';
+import { and, eq, inArray, lt, max, ne, notLike, sql } from 'drizzle-orm';
 import {
   baseName,
   isFavoritePath,
@@ -19,8 +19,9 @@ import { defaultTarget, itemKeyOf, rememberKnown, requireDefaultTarget } from '.
 
 /**
  * Sync with the storage location: everything found there is added to the
- * index (or updated). Nothing is ever removed – a file that is missing was
- * deleted, moved or is offline, and stays known.
+ * index (or updated). A file that is no longer there after a complete walk
+ * was deleted or moved by hand: it counts as deleted (no longer swiped), but
+ * stays known, so downloads still skip it.
  */
 
 interface SyncState {
@@ -109,6 +110,21 @@ export async function syncMedia(
       }),
     );
     write();
+    // Only after a walk that found something: an empty answer may also mean
+    // a share that is mounted wrong – then nothing is thrown away.
+    if (mine.seen > 0) {
+      ctx.db
+        .update(mediaItems)
+        .set({ status: 'deleted', sortedAt: now })
+        .where(
+          and(
+            eq(mediaItems.targetId, record.id),
+            lt(mediaItems.lastSeenAt, now),
+            ne(mediaItems.status, 'deleted'),
+          ),
+        )
+        .run();
+    }
     await rememberKnown(ctx, userId, knownItems);
     return { seen: mine.seen, added: mine.added };
   } catch (error) {
@@ -145,7 +161,7 @@ export function mediaStatus(ctx: AppContext, userId: string): MediaStatus {
       .from(mediaItems)
       .where(and(where, extra))
       .get()?.n ?? 0;
-  const items = count(undefined);
+  const items = count(ne(mediaItems.status, 'deleted'));
   const unsorted = count(
     and(
       eq(mediaItems.status, 'present'),

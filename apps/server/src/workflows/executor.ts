@@ -336,6 +336,7 @@ export class WorkflowRunner {
               source: step.source,
               platformFolder: step.platformFolder,
               sameFileSkips: step.sameFileSkips === true,
+              subfolder: step.subfolders?.[record.id],
             },
           );
           const failed = saved.find((s) => s.status === 'error');

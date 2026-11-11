@@ -75,6 +75,25 @@ export function baseName(path: string): string {
   return path.slice(path.lastIndexOf('/') + 1);
 }
 
+/** One page of a Pixiv work: "151308310_p76.jpg" (also "_p0_master1200", ugoira "_p0.mp4"). */
+const PIXIV_PAGE = /^(\d+)_p\d+(?:[._]|$)/;
+
+/**
+ * The Pixiv work a file belongs to: its folder and number, or null for any
+ * other file. "Pixiv/x/151308310/151308310_p76.jpg" → folder
+ * "Pixiv/x/151308310", id "151308310".
+ */
+export function pixivPostOf(path: string): { folder: string; id: string } | null {
+  const id = PIXIV_PAGE.exec(baseName(path))?.[1];
+  return id ? { folder: parentFolder(path), id } : null;
+}
+
+/** Is this file a page of that work (same folder, same number)? */
+export function inPixivPost(path: string, post: { folder: string; id: string }): boolean {
+  const other = pixivPostOf(path);
+  return other?.folder === post.folder && other.id === post.id;
+}
+
 /** The first `depth` folders of a file's normal path: "Gelbooru/ear_blowing". */
 export function sourceFolder(path: string, depth: number): string {
   return parentFolder(normalPath(path)).split('/').filter(Boolean).slice(0, depth).join('/');

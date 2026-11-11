@@ -13,6 +13,7 @@ import {
   UndoDotIcon,
   XIcon,
 } from 'lucide-react';
+import { inPixivPost, pixivPostOf } from '@conbert/core';
 import type { SwipeItem, SwipeMode, SwipeOutcome } from '@conbert/schemas';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
@@ -27,6 +28,7 @@ import { ApiRequestError } from '@/lib/api';
 import { useView } from '@/lib/use-view';
 import { cn } from '@/lib/utils';
 import { FullscreenViewer } from './FullscreenViewer';
+import { HoldButton } from './HoldButton';
 import { exitBrowserFullscreen } from './zoom';
 import { ReorganizeCard } from './ReorganizeCard';
 import { SourcePicker } from './SourcePicker';
@@ -158,12 +160,20 @@ export function SwipeView() {
     [t, refreshCounts],
   );
 
+  /** The next left swipe deletes the whole Pixiv work (set by holding X or Shift+←). */
+  const wholePost = useRef(false);
   const decide = useCallback(
     (direction: SwipeDirection) => {
       const item = deck[0];
       if (!item) return;
-      const action = actionFor(mode, direction);
-      setDeck((d) => d.slice(1));
+      // Held X (or Shift+←): every page of the Pixiv work goes.
+      const post = direction === 'left' && wholePost.current ? pixivPostOf(item.path) : null;
+      wholePost.current = false;
+      const action = post && mode === 'normal' ? 'deletePost' : actionFor(mode, direction);
+      setDeck((d) =>
+        d.slice(1).filter((x) => action !== 'deletePost' || !post || !inPixivPost(x.path, post)),
+      );
+      if (action === 'deletePost') toast.info(t('swipe.postDeleted'));
       void sendSwipe(item.id, action)
         .then((state) => {
           setPending(state.pending);
@@ -223,7 +233,10 @@ export function SwipeView() {
       e.preventDefault();
       if (command === 'undo') void undo();
       else if (command === 'fullscreen') openTop();
-      else if (deck[0]) gesture.fly(command);
+      else if (deck[0]) {
+        if (command === 'left' && e.shiftKey) wholePost.current = true;
+        gesture.fly(command);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -287,10 +300,14 @@ export function SwipeView() {
     mode === 'favorites' ? [UndoDotIcon, CheckIcon, CrownIcon] : [XIcon, HeartIcon, StarIcon];
   const [LeftIcon, RightIcon, UpIcon] = icons as [typeof XIcon, typeof XIcon, typeof XIcon];
 
+  // Holding X deletes every page of a Pixiv work (only for such a card).
+  const topIsPost = mode === 'normal' && !!top && pixivPostOf(top.path) !== null;
+  const leftLabel = t(`swipe.buttons.${actionFor(mode, 'left')}`);
+
   /** The round buttons: below the cards and in the full-screen view. */
   const decisionButtons = (fly: (direction: SwipeDirection) => void, dark = false) => (
     <div className="flex items-center justify-center gap-3">
-      <Button
+      <HoldButton
         size="icon"
         variant="outline"
         className={cn(
@@ -298,12 +315,20 @@ export function SwipeView() {
           dark && 'bg-black/40',
         )}
         disabled={!top}
-        onClick={() => fly('left')}
-        aria-label={t(`swipe.buttons.${actionFor(mode, 'left')}`)}
-        title={`${t(`swipe.buttons.${actionFor(mode, 'left')}`)} (←)`}
+        onPress={() => fly('left')}
+        onHold={
+          topIsPost
+            ? () => {
+                wholePost.current = true;
+                fly('left');
+              }
+            : null
+        }
+        aria-label={leftLabel}
+        title={topIsPost ? `${leftLabel} (←) · ${t('swipe.holdDelete')}` : `${leftLabel} (←)`}
       >
         <LeftIcon className="size-6" aria-hidden="true" />
-      </Button>
+      </HoldButton>
       <Button
         size="icon"
         variant="outline"
@@ -487,6 +512,9 @@ export function SwipeView() {
           mode,
           onSwipe: decide,
           onUndo: () => void undo(),
+          onWholePost: () => {
+            wholePost.current = true;
+          },
           still,
           controls: (fly) => decisionButtons(fly, true),
           placeholder: loading ? (

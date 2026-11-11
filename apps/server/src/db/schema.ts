@@ -614,7 +614,7 @@ export const swipeActions = sqliteTable(
       .notNull()
       .references(() => mediaItems.id, { onDelete: 'cascade' }),
     action: text('action', {
-      enum: ['delete', 'keep', 'favorite', 'unfavorite', 'premium'],
+      enum: ['delete', 'keep', 'favorite', 'unfavorite', 'premium', 'deletePost'],
     }).notNull(),
     createdAt: createdAt(),
     committedAt: integer('committed_at', { mode: 'timestamp_ms' }),

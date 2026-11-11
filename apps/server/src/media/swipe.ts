@@ -1,13 +1,28 @@
 import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import path from 'node:path';
-import { and, desc, eq, inArray, isNull, lte, notInArray, notLike, or, sql } from 'drizzle-orm';
+import {
+  and,
+  desc,
+  eq,
+  inArray,
+  isNull,
+  lte,
+  ne,
+  not,
+  notInArray,
+  notLike,
+  or,
+  sql,
+} from 'drizzle-orm';
 import {
   favoritePath,
+  inPixivPost,
   knownItemOf,
   normalPath,
   numberedName,
   parentFolder,
+  pixivPostOf,
   premiumPath,
   sourceFolder,
 } from '@conbert/core';
@@ -137,6 +152,10 @@ export function nextItems(
   query: { mode: SwipeMode; folders: string[]; sorted: boolean; count: number; exclude: string[] },
 ): { items: SwipeItem[]; newRound: boolean } {
   const skip = [...pendingIds(ctx, userId), ...query.exclude];
+  // "<folder>/<id>_p" only matches pages of that very work (the number ends at "_p").
+  const waiting = waitingPosts(ctx, userId).map((post) =>
+    not(startsWith(post.folder ? `${post.folder}/${post.id}_p` : `${post.id}_p`)),
+  );
   const rounds = query.mode === 'favorites' && !query.sorted;
   const pick = () =>
     ctx.db
@@ -147,6 +166,7 @@ export function nextItems(
           poolFilter(ctx, userId, query.mode, query.sorted),
           folderFilter(query.mode, query.folders),
           skip.length > 0 ? notInArray(mediaItems.id, skip) : undefined,
+          ...waiting,
           rounds
             ? or(isNull(mediaItems.sortedAt), lte(mediaItems.sortedAt, favoritesRound(ctx, userId)))
             : undefined,
@@ -201,7 +221,8 @@ export function sourceTree(
 /** Which decisions fit an item where it is now. */
 function allowed(status: string): readonly SwipeAction[] {
   if (status === 'favorite' || status === 'premium') return ['unfavorite', 'keep', 'premium'];
-  if (status === 'present' || status === 'kept') return ['delete', 'keep', 'favorite'];
+  if (status === 'present' || status === 'kept')
+    return ['delete', 'keep', 'favorite', 'deletePost'];
   return [];
 }
 
@@ -294,6 +315,30 @@ async function carryOut(
   await tidy(connection, parentFolder(item.path));
 }
 
+/**
+ * The other pages of a card's Pixiv work that are still to be sorted (same
+ * location, same folder, same number). Empty for any other file.
+ */
+function postSiblings(ctx: AppContext, item: MediaItemRecord): MediaItemRecord[] {
+  const post = pixivPostOf(item.path);
+  if (!post) return [];
+  const prefix = post.folder ? `${post.folder}/${post.id}_p` : `${post.id}_p`;
+  return ctx.db
+    .select()
+    .from(mediaItems)
+    .where(
+      and(
+        eq(mediaItems.userId, item.userId),
+        eq(mediaItems.targetId, item.targetId),
+        inArray(mediaItems.status, ['present', 'kept']),
+        startsWith(prefix),
+        ne(mediaItems.id, item.id),
+      ),
+    )
+    .all()
+    .filter((row) => inPixivPost(row.path, post));
+}
+
 /** Carries out the given pending actions, oldest first. */
 async function commit(
   ctx: AppContext,
@@ -304,21 +349,50 @@ async function commit(
   for (const a of actions) {
     const item = ctx.db.select().from(mediaItems).where(eq(mediaItems.id, a.itemId)).get();
     let error: string | null = null;
-    if (item) {
+    // A whole work: the card and every other page of it are deleted one by one.
+    const group =
+      item && a.action === 'deletePost' ? [item, ...postSiblings(ctx, item)] : item ? [item] : [];
+    const action: SwipeAction = a.action === 'deletePost' ? 'delete' : a.action;
+    for (const [index, one] of group.entries()) {
+      let failed: string | null = null;
       try {
-        await carryOut(ctx, userId, item, a.action, a.createdAt);
+        await carryOut(ctx, userId, one, action, a.createdAt);
       } catch (e) {
-        error = e instanceof HttpError || e instanceof StorageError ? e.code : 'STORAGE_FAILED';
+        failed = e instanceof HttpError || e instanceof StorageError ? e.code : 'STORAGE_FAILED';
       }
+      if (index === 0) error = failed;
+      // The other pages are reported on their own.
+      if (index > 0)
+        out.push({ itemId: one.id, name: one.name, action, ok: !failed, error: failed });
     }
     ctx.db
       .update(swipeActions)
       .set({ committedAt: new Date(), error })
       .where(eq(swipeActions.id, a.id))
       .run();
-    out.push({ itemId: a.itemId, name: item?.name ?? '', action: a.action, ok: !error, error });
+    out.push({ itemId: a.itemId, name: item?.name ?? '', action, ok: !error, error });
   }
   return out;
+}
+
+/** Pages of works that wait for "delete the whole work" don't come as cards any more. */
+function waitingPosts(ctx: AppContext, userId: string): { folder: string; id: string }[] {
+  return ctx.db
+    .select({ path: mediaItems.path })
+    .from(swipeActions)
+    .innerJoin(mediaItems, eq(swipeActions.itemId, mediaItems.id))
+    .where(
+      and(
+        eq(swipeActions.userId, userId),
+        isNull(swipeActions.committedAt),
+        eq(swipeActions.action, 'deletePost'),
+      ),
+    )
+    .all()
+    .flatMap((row) => {
+      const post = pixivPostOf(row.path);
+      return post ? [post] : [];
+    });
 }
 
 function pendingActions(ctx: AppContext, userId: string) {

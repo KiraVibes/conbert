@@ -51,6 +51,8 @@ export interface ViewerSwipe {
   mode: SwipeMode;
   onSwipe: (direction: SwipeDirection) => void;
   onUndo: () => void;
+  /** Shift+←: the next left swipe deletes the whole Pixiv work. */
+  onWholePost: () => void;
   /** The buttons below the picture; `fly` lets the picture leave in that direction. */
   controls: (fly: (direction: SwipeDirection) => void) => React.ReactNode;
   /** Shown while there is no picture (loading or all sorted). */
@@ -327,8 +329,10 @@ export function FullscreenViewer({
     const command = swipe ? keyToCommand(e) : null;
     if (command === 'undo') swipe?.onUndo();
     else if (command === 'fullscreen') onClose();
-    else if (command) fly(command);
-    else if (e.key === '+' || e.key === '=') zoomBy(1.5);
+    else if (command) {
+      if (command === 'left' && e.shiftKey) swipe?.onWholePost();
+      fly(command);
+    } else if (e.key === '+' || e.key === '=') zoomBy(1.5);
     else if (e.key === '-') zoomBy(1 / 1.5);
     else if (e.key === '0') setView(FIT);
     else if (e.key === ' ' && isVideo && !(e.target as HTMLElement).closest('button')) togglePlay();

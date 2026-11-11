@@ -5615,7 +5615,7 @@
   "swipe": {
     "title": "Swipe",
     "intro": "Sort your downloads like on Tinder: left to delete, right to keep, up into your favourites.",
-    "help": "Conbert shows you random pictures, GIFs and videos from your default storage location. Swipe a card left to delete it – Conbert remembers it existed and never downloads it again, not even through subscriptions. Swipe right to keep it; it won't come again. Swipe up and it moves into the “Favoriten” folder with the same folder structure (Instagram/KawaiiQueen/ becomes Favoriten/Instagram/KawaiiQueen/). In favourites mode, left takes a card back to its normal folder and up turns it into a premium card with a golden frame. Instead of swiping you can use the buttons or the arrow keys. You can take back your last 5 decisions – files are only deleted or moved after that. Tap a picture or video (or press F) to see it full screen and zoom in. You can keep swiping there like on the cards; the next picture follows right away. The favourites mode never ends: once you have seen all favourites, they come again, freshly shuffled.",
+    "help": "Conbert shows you random pictures, GIFs and videos from your default storage location. Swipe a card left to delete it – Conbert remembers it existed and never downloads it again, not even through subscriptions. Swipe right to keep it; it won't come again. Swipe up and it moves into the “Favoriten” folder with the same folder structure (Instagram/KawaiiQueen/ becomes Favoriten/Instagram/KawaiiQueen/). In favourites mode, left takes a card back to its normal folder and up turns it into a premium card with a golden frame. Instead of swiping you can use the buttons or the arrow keys. You can take back your last 5 decisions – files are only deleted or moved after that. Tap a picture or video (or press F) to see it full screen and zoom in. You can keep swiping there like on the cards; the next picture follows right away. Hold X (or Shift+←) to delete every page of a Pixiv post at once. Files you deleted by hand leave the pile after the next “Sync”. The favourites mode never ends: once you have seen all favourites, they come again, freshly shuffled.",
     "loading": "Loading …",
     "mode": "Mode",
     "modes": {
@@ -5638,14 +5638,16 @@
       "keep": "Keep",
       "favorite": "Favourite",
       "unfavorite": "Back",
-      "premium": "Premium"
+      "premium": "Premium",
+      "deletePost": "All gone"
     },
     "buttons": {
       "delete": "Delete",
       "keep": "Keep",
       "favorite": "Add to favourites",
       "unfavorite": "Remove from favourites",
-      "premium": "Make premium"
+      "premium": "Make premium",
+      "deletePost": "Delete the whole post"
     },
     "legend": "← delete · → keep · ↑ favourite",
     "legendFavorites": "← back to the normal folder · → stays a favourite · ↑ premium",
@@ -5687,7 +5689,7 @@
     },
     "tidy": {
       "title": "Tidy up folders",
-      "intro": "Downloads now go into one folder per platform (Instagram/…, YouTube/…, 4chan/board/…, Gelbooru/…). Older download folders still sitting at the top of your storage location can be moved there – you see exactly what happens first.",
+      "intro": "Downloads now go into one folder per platform (Instagram/…, YouTube/…, 4chan/board/…, Gelbooru/…), and Pixiv posts with several pages get a folder of their own. Older downloads can be moved there – you see exactly what happens first.",
       "check": "Check folders",
       "nothing": "All tidy – nothing to move.",
       "reasons": {
@@ -5702,7 +5704,12 @@
       "apply_other": "Carry out {{count}} changes",
       "done": "Tidied up: {{moved}} folders moved, {{deleted}} cache files deleted.",
       "failed_one": "1 folder or file couldn't be moved.",
-      "failed_other": "{{count}} folders or files couldn't be moved."
+      "failed_other": "{{count}} folders or files couldn't be moved.",
+      "posts_one": "1 Pixiv post with {{pages}} pages gets a folder of its own, e.g. {{example}}",
+      "posts_other": "{{count}} Pixiv posts with {{pages}} pages in total get a folder each, e.g. {{example}}",
+      "postsHint": "Found in the synced index – press “Sync” first if you just downloaded something.",
+      "donePosts_one": "1 Pixiv post now has a folder of its own.",
+      "donePosts_other": "{{count}} Pixiv posts now have a folder of their own."
     },
     "undoInfo": "You can take back your last 5 decisions – files are only deleted or moved after that.",
     "viewer": {
@@ -5735,8 +5742,12 @@
       "unfavorite_one": "{{count}} back to the normal folder",
       "unfavorite_other": "{{count}} back to the normal folder",
       "premium_one": "{{count}} premium",
-      "premium_other": "{{count}} premium"
-    }
+      "premium_other": "{{count}} premium",
+      "deletePost_one": "{{count}} post deleted completely",
+      "deletePost_other": "{{count}} posts deleted completely"
+    },
+    "holdDelete": "Hold (or Shift+←): delete every page of this Pixiv post",
+    "postDeleted": "Every page of this Pixiv post will be deleted. “Back” brings them back."
   },
   "similar": {
     "tabs": {

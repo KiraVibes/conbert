@@ -44,6 +44,8 @@ export async function exportFile(
     sameFileSkips?: boolean;
     /** Downloads and booru: the saved file goes into the media index right away. */
     index?: boolean;
+    /** Downloads: one more folder inside (a Pixiv work with several pages: its number). */
+    subfolder?: string | undefined;
   } = {},
 ): Promise<ExportResult[]> {
   const name = safeName(body.name ?? source.name);
@@ -68,7 +70,7 @@ export async function exportFile(
       const record = getOwnTarget(ctx, userId, targetId);
       if (!record.asTarget) throw new HttpError(422, 'STORAGE_NOT_TARGET', record.name);
       const target = resolveRecord(ctx, record);
-      const folder =
+      const base =
         body.folder !== undefined
           ? relativePath(body.folder)
           : downloadFolder(record.subfolderPattern, {
@@ -80,6 +82,7 @@ export async function exportFile(
               ...(extra.source && { source: extra.source }),
               ...(extra.platformFolder && { platformFolder: extra.platformFolder }),
             });
+      const folder = extra.subfolder ? joinStoragePath(base, safeName(extra.subfolder)) : base;
       await assertInsideRoot(target, folder);
       const connection = connect(ctx, target);
       let finalName = name;
