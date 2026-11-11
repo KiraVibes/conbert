@@ -5615,7 +5615,7 @@
   "swipe": {
     "title": "Swipe",
     "intro": "Sort your downloads like on Tinder: left to delete, right to keep, up into your favourites.",
-    "help": "Conbert shows you random pictures, GIFs and videos from your default storage location. Swipe a card left to delete it – Conbert remembers it existed and never downloads it again, not even through subscriptions. Swipe right to keep it; it won't come again. Swipe up and it moves into the “Favoriten” folder with the same folder structure (Instagram/KawaiiQueen/ becomes Favoriten/Instagram/KawaiiQueen/). In favourites mode, left takes a card back to its normal folder and up turns it into a premium card with a golden frame. Instead of swiping you can use the buttons or the arrow keys. You can take back your last 5 decisions – files are only deleted or moved after that. Tap a picture or video (or press F) to see it full screen and zoom in. The favourites mode never ends: once you have seen all favourites, they come again, freshly shuffled.",
+    "help": "Conbert shows you random pictures, GIFs and videos from your default storage location. Swipe a card left to delete it – Conbert remembers it existed and never downloads it again, not even through subscriptions. Swipe right to keep it; it won't come again. Swipe up and it moves into the “Favoriten” folder with the same folder structure (Instagram/KawaiiQueen/ becomes Favoriten/Instagram/KawaiiQueen/). In favourites mode, left takes a card back to its normal folder and up turns it into a premium card with a golden frame. Instead of swiping you can use the buttons or the arrow keys. You can take back your last 5 decisions – files are only deleted or moved after that. Tap a picture or video (or press F) to see it full screen and zoom in. You can keep swiping there like on the cards; the next picture follows right away. The favourites mode never ends: once you have seen all favourites, they come again, freshly shuffled.",
     "loading": "Loading …",
     "mode": "Mode",
     "modes": {
@@ -5716,7 +5716,11 @@
       "pause": "Pause",
       "mute": "Mute",
       "unmute": "Unmute",
-      "seek": "Position in the video"
+      "seek": "Position in the video",
+      "hintSwipe": "In full screen you can swipe the same way or use the arrow keys. Zoom: two fingers, mouse wheel or double tap. Close: Esc or swipe down.",
+      "hintSwipeVideo": "In full screen you can swipe the same way or use the arrow keys. Tap: pause/play. Zoom: two fingers or mouse wheel. Close: Esc or swipe down.",
+      "screenOn": "Use the whole screen",
+      "screenOff": "Leave the whole screen"
     },
     "summaryNothing": "Nothing was left – everything had already been carried out.",
     "carried": "Already carried out: {{list}}",

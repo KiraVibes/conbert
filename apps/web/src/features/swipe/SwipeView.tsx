@@ -25,7 +25,9 @@ import { useSettings } from '@/features/settings/settings-store';
 import { usePrefersReducedMotion } from '@/features/settings/use-apply-settings';
 import { ApiRequestError } from '@/lib/api';
 import { useView } from '@/lib/use-view';
+import { cn } from '@/lib/utils';
 import { FullscreenViewer } from './FullscreenViewer';
+import { exitBrowserFullscreen } from './zoom';
 import { ReorganizeCard } from './ReorganizeCard';
 import { SourcePicker } from './SourcePicker';
 import { SwipeCard } from './SwipeCard';
@@ -83,7 +85,8 @@ export function SwipeView() {
   const [pending, setPending] = useState(0);
   /** What was really carried out on the storage location in this visit. */
   const [carried, setCarried] = useState<Record<string, number>>({});
-  const [viewing, setViewing] = useState<SwipeItem | null>(null);
+  /** Full-screen swiping: the viewer always shows the top card. */
+  const [fullscreen, setFullscreen] = useState(false);
   const fetching = useRef(false);
   const ready = status.data?.problem === null && (status.data.items ?? 0) > 0;
   const sources = useSwipeSources(mode, sorted, ready);
@@ -177,8 +180,12 @@ export function SwipeView() {
   );
 
   const openTop = useCallback(() => {
-    if (deck[0]) setViewing(deck[0]);
+    if (deck[0]) setFullscreen(true);
   }, [deck]);
+  const closeFullscreen = useCallback(() => {
+    setFullscreen(false);
+    exitBrowserFullscreen();
+  }, []);
   const gesture = useSwipeGesture(decide, still, openTop);
 
   const undo = useCallback(async () => {
@@ -280,6 +287,65 @@ export function SwipeView() {
     mode === 'favorites' ? [UndoDotIcon, CheckIcon, CrownIcon] : [XIcon, HeartIcon, StarIcon];
   const [LeftIcon, RightIcon, UpIcon] = icons as [typeof XIcon, typeof XIcon, typeof XIcon];
 
+  /** The round buttons: below the cards and in the full-screen view. */
+  const decisionButtons = (fly: (direction: SwipeDirection) => void, dark = false) => (
+    <div className="flex items-center justify-center gap-3">
+      <Button
+        size="icon"
+        variant="outline"
+        className={cn(
+          'size-14 rounded-full border-red-500/50 text-red-500 hover:bg-red-500/10',
+          dark && 'bg-black/40',
+        )}
+        disabled={!top}
+        onClick={() => fly('left')}
+        aria-label={t(`swipe.buttons.${actionFor(mode, 'left')}`)}
+        title={`${t(`swipe.buttons.${actionFor(mode, 'left')}`)} (←)`}
+      >
+        <LeftIcon className="size-6" aria-hidden="true" />
+      </Button>
+      <Button
+        size="icon"
+        variant="outline"
+        className={cn('size-11 rounded-full', dark && 'bg-black/40 text-white')}
+        disabled={pending === 0}
+        onClick={() => void undo()}
+        aria-label={t('swipe.undo', { count: pending })}
+        title={`${t('swipe.undo', { count: pending })} (Backspace)`}
+      >
+        <Undo2Icon aria-hidden="true" />
+      </Button>
+      <Button
+        size="icon"
+        variant="outline"
+        className={cn(
+          'size-14 rounded-full border-amber-400/60 text-amber-500 hover:bg-amber-400/10',
+          dark && 'bg-black/40',
+        )}
+        disabled={!top || (mode === 'favorites' && top.status === 'premium')}
+        onClick={() => fly('up')}
+        aria-label={t(`swipe.buttons.${actionFor(mode, 'up')}`)}
+        title={`${t(`swipe.buttons.${actionFor(mode, 'up')}`)} (↑)`}
+      >
+        <UpIcon className="size-6" aria-hidden="true" />
+      </Button>
+      <Button
+        size="icon"
+        variant="outline"
+        className={cn(
+          'size-14 rounded-full border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/10',
+          dark && 'bg-black/40',
+        )}
+        disabled={!top}
+        onClick={() => fly('right')}
+        aria-label={t(`swipe.buttons.${actionFor(mode, 'right')}`)}
+        title={`${t(`swipe.buttons.${actionFor(mode, 'right')}`)} (→)`}
+      >
+        <RightIcon className="size-6" aria-hidden="true" />
+      </Button>
+    </div>
+  );
+
   return (
     <div className="space-y-4">
       {intro}
@@ -369,7 +435,7 @@ export function SwipeView() {
                     hint: gesture.hint,
                     bind: gesture.bind,
                     onOpen: openTop,
-                    paused: viewing !== null,
+                    paused: fullscreen,
                   })}
                 />
               ))}
@@ -389,52 +455,7 @@ export function SwipeView() {
             )}
           </div>
 
-          <div className="flex items-center justify-center gap-3">
-            <Button
-              size="icon"
-              variant="outline"
-              className="size-14 rounded-full border-red-500/50 text-red-500 hover:bg-red-500/10"
-              disabled={!top}
-              onClick={() => gesture.fly('left')}
-              aria-label={t(`swipe.buttons.${actionFor(mode, 'left')}`)}
-              title={`${t(`swipe.buttons.${actionFor(mode, 'left')}`)} (←)`}
-            >
-              <LeftIcon className="size-6" aria-hidden="true" />
-            </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              className="size-11 rounded-full"
-              disabled={pending === 0}
-              onClick={() => void undo()}
-              aria-label={t('swipe.undo', { count: pending })}
-              title={`${t('swipe.undo', { count: pending })} (Backspace)`}
-            >
-              <Undo2Icon aria-hidden="true" />
-            </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              className="size-14 rounded-full border-amber-400/60 text-amber-500 hover:bg-amber-400/10"
-              disabled={!top || (mode === 'favorites' && top.status === 'premium')}
-              onClick={() => gesture.fly('up')}
-              aria-label={t(`swipe.buttons.${actionFor(mode, 'up')}`)}
-              title={`${t(`swipe.buttons.${actionFor(mode, 'up')}`)} (↑)`}
-            >
-              <UpIcon className="size-6" aria-hidden="true" />
-            </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              className="size-14 rounded-full border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/10"
-              disabled={!top}
-              onClick={() => gesture.fly('right')}
-              aria-label={t(`swipe.buttons.${actionFor(mode, 'right')}`)}
-              title={`${t(`swipe.buttons.${actionFor(mode, 'right')}`)} (→)`}
-            >
-              <RightIcon className="size-6" aria-hidden="true" />
-            </Button>
-          </div>
+          {decisionButtons(gesture.fly)}
           <p className="text-center text-xs text-muted-foreground">
             {t(mode === 'favorites' ? 'swipe.legendFavorites' : 'swipe.legend')}
           </p>
@@ -458,9 +479,27 @@ export function SwipeView() {
 
       <ReorganizeCard />
       <FullscreenViewer
-        key={viewing?.id ?? 'closed'}
-        item={viewing && { ...viewing, url: cardUrl(viewing) }}
-        onClose={() => setViewing(null)}
+        key={fullscreen ? (top?.id ?? 'empty') : 'closed'}
+        open={fullscreen}
+        item={fullscreen && top ? { ...top, url: cardUrl(top) } : null}
+        onClose={closeFullscreen}
+        swipe={{
+          mode,
+          onSwipe: decide,
+          onUndo: () => void undo(),
+          still,
+          controls: (fly) => decisionButtons(fly, true),
+          placeholder: loading ? (
+            <Loader2Icon className="size-6 animate-spin" aria-label={t('swipe.loading')} />
+          ) : (
+            <>
+              <p className="text-lg font-medium">
+                {mode === 'favorites' ? t('swipe.doneFavorites') : t('swipe.allSorted')}
+              </p>
+              <p className="text-sm text-white/60">{t('swipe.allSortedHint')}</p>
+            </>
+          ),
+        }}
       />
     </div>
   );

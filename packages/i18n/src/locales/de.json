@@ -5615,7 +5615,7 @@
   "swipe": {
     "title": "Swipen",
     "intro": "Sortiere deine Downloads wie bei Tinder: links löschen, rechts behalten, nach oben in die Favoriten.",
-    "help": "Conbert zeigt dir zufällige Bilder, GIFs und Videos von deinem Standard-Speicherort. Wisch eine Karte nach links, um sie zu löschen – Conbert merkt sich, dass es sie gab, und lädt sie nie wieder herunter, auch nicht durch Abos. Nach rechts behältst du sie; sie kommt dann nicht noch einmal. Nach oben wandert sie in den Ordner „Favoriten“, mit derselben Ordnerstruktur (aus Instagram/KawaiiQueen/ wird Favoriten/Instagram/KawaiiQueen/). Im Favoriten-Modus holt dich links eine Karte zurück in den normalen Ordner, oben macht sie zur Premium-Karte mit goldenem Rahmen. Statt zu wischen gehen auch die Knöpfe oder die Pfeiltasten. Die letzten 5 Entscheidungen kannst du zurücknehmen – gelöscht oder verschoben wird erst danach. Tipp auf ein Bild oder Video (oder drück F), um es im Vollbild anzusehen und hineinzuzoomen. Der Favoriten-Modus hört nie auf: Hast du alle Favoriten gesehen, kommen sie neu gemischt noch einmal.",
+    "help": "Conbert zeigt dir zufällige Bilder, GIFs und Videos von deinem Standard-Speicherort. Wisch eine Karte nach links, um sie zu löschen – Conbert merkt sich, dass es sie gab, und lädt sie nie wieder herunter, auch nicht durch Abos. Nach rechts behältst du sie; sie kommt dann nicht noch einmal. Nach oben wandert sie in den Ordner „Favoriten“, mit derselben Ordnerstruktur (aus Instagram/KawaiiQueen/ wird Favoriten/Instagram/KawaiiQueen/). Im Favoriten-Modus holt dich links eine Karte zurück in den normalen Ordner, oben macht sie zur Premium-Karte mit goldenem Rahmen. Statt zu wischen gehen auch die Knöpfe oder die Pfeiltasten. Die letzten 5 Entscheidungen kannst du zurücknehmen – gelöscht oder verschoben wird erst danach. Tipp auf ein Bild oder Video (oder drück F), um es im Vollbild anzusehen und hineinzuzoomen. Auch dort wischst du weiter wie auf den Karten, danach kommt gleich das nächste Bild. Der Favoriten-Modus hört nie auf: Hast du alle Favoriten gesehen, kommen sie neu gemischt noch einmal.",
     "loading": "Lädt …",
     "mode": "Modus",
     "modes": {
@@ -5716,7 +5716,11 @@
       "pause": "Pause",
       "mute": "Ton aus",
       "unmute": "Ton an",
-      "seek": "Stelle im Video"
+      "seek": "Stelle im Video",
+      "hintSwipe": "Im Vollbild kannst du genauso wischen oder die Pfeiltasten nehmen. Zoomen: zwei Finger, Mausrad oder doppelt tippen. Schließen: Esc oder nach unten wischen.",
+      "hintSwipeVideo": "Im Vollbild kannst du genauso wischen oder die Pfeiltasten nehmen. Antippen: Pause/Weiter. Zoomen: zwei Finger oder Mausrad. Schließen: Esc oder nach unten wischen.",
+      "screenOn": "Ganzen Bildschirm nutzen",
+      "screenOff": "Ganzen Bildschirm verlassen"
     },
     "summaryNothing": "Es war nichts mehr offen – alles war schon ausgeführt.",
     "carried": "Schon ausgeführt: {{list}}",

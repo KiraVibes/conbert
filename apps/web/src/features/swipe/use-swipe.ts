@@ -24,6 +24,15 @@ export function decideSwipe(
 export const TAP_PX = 8;
 export const isTap = (dx: number, dy: number) => Math.hypot(dx, dy) < TAP_PX;
 
+/** Where and in which colour the stamp of an action shows (card and full screen). */
+export const STAMP_CLASS: Record<string, string> = {
+  delete: 'border-red-500 text-red-500 left-4 top-6 -rotate-12',
+  unfavorite: 'border-sky-500 text-sky-500 left-4 top-6 -rotate-12',
+  keep: 'border-emerald-500 text-emerald-500 right-4 top-6 rotate-12',
+  favorite: 'border-amber-400 text-amber-400 left-1/2 bottom-8 -translate-x-1/2',
+  premium: 'border-amber-300 text-amber-300 left-1/2 bottom-8 -translate-x-1/2',
+};
+
 /** What a direction means in each mode. */
 export function actionFor(mode: SwipeMode, direction: SwipeDirection): SwipeAction {
   if (mode === 'favorites') {

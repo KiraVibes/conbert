@@ -4,15 +4,7 @@ import { ExpandIcon, ImageOffIcon } from 'lucide-react';
 import type { SwipeItem, SwipeMode } from '@conbert/schemas';
 import { cn } from '@/lib/utils';
 import { cardUrl } from './swipe-api';
-import { actionFor, type SwipeDirection } from './use-swipe';
-
-const STAMP_CLASS: Record<string, string> = {
-  delete: 'border-red-500 text-red-500 left-4 top-6 -rotate-12',
-  unfavorite: 'border-sky-500 text-sky-500 left-4 top-6 -rotate-12',
-  keep: 'border-emerald-500 text-emerald-500 right-4 top-6 rotate-12',
-  favorite: 'border-amber-400 text-amber-400 left-1/2 bottom-8 -translate-x-1/2',
-  premium: 'border-amber-300 text-amber-300 left-1/2 bottom-8 -translate-x-1/2',
-};
+import { STAMP_CLASS, actionFor, type SwipeDirection } from './use-swipe';
 
 /** The picture, GIF or video itself. */
 function Media({ item, play }: { item: SwipeItem; play: boolean }) {

@@ -63,3 +63,8 @@ export function formatTime(seconds: number): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return h > 0 ? `${String(h)}:${pad(m)}:${pad(s)}` : `${String(m)}:${pad(s)}`;
 }
+
+/** Leaves the browser's full screen again (when the viewer closes). */
+export function exitBrowserFullscreen() {
+  if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+}

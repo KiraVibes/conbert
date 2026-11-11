@@ -4,7 +4,9 @@ import { Dialog as DialogPrimitive } from 'radix-ui';
 import {
   ImageOffIcon,
   Loader2Icon,
+  Maximize2Icon,
   MaximizeIcon,
+  Minimize2Icon,
   PauseIcon,
   PlayIcon,
   Volume2Icon,
@@ -16,7 +18,17 @@ import {
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
-import { TAP_PX } from './use-swipe';
+import type { SwipeMode } from '@conbert/schemas';
+import {
+  SIDE_THRESHOLD,
+  STAMP_CLASS,
+  TAP_PX,
+  UP_THRESHOLD,
+  actionFor,
+  decideSwipe,
+  keyToCommand,
+  type SwipeDirection,
+} from './use-swipe';
 import {
   DOUBLE_TAP_ZOOM,
   FIT,
@@ -32,6 +44,35 @@ import {
 const DOUBLE_TAP_MS = 300;
 /** Drag down this far (at zoom 1) to close. */
 const CLOSE_PX = 120;
+const FLY_MS = 220;
+
+/** Deciding right in the full-screen view (Swipe): drag, arrow keys or the buttons. */
+export interface ViewerSwipe {
+  mode: SwipeMode;
+  onSwipe: (direction: SwipeDirection) => void;
+  onUndo: () => void;
+  /** The buttons below the picture; `fly` lets the picture leave in that direction. */
+  controls: (fly: (direction: SwipeDirection) => void) => React.ReactNode;
+  /** Shown while there is no picture (loading or all sorted). */
+  placeholder: React.ReactNode;
+  /** No animations (reduced motion). */
+  still: boolean;
+}
+
+/** The browser's own full screen (hides its bars) – not on every device. */
+function useBrowserFullscreen() {
+  const [on, setOn] = useState(() => document.fullscreenElement !== null);
+  useEffect(() => {
+    const update = () => setOn(document.fullscreenElement !== null);
+    document.addEventListener('fullscreenchange', update);
+    return () => document.removeEventListener('fullscreenchange', update);
+  }, []);
+  const toggle = () => {
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+    else void document.documentElement.requestFullscreen().catch(() => undefined);
+  };
+  return { supported: document.fullscreenEnabled, on, toggle };
+}
 
 type Point = { x: number; y: number };
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -72,14 +113,19 @@ function useVideoBlob(item: ViewerMedia | null) {
 /**
  * The picture or video on the whole screen: pinch with two fingers, the mouse
  * wheel or a double tap zooms, dragging moves it. Swipe down or Esc closes.
+ * With `swipe`, dragging sideways or up (at normal size) decides like on the card.
  * Render it with `key={item.id}` so every file starts fitted to the screen.
  */
 export function FullscreenViewer({
   item,
   onClose,
+  open = item !== null,
+  swipe,
 }: {
   item: ViewerMedia | null;
   onClose: () => void;
+  open?: boolean;
+  swipe?: ViewerSwipe;
 }) {
   const { t } = useTranslation();
   const video = useRef<HTMLVideoElement>(null);
@@ -88,6 +134,10 @@ export function FullscreenViewer({
   const [natural, setNatural] = useState<Size>({ w: 0, h: 0 });
   const [box, setBox] = useState<Size>({ w: 1, h: 1 });
   const [dismiss, setDismiss] = useState(0);
+  /** Sideways / upwards drag at normal size (only with `swipe`). */
+  const [drag, setDrag] = useState<Point>({ x: 0, y: 0 });
+  const [leaving, setLeaving] = useState<SwipeDirection | null>(null);
+  const browserFullscreen = useBrowserFullscreen();
   const [failed, setFailed] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -125,6 +175,26 @@ export function FullscreenViewer({
 
   const zoomBy = (factor: number, at: Point = { x: 0, y: 0 }) =>
     setView(zoomAround(viewRef.current, viewRef.current.zoom * factor, at));
+
+  const fly = useCallback(
+    (direction: SwipeDirection) => {
+      if (!swipe || !item || leaving) return;
+      setDrag({ x: 0, y: 0 });
+      if (swipe.still) {
+        swipe.onSwipe(direction);
+        return;
+      }
+      setLeaving(direction);
+    },
+    [swipe, item, leaving],
+  );
+  // The decision counts once the picture has flown out.
+  const onSwipe = swipe?.onSwipe;
+  useEffect(() => {
+    if (!leaving || !onSwipe) return;
+    const timer = window.setTimeout(() => onSwipe(leaving), FLY_MS);
+    return () => window.clearTimeout(timer);
+  }, [leaving, onSwipe]);
 
   const togglePlay = useCallback(() => {
     const v = video.current;
@@ -209,7 +279,12 @@ export function FullscreenViewer({
     if (!g.moved && Math.hypot(dx, dy) > TAP_PX) g.moved = true;
     if (!g.moved) return;
     if (g.view.zoom > 1) setView({ zoom: g.view.zoom, x: g.view.x + dx, y: g.view.y + dy });
-    else if (Math.abs(dy) > Math.abs(dx)) setDismiss(Math.max(0, dy));
+    else if (swipe && item && !leaving) {
+      // Down closes; sideways and up decide like on the card.
+      const down = dy > 0 && dy > Math.abs(dx);
+      setDismiss(down ? dy : 0);
+      setDrag(down ? { x: 0, y: 0 } : { x: dx, y: Math.min(0, dy) });
+    } else if (Math.abs(dy) > Math.abs(dx)) setDismiss(Math.max(0, dy));
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -226,6 +301,13 @@ export function FullscreenViewer({
       return;
     }
     setDismiss(0);
+    if (swipe && (drag.x !== 0 || drag.y !== 0)) {
+      const direction =
+        e.type === 'pointercancel' ? null : decideSwipe(drag.x, drag.y, box.w, box.h);
+      if (direction) fly(direction);
+      else setDrag({ x: 0, y: 0 });
+      return;
+    }
     if (!g || g.moved || e.type === 'pointercancel') return;
     const p = relative(e.clientX, e.clientY);
     const now = performance.now();
@@ -242,7 +324,11 @@ export function FullscreenViewer({
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if ((e.target as HTMLElement).closest('[role="slider"]')) return;
-    if (e.key === '+' || e.key === '=') zoomBy(1.5);
+    const command = swipe ? keyToCommand(e) : null;
+    if (command === 'undo') swipe?.onUndo();
+    else if (command === 'fullscreen') onClose();
+    else if (command) fly(command);
+    else if (e.key === '+' || e.key === '=') zoomBy(1.5);
     else if (e.key === '-') zoomBy(1 / 1.5);
     else if (e.key === '0') setView(FIT);
     else if (e.key === ' ' && isVideo && !(e.target as HTMLElement).closest('button')) togglePlay();
@@ -252,15 +338,38 @@ export function FullscreenViewer({
 
   const zoomed = view.zoom > 1;
   const fitScale = natural.w > 0 ? content.w / natural.w : 1;
+  // Leaving pictures fly out of the screen, like the cards.
+  const swipeX = leaving === 'left' ? -1.5 * box.w : leaving === 'right' ? 1.5 * box.w : drag.x;
+  const swipeY = leaving === 'up' ? -1.5 * box.h : drag.y;
+  const dragging = drag.x !== 0 || drag.y !== 0;
   const mediaStyle: React.CSSProperties = {
-    transform: `translate(${String(view.x)}px, ${String(view.y + dismiss)}px) scale(${String(view.zoom)})`,
+    transform: `translate(${String(view.x + swipeX)}px, ${String(view.y + dismiss + swipeY)}px) rotate(${String(swipeX / 40)}deg) scale(${String(view.zoom)})`,
     imageRendering: view.zoom * fitScale > 2 ? 'pixelated' : 'auto',
+    transition: leaving ? `transform ${String(FLY_MS)}ms ease-in` : undefined,
   };
+  // Which stamp shows (fades in towards the threshold).
+  const hint: { direction: SwipeDirection; strength: number } | null = leaving
+    ? { direction: leaving, strength: 1 }
+    : !dragging
+      ? null
+      : -drag.y > Math.abs(drag.x)
+        ? { direction: 'up', strength: Math.min(1, -drag.y / (box.h * UP_THRESHOLD)) }
+        : {
+            direction: drag.x > 0 ? 'right' : 'left',
+            strength: Math.min(1, Math.abs(drag.x) / (box.w * SIDE_THRESHOLD)),
+          };
+  const stamp = swipe && hint ? actionFor(swipe.mode, hint.direction) : null;
   const mediaClass =
     'absolute inset-0 h-full w-full object-contain select-none pointer-events-none';
 
   let media: React.ReactNode = null;
-  if (item && failed) {
+  if (!item && swipe) {
+    media = (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-white/80">
+        {swipe.placeholder}
+      </div>
+    );
+  } else if (item && failed) {
     media = (
       <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center text-sm text-white/70">
         <ImageOffIcon className="size-8" aria-hidden="true" />
@@ -323,7 +432,7 @@ export function FullscreenViewer({
   const barButton = 'text-white hover:bg-white/15 hover:text-white';
 
   return (
-    <DialogPrimitive.Root open={item !== null} onOpenChange={(open) => !open && onClose()}>
+    <DialogPrimitive.Root open={open} onOpenChange={(next) => !next && onClose()}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           className="fixed inset-0 z-50 bg-black"
@@ -338,6 +447,24 @@ export function FullscreenViewer({
             <DialogPrimitive.Title className="min-w-0 flex-1 truncate text-sm font-medium">
               {item?.name}
             </DialogPrimitive.Title>
+            {browserFullscreen.supported && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className={barButton}
+                onClick={browserFullscreen.toggle}
+                aria-label={t(
+                  browserFullscreen.on ? 'swipe.viewer.screenOff' : 'swipe.viewer.screenOn',
+                )}
+                title={t(browserFullscreen.on ? 'swipe.viewer.screenOff' : 'swipe.viewer.screenOn')}
+              >
+                {browserFullscreen.on ? (
+                  <Minimize2Icon aria-hidden="true" />
+                ) : (
+                  <Maximize2Icon aria-hidden="true" />
+                )}
+              </Button>
+            )}
             <DialogPrimitive.Close asChild>
               <Button
                 size="icon"
@@ -362,9 +489,21 @@ export function FullscreenViewer({
             onPointerCancel={onPointerUp}
           >
             {media}
+            {stamp && hint && (
+              <span
+                className={cn(
+                  'pointer-events-none absolute rounded-lg border-4 bg-black/60 px-3 py-1 text-2xl font-black tracking-wider uppercase',
+                  STAMP_CLASS[stamp],
+                )}
+                style={{ opacity: hint.strength }}
+              >
+                {t(`swipe.stamps.${stamp}`)}
+              </span>
+            )}
           </div>
 
           <div className="space-y-2 bg-black/60 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+            {swipe?.controls(fly)}
             {isVideo && blob?.url && !failed && (
               <div className="flex items-center gap-2">
                 <Button
@@ -436,7 +575,9 @@ export function FullscreenViewer({
               </Button>
             </div>
             <DialogPrimitive.Description className="text-center text-xs text-white/60">
-              {t(isVideo ? 'swipe.viewer.hintVideo' : 'swipe.viewer.hint')}
+              {swipe
+                ? `${t(swipe.mode === 'favorites' ? 'swipe.legendFavorites' : 'swipe.legend')} · ${t(isVideo ? 'swipe.viewer.hintSwipeVideo' : 'swipe.viewer.hintSwipe')}`
+                : t(isVideo ? 'swipe.viewer.hintVideo' : 'swipe.viewer.hint')}
             </DialogPrimitive.Description>
           </div>
         </DialogPrimitive.Content>
