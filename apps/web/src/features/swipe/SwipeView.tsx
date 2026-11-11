@@ -13,7 +13,7 @@ import {
   UndoDotIcon,
   XIcon,
 } from 'lucide-react';
-import { inPixivPost, pixivPostOf } from '@conbert/core';
+import { inPost, postOf } from '@conbert/core';
 import type { SwipeItem, SwipeMode, SwipeOutcome } from '@conbert/schemas';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
@@ -174,12 +174,12 @@ export function SwipeView() {
       const item = deck[0];
       if (!item) return;
       // Held X (or Shift+←): every page of the Pixiv work goes.
-      const post = direction === 'left' && wholePost.current ? pixivPostOf(item.path) : null;
+      const post = direction === 'left' && wholePost.current ? postOf(item.path) : null;
       wholePost.current = false;
       setPostHold(null);
       const action = post && mode === 'normal' ? 'deletePost' : actionFor(mode, direction);
       setDeck((d) =>
-        d.slice(1).filter((x) => action !== 'deletePost' || !post || !inPixivPost(x.path, post)),
+        d.slice(1).filter((x) => action !== 'deletePost' || !post || !inPost(x.path, post)),
       );
       if (action === 'deletePost') toast.info(t('swipe.postDeleted'));
       void sendSwipe(item.id, action)
@@ -242,7 +242,7 @@ export function SwipeView() {
       if (command === 'undo') void undo();
       else if (command === 'fullscreen') openTop();
       else if (deck[0]) {
-        const isPost = mode === 'normal' && pixivPostOf(deck[0].path) !== null;
+        const isPost = mode === 'normal' && postOf(deck[0].path) !== null;
         if (command === 'left' && e.shiftKey && isPost) armWholePost();
         gesture.fly(command);
       }
@@ -310,7 +310,7 @@ export function SwipeView() {
   const [LeftIcon, RightIcon, UpIcon] = icons as [typeof XIcon, typeof XIcon, typeof XIcon];
 
   // Holding X deletes every page of a Pixiv work (only for such a card).
-  const topPost = mode === 'normal' && top ? pixivPostOf(top.path) : null;
+  const topPost = mode === 'normal' && top ? postOf(top.path) : null;
   const topIsPost = topPost !== null;
   const leftLabel = t(`swipe.buttons.${actionFor(mode, 'left')}`);
 

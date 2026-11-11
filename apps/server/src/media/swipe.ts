@@ -1,30 +1,18 @@
 import { randomUUID } from 'node:crypto';
 import { rm } from 'node:fs/promises';
 import path from 'node:path';
-import {
-  and,
-  desc,
-  eq,
-  inArray,
-  isNull,
-  lte,
-  ne,
-  not,
-  notInArray,
-  notLike,
-  or,
-  sql,
-} from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, lte, ne, notInArray, notLike, or, sql } from 'drizzle-orm';
 import {
   favoritePath,
-  inPixivPost,
+  inPost,
   knownItemOf,
   normalPath,
   numberedName,
   parentFolder,
-  pixivPostOf,
+  postOf,
   premiumPath,
   sourceFolder,
+  type MediaPost,
 } from '@conbert/core';
 import type {
   SwipeAction,
@@ -153,10 +141,7 @@ export function nextItems(
   query: { mode: SwipeMode; folders: string[]; sorted: boolean; count: number; exclude: string[] },
 ): { items: SwipeItem[]; newRound: boolean } {
   const skip = [...pendingIds(ctx, userId), ...query.exclude];
-  // "<folder>/<id>_p" only matches pages of that very work (the number ends at "_p").
-  const waiting = waitingPosts(ctx, userId).map((post) =>
-    not(startsWith(post.folder ? `${post.folder}/${post.id}_p` : `${post.id}_p`)),
-  );
+  const waiting = waitingPosts(ctx, userId);
   const rounds = query.mode === 'favorites' && !query.sorted;
   const pick = () =>
     ctx.db
@@ -167,15 +152,17 @@ export function nextItems(
           poolFilter(ctx, userId, query.mode, query.sorted),
           folderFilter(query.mode, query.folders),
           skip.length > 0 ? notInArray(mediaItems.id, skip) : undefined,
-          ...waiting,
           rounds
             ? or(isNull(mediaItems.sortedAt), lte(mediaItems.sortedAt, favoritesRound(ctx, userId)))
             : undefined,
         ),
       )
       .orderBy(sql`random()`)
-      .limit(query.count)
+      // A few more, for the files of waiting posts that are left out below.
+      .limit(waiting.length > 0 ? query.count * 3 : query.count)
       .all()
+      .filter((row) => !waiting.some((post) => inPost(row.path, post)))
+      .slice(0, query.count)
       .map(toItem);
   const items = pick();
   if (items.length > 0 || !rounds) return { items, newRound: false };
@@ -317,13 +304,13 @@ async function carryOut(
 }
 
 /**
- * The other pages of a card's Pixiv work that are still to be sorted (same
- * location, same folder, same number). Empty for any other file.
+ * The other files of a card's post that are still to be sorted (same
+ * location, same folder, same post – see postOf). Empty for a single file.
  */
 function postSiblings(ctx: AppContext, item: MediaItemRecord): MediaItemRecord[] {
-  const post = pixivPostOf(item.path);
+  const post = postOf(item.path);
   if (!post) return [];
-  const prefix = post.folder ? `${post.folder}/${post.id}_p` : `${post.id}_p`;
+  const prefix = post.folder ? `${post.folder}/` : '';
   return ctx.db
     .select()
     .from(mediaItems)
@@ -337,7 +324,7 @@ function postSiblings(ctx: AppContext, item: MediaItemRecord): MediaItemRecord[]
       ),
     )
     .all()
-    .filter((row) => inPixivPost(row.path, post));
+    .filter((row) => inPost(row.path, post));
 }
 
 /** Carries out the given pending actions, oldest first. */
@@ -394,8 +381,8 @@ async function commit(
   return out;
 }
 
-/** Pages of works that wait for "delete the whole work" don't come as cards any more. */
-function waitingPosts(ctx: AppContext, userId: string): { folder: string; id: string }[] {
+/** Files of posts that wait for "delete the whole post" don't come as cards any more. */
+function waitingPosts(ctx: AppContext, userId: string): MediaPost[] {
   return ctx.db
     .select({ path: mediaItems.path })
     .from(swipeActions)
@@ -409,7 +396,7 @@ function waitingPosts(ctx: AppContext, userId: string): { folder: string; id: st
     )
     .all()
     .flatMap((row) => {
-      const post = pixivPostOf(row.path);
+      const post = postOf(row.path);
       return post ? [post] : [];
     });
 }

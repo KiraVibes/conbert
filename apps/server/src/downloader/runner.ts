@@ -88,12 +88,14 @@ export function inHiddenFolder(folder: string, full: string): boolean {
     .some((part) => part.startsWith('.'));
 }
 /**
- * The work folder gallery-dl made for a Pixiv work with several pages
+ * The post folder gallery-dl made for a post with several files
  * ("151308310"), or null for a file directly in the download folder.
  */
 export function postFolderOf(folder: string, full: string): string | null {
   const parts = path.relative(folder, full).split(path.sep);
-  return parts.length === 2 && /^\d+$/.test(parts[0] ?? '') ? (parts[0] ?? null) : null;
+  return parts.length === 2 && /^[A-Za-z0-9_-]{1,64}$/.test(parts[0] ?? '')
+    ? (parts[0] ?? null)
+    : null;
 }
 
 /** yt-dlp puts the covers here (inside the download folder, not results). */
@@ -230,6 +232,23 @@ export function ytDlpArgs(
   ];
 }
 
+/**
+ * When gallery-dl puts a post into its own folder, and how the folder is
+ * named – the number the file names start with (see postOf in @conbert/core).
+ * 4chan threads are a folder already; yt-dlp sites are videos, one per post.
+ */
+const POST_FOLDERS: Partial<Record<Platform, { when: string; name: string }>> = {
+  pixiv: { when: 'count > 1', name: '{id}' },
+  x: { when: 'count > 1', name: '{tweet_id}' },
+  instagram: { when: 'count > 1', name: '{post_id}' },
+  tumblr: { when: 'count > 1', name: '{id}' },
+  pinterest: { when: 'count > 1', name: '{id}' },
+  deviantart: { when: 'count > 1', name: '{index}' },
+  // Galleries and photo posts count their files in "num" (0 = a single file).
+  reddit: { when: 'num > 0', name: '{id}' },
+  tiktok: { when: 'num > 0', name: '{id}' },
+};
+
 /** gallery-dl arguments – dates become a filter built from checked numbers only. */
 export function galleryDlArgs(
   url: string,
@@ -245,10 +264,11 @@ export function galleryDlArgs(
     const [y, m, d] = iso.split('-').map(Number);
     return `datetime(${y}, ${m}, ${d})`;
   };
-  // Pixiv works with several pages go into a folder named after the work
-  // ("151308310/151308310_p76.jpg"); single pictures stay as they are.
-  const where = pixiv
-    ? ['-d', folder, '-o', `directory=${JSON.stringify({ 'page_count > 1': ['{id}'], '': [] })}`]
+  // Posts with several pictures or videos go into a folder named after the
+  // post ("151308310/151308310_p76.jpg"); single files stay as they are.
+  const post = POST_FOLDERS[platform];
+  const where = post
+    ? ['-d', folder, '-o', `directory=${JSON.stringify({ [post.when]: [post.name], '': [] })}`]
     : ['-D', folder];
   const filters = [
     ...(options.dateAfter ? [`date >= ${date(options.dateAfter)}`] : []),
@@ -407,7 +427,7 @@ export class DownloadRunner {
         }
         const fileId = randomUUID();
         // A Pixiv work with several pages came in its own folder: keep it.
-        const sub = row.platform === 'pixiv' ? postFolderOf(folder, full) : null;
+        const sub = postFolderOf(folder, full);
         if (sub) subfolders[fileId] = sub;
         const target = path.join(paths.uploads, fileId);
         await rename(full, target);

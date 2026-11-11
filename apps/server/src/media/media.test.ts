@@ -320,9 +320,16 @@ describe.skipIf(!hasRclone)('swipe game (real rclone)', () => {
     put('Pixiv/y/8_p0.png');
     put('Pixiv/y/9/9_p0.png');
     put('Pixiv/y/9/9_p1.png');
+    put('X/nasa/1790000000000000001_1.jpg');
+    put('X/nasa/1790000000000000001_2.jpg');
+    put('Gelbooru/sakimichan/gelbooru_4711_sakimichan.png');
+    put('Gelbooru/sakimichan/gelbooru_4712_sakimichan.png');
     await sync();
     const plan = (await api('GET', '/api/media/reorganize')).json<ReorganizePlan>();
-    expect(plan.posts).toEqual([{ folder: 'Pixiv/y', id: '7', pages: 2 }]);
+    expect(plan.posts).toEqual([
+      { folder: 'Pixiv/y', id: '7', pages: 2 },
+      { folder: 'X/nasa', id: '1790000000000000001', pages: 2 },
+    ]);
     const done = await api('POST', '/api/media/reorganize', {
       moves: [],
       leftovers: [],

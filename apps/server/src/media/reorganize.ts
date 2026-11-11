@@ -6,9 +6,9 @@ import {
   PLATFORM_FOLDERS,
   RETIRED_SITES,
   baseName,
-  inPixivPost,
+  inPost,
   numberedName,
-  pixivPostOf,
+  postOf,
   platformFolder,
   safeName,
 } from '@conbert/core';
@@ -93,17 +93,17 @@ function presentItems(ctx: AppContext, targetId: string) {
 }
 
 /**
- * Pixiv works with at least two pages whose pages lie loose in a folder
- * (downloaded before works got their own folder). From the index – sync first.
+ * Posts with at least two files that lie loose in a folder (downloaded
+ * before posts got their own folder). From the index – sync first.
  */
 function loosePosts(ctx: AppContext, targetId: string): ReorganizePlan['posts'] {
   const groups = new Map<string, { folder: string; id: string; pages: number }>();
   for (const item of presentItems(ctx, targetId)) {
-    const post = pixivPostOf(item.path);
+    const post = postOf(item.path);
     // Already in its own folder ("…/151308310/151308310_p0.jpg").
-    if (!post || baseName(post.folder) === post.id) continue;
+    if (!post || post.own) continue;
     const key = `${post.folder}\n${post.id}`;
-    const group = groups.get(key) ?? { ...post, pages: 0 };
+    const group = groups.get(key) ?? { folder: post.folder, id: post.id, pages: 0 };
     group.pages++;
     groups.set(key, group);
   }
@@ -195,7 +195,7 @@ async function merge(
   await connection.removeEmptyFolders(from).catch(() => undefined);
 }
 
-/** The pages of one Pixiv work move into "<folder>/<id>/" (names kept free). */
+/** The files of one post move into "<folder>/<id>/" (names kept free). */
 async function groupPost(
   ctx: AppContext,
   targetId: string,
@@ -205,7 +205,7 @@ async function groupPost(
   const folder = post.folder ? relativePath(post.folder) : '';
   const into = folder ? `${folder}/${post.id}` : post.id;
   const pages = presentItems(ctx, targetId).filter((item) =>
-    inPixivPost(item.path, { folder, id: post.id }),
+    inPost(item.path, { folder, id: post.id }),
   );
   for (const page of pages) {
     const name = baseName(page.path);

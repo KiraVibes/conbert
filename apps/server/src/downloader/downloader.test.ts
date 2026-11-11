@@ -172,10 +172,17 @@ describe('downloader helpers', () => {
     expect(px).toEqual(expect.arrayContaining(['--ugoira', 'mp4', '--filter', 'x_restrict == 0']));
     // Works with several pages get their own folder, single pictures don't.
     expect(px).toEqual(
-      expect.arrayContaining(['-d', '/tmp/x', '-o', 'directory={"page_count > 1":["{id}"],"":[]}']),
+      expect.arrayContaining(['-d', '/tmp/x', '-o', 'directory={"count > 1":["{id}"],"":[]}']),
     );
     expect(px).not.toContain('-D');
-    expect(gd).toEqual(expect.arrayContaining(['-D', '/tmp/x']));
+    // Instagram carousels get a folder as well.
+    expect(gd).toEqual(
+      expect.arrayContaining(['-d', '/tmp/x', '-o', 'directory={"count > 1":["{post_id}"],"":[]}']),
+    );
+    // Sites without posts of several files keep the plain download folder.
+    expect(
+      galleryDlArgs('https://boards.4chan.org/g/thread/1', '4chan', '/tmp/x', OPTIONS, null),
+    ).toEqual(expect.arrayContaining(['-D', '/tmp/x']));
     expect(postFolderOf('/tmp/x', path.join('/tmp/x', '151308310', '151308310_p76.jpg'))).toBe(
       '151308310',
     );

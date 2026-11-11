@@ -28,7 +28,7 @@ Anforderungen:
 **Pixiv** (ergänzt 2026-10-30 auf Wunsch des Nutzers):
 - Einzelwerke, Künstlerprofile, Tag-Suchen und Lesezeichen über `gallery-dl` (yt-dlp kennt Pixiv nicht). Downloads landen unter `Pixiv/<Künstler>` bzw. `Pixiv/Tag <Tag>`; Profile und Tag-Suchen lassen sich als Abo speichern (höchstens stündlich).
 - **Anmeldung über einen Refresh-Token statt Cookies** (Ausnahme von „nur Cookie-Import“): Die App-API von Pixiv kennt keine Cookies. Der Nutzer meldet sich auf der Pixiv-Seite selbst an (Conbert sieht das Passwort nie), kopiert den Einmal-Code aus der Browser-Konsole und fügt ihn ein; der Server tauscht ihn gegen den Token (PKCE, wie `gallery-dl oauth:pixiv`). Im Expertenmodus kann ein vorhandener Token direkt eingefügt werden. Token verschlüsselt gespeichert, nie geloggt, nie zurückgegeben; an gallery-dl nur als temporäre Konfigurationsdatei, nie auf der Kommandozeile.
-- **Werke mit mehreren Seiten** (ergänzt 2026-11-11) landen in einem eigenen Ordner mit der Werknummer (`Pixiv/<Künstler>/151308310/151308310_p76.jpg`), Einzelbilder bleiben lose. gallery-dl entscheidet per Bedingung `page_count > 1`. Ältere lose Seiten verschiebt „Ordner aufräumen“; beim Swipen löscht X gedrückt halten (oder Umschalt+←) alle Seiten eines Werks.
+- **Werke mit mehreren Seiten** landen in einem eigenen Ordner mit der Werknummer (`Pixiv/<Künstler>/151308310/151308310_p76.jpg`) – seit 2026-11-11 gilt das für alle gallery-dl-Seiten, siehe „Beiträge mit mehreren Dateien“ unten.
 - **Ugoira** (animierte Pixiv-Bilder) werden per ffmpeg zu MP4 (Standard), GIF oder WebM umgewandelt oder als Einzelbilder (ZIP) behalten.
 - Werke ab 18 (R-18/R-18G) sind standardmäßig ausgefiltert und nur per Schalter ladbar.
 
@@ -94,3 +94,7 @@ Viele Boorus begrenzen kostenlose oder anonyme Nutzer, z. B. auf wenige Tags pro
 ### 8.3 Direkt weiterverarbeiten
 
 Jeder Download (Social Media, Booru, Einzel-URL, Abo) kann **sofort mit einem Workflow verknüpft** werden, z. B. „Herunterladen → in WebP umwandeln → komprimieren → auf NAS speichern“. Im Download-Dialog gibt es dafür den Punkt **„Danach automatisch …“** mit Auswahl eines gespeicherten Workflows oder einer schnellen Einzelaktion („In … umwandeln“, „Komprimieren“). Details siehe Abschnitt 11.
+
+**Beiträge mit mehreren Dateien** (ergänzt 2026-11-11 auf Wunsch des Nutzers):
+- gallery-dl legt jeden Beitrag mit mehr als einer Datei in einen Ordner, der wie der Beitrag heißt (bedingtes `directory`): Pixiv `{id}`, X `{tweet_id}`, Instagram `{post_id}`, Tumblr `{id}`, Pinterest `{id}`, DeviantArt `{index}` jeweils bei `count > 1`; Reddit-Galerien und TikTok-Fotobeiträge `{id}` bei `num > 0`. 4chan-Threads sind schon ein Ordner; yt-dlp-Seiten (Videos) bleiben, wie sie sind.
+- Erkennung (`postOf` in `packages/core/src/media.ts`): eigener Ordner nur, wenn der Dateiname eindeutig mit der Beitragsnummer beginnt (bzw. bei Tumblr/Pinterest/DeviantArt nach dem Seitennamen enthält) – Tag- oder Künstlerordner zählen nie. Lose Dateien älterer Downloads erkennt Conbert an den gallery-dl-Namen; „Ordner aufräumen“ verschiebt Beiträge mit ≥ 2 Dateien in ihren Ordner, X gedrückt halten beim Swipen löscht alle Dateien eines Beitrags.

@@ -75,22 +75,72 @@ export function baseName(path: string): string {
   return path.slice(path.lastIndexOf('/') + 1);
 }
 
-/** One page of a Pixiv work: "151308310_p76.jpg" (also "_p0_master1200", ugoira "_p0.mp4"). */
-const PIXIV_PAGE = /^(\d+)_p\d+(?:[._]|$)/;
-
 /**
- * The Pixiv work a file belongs to: its folder and number, or null for any
- * other file. "Pixiv/x/151308310/151308310_p76.jpg" → folder
- * "Pixiv/x/151308310", id "151308310".
+ * Posts with several pictures or videos (a Pixiv work, an X post, an
+ * Instagram carousel, a Tumblr photo set, a Reddit gallery …). Downloads put
+ * them into a folder named after the post; older ones may still lie loose.
  */
-export function pixivPostOf(path: string): { folder: string; id: string } | null {
-  const id = PIXIV_PAGE.exec(baseName(path))?.[1];
-  return id ? { folder: parentFolder(path), id } : null;
+export interface MediaPost {
+  /** The folder the post's files are in. */
+  folder: string;
+  /** The post's number (also the name of its own folder). */
+  id: string;
+  /** true: the files sit in the post's own folder; false: loose among others. */
+  own: boolean;
 }
 
-/** Is this file a page of that work (same folder, same number)? */
-export function inPixivPost(path: string, post: { folder: string; id: string }): boolean {
-  const other = pixivPostOf(path);
+/** Loose files of a post, recognised by the names gallery-dl gives them. */
+const LOOSE_PAGES: readonly RegExp[] = [
+  // Pixiv: "151308310_p76.jpg", "…_p0_master1200.jpg", ugoira "…_p0.mp4"
+  /^(\d+)_p\d+(?:[._]|$)/,
+  // Instagram carousel: "<post>_<media>.jpg"
+  /^(\d{10,})_\d{10,}\./,
+  // X: "<post>_1.jpg"; TikTok photo posts: "<post>_01 title.jpg"
+  /^(\d{10,})_\d{1,2}[ .]/,
+  // Tumblr photo set: "tumblr_<blog>_<post>_01.jpg"
+  /^tumblr_.+_(\d{9,})_\d{2}\./,
+  // Pinterest pin with several pictures: "pinterest_<pin>_<media>.jpg"
+  /^pinterest_(\d{6,})_\d+\./,
+  // Reddit gallery: "abc123 01 Title.jpg"
+  /^([a-z0-9]{5,10}) \d{2} /,
+];
+
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Is this file inside the post folder `own`? Only clear cases count – a tag or
+ * artist folder ("Gelbooru/sakimichan/") must never look like a post.
+ */
+function inOwnFolder(name: string, own: string): boolean {
+  if (/^\d{5,}$/.test(own)) {
+    return (
+      name.startsWith(`${own}_`) ||
+      new RegExp(`^(?:tumblr|pinterest|deviantart)_(?:.*_)?${own}[_.]`).test(name)
+    );
+  }
+  if (/^[a-z0-9]{5,10}$/.test(own)) {
+    return new RegExp(`^${escapeRegExp(own)} \\d{2} `).test(name);
+  }
+  return false;
+}
+
+/**
+ * The post a file belongs to, or null for a file that stands alone.
+ * "Pixiv/x/151308310/151308310_p76.jpg" → { folder "Pixiv/x/151308310",
+ * id "151308310", own: true }.
+ */
+export function postOf(path: string): MediaPost | null {
+  const folder = parentFolder(path);
+  const name = baseName(path);
+  const own = baseName(folder);
+  const loose = LOOSE_PAGES.map((re) => re.exec(name)?.[1]).find((id) => id !== undefined);
+  if (own && (loose === own || inOwnFolder(name, own))) return { folder, id: own, own: true };
+  return loose ? { folder, id: loose, own: false } : null;
+}
+
+/** Is this file part of that post (same folder, same post)? */
+export function inPost(path: string, post: Pick<MediaPost, 'folder' | 'id'>): boolean {
+  const other = postOf(path);
   return other?.folder === post.folder && other.id === post.id;
 }
 
