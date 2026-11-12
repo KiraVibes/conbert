@@ -2255,6 +2255,21 @@
       "what": "That is too much for one ZIP file.",
       "cause": "All files together are bigger than 4 GB – Conbert cannot pack ZIP files that big.",
       "action": "Download the files one by one, or first delete what you already have."
+    },
+    "contactKeyInvalid": {
+      "what": "That isn't a valid public key.",
+      "cause": "Public age keys start with “age1”. Maybe a piece got lost while copying – or it's a private key (AGE-SECRET-KEY-…), which never belongs in the contact book.",
+      "action": "Ask for the public key again and paste all of it."
+    },
+    "contactExists": {
+      "what": "This key is already in your contact book.",
+      "cause": "Every key appears only once. “Show details” tells you under which name.",
+      "action": "Rename the existing contact if the name no longer fits."
+    },
+    "contactLimit": {
+      "what": "Your contact book is full.",
+      "cause": "It holds at most 500 contacts.",
+      "action": "Delete contacts you no longer need."
     }
   },
   "stages": {
@@ -5636,6 +5651,46 @@
         "wrong-key": "“{{name}}”: the file isn't encrypted for your key.",
         "not-age": "“{{name}}”: this is no age-encrypted file."
       }
+    },
+    "contacts": {
+      "tab": "Contacts",
+      "title": "Contact book",
+      "intro": "Save public keys under a name – when you encrypt, you just tick the recipients.",
+      "help": "The contact book remembers the public keys of people you often encrypt for, with a name like “Anna”. When you encrypt (in workflows too), you tick them instead of digging out the long age1… key every time. Public keys aren't secret: they can only lock, never open. Only you can see your contact book.",
+      "new": "New contact",
+      "name": "Name",
+      "namePlaceholder": "e.g. Anna",
+      "nameFor": "Name for {{key}}",
+      "note": "Note (optional)",
+      "notePlaceholder": "e.g. work, laptop",
+      "key": "Public key",
+      "keyHelp": "You get it from the person themselves, for example in a message. It starts with “age1”. In Conbert it's under Settings → My key. Never pass on a private key (AGE-SECRET-KEY-…) – it doesn't belong here.",
+      "invalidKey": "That isn't a public age key. It starts with “age1” and has no spaces.",
+      "secretKey": "Careful, that's a private key! Its owner keeps it to themselves. Only the public key (age1…) goes here.",
+      "add": "Save contact",
+      "added": "“{{name}}” is now in your contact book.",
+      "empty": "No contacts yet. Add the first one above.",
+      "search": "Search contacts",
+      "noMatch": "No contact matches “{{query}}”.",
+      "copy": "Copy the key of “{{name}}”",
+      "copied": "Key copied.",
+      "edit": "Edit “{{name}}”",
+      "save": "Save",
+      "saved": "Saved.",
+      "cancel": "Cancel",
+      "delete": "Delete “{{name}}”",
+      "deleteTitle": "Delete “{{name}}” from your contact book?",
+      "deleteText": "Only the entry goes. Files you already encrypted for this person still open for them. Workflows with this contact ticked won't encrypt for them any more.",
+      "deleteConfirm": "Delete",
+      "deleted": "“{{name}}” is deleted.",
+      "myKey": "Your key to pass on",
+      "myKeyHelp": "Send this public key to people who want to send you encrypted files. They save it in their contact book. Passing it on is safe: only you can open.",
+      "copyMine": "Copy my public key",
+      "pick": "From your contact book",
+      "pickEmpty": "Your contact book is still empty. Add contacts in the “Contacts” tab under Workshop → Encrypt for … or in the settings.",
+      "users": "Other users of this Conbert",
+      "saveAsContact": "Save as contact",
+      "knownAs": "is in your contact book as “{{name}}”"
     }
   },
   "swipe": {

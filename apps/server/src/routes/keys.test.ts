@@ -11,7 +11,7 @@ import {
   generateX25519Identity,
   identityToRecipient,
 } from 'age-encryption';
-import type { MyKey, SharedKey, WorkflowRunDto } from '@conbert/schemas';
+import type { Contact, MyKey, SharedKey, WorkflowRunDto } from '@conbert/schemas';
 import { recordFile } from '../storage/uploads';
 import { sessionCookie, setupAdmin, testApp } from '../test/helpers';
 
@@ -195,5 +195,116 @@ describe('key vault', () => {
       run: WorkflowRunDto;
     }>().run;
     expect(run.files[0]?.error?.messageKey).toBe('errors.keyNoRecipients');
+  });
+});
+
+describe('contact book', () => {
+  const code = (res: { json: <T>() => T }) => res.json<{ error: { code: string } }>().error.code;
+
+  it('keeps contacts per user: add, rename, note, delete', async () => {
+    const anna = await makeKey('egal egal egal');
+    const created = await call(admin, 'POST', '/api/keys/contacts', {
+      name: '  Anna  ',
+      publicKey: ` ${anna.publicKey} `,
+      note: 'Schwester',
+    });
+    expect(created.statusCode, created.body).toBe(201);
+    const contact = created.json<{ contact: Contact }>().contact;
+    expect(contact).toMatchObject({ name: 'Anna', publicKey: anna.publicKey, note: 'Schwester' });
+
+    // The same key twice is refused and names the contact it already belongs to.
+    const twice = await call(admin, 'POST', '/api/keys/contacts', {
+      name: 'Anna 2',
+      publicKey: anna.publicKey,
+    });
+    expect(twice.statusCode).toBe(409);
+    expect(code(twice)).toBe('CONTACT_EXISTS');
+    const wrong = await call(admin, 'POST', '/api/keys/contacts', {
+      name: 'Kaputt',
+      publicKey: 'age1quatschquatschquatsch',
+    });
+    expect(code(wrong)).toBe('CONTACT_KEY_INVALID');
+    // A private key never goes into the contact book.
+    const secret = await call(admin, 'POST', '/api/keys/contacts', {
+      name: 'Geheim',
+      publicKey: anna.identity,
+    });
+    expect(code(secret)).toBe('CONTACT_KEY_INVALID');
+
+    const renamed = await call(admin, 'PATCH', `/api/keys/contacts/${contact.id}`, {
+      name: 'Anna M.',
+      note: null,
+    });
+    expect(renamed.json<{ contact: Contact }>().contact).toMatchObject({
+      name: 'Anna M.',
+      note: null,
+      publicKey: anna.publicKey,
+    });
+
+    // Another user sees nothing and can't change or delete it.
+    const bea = await secondUser();
+    expect((await call(bea.cookie, 'GET', '/api/keys/contacts')).json()).toEqual({
+      contacts: [],
+    });
+    expect(
+      (await call(bea.cookie, 'PATCH', `/api/keys/contacts/${contact.id}`, { name: 'x' }))
+        .statusCode,
+    ).toBe(404);
+    expect((await call(bea.cookie, 'DELETE', `/api/keys/contacts/${contact.id}`)).statusCode).toBe(
+      404,
+    );
+    // Bea may keep the same key under her own name.
+    const beas = await call(bea.cookie, 'POST', '/api/keys/contacts', {
+      name: 'Anna (Arbeit)',
+      publicKey: anna.publicKey,
+    });
+    expect(beas.statusCode).toBe(201);
+
+    const list = (await call(admin, 'GET', '/api/keys/contacts')).json<{ contacts: Contact[] }>();
+    expect(list.contacts.map((c) => c.name)).toEqual(['Anna M.']);
+    expect((await call(admin, 'DELETE', `/api/keys/contacts/${contact.id}`)).statusCode).toBe(204);
+    expect((await call(admin, 'GET', '/api/keys/contacts')).json()).toEqual({ contacts: [] });
+  });
+
+  it('a workflow encrypts for contacts of its owner – never for someone else’s', async () => {
+    const anna = await makeKey('egal egal egal');
+    const contact = (
+      await call(admin, 'POST', '/api/keys/contacts', { name: 'Anna', publicKey: anna.publicKey })
+    ).json<{ contact: Contact }>().contact;
+
+    const runFor = async (cookie: string, contactIds: string[]) => {
+      const me = await call(cookie, 'GET', '/api/auth/status');
+      const userId = me.json<{ user: { id: string } }>().user.id;
+      const id = randomUUID();
+      const target = path.join(dataDir, 'uploads', id);
+      mkdirSync(path.dirname(target), { recursive: true });
+      copyFileSync(path.join(fixtures, 'sample.png'), target);
+      await recordFile(app.conbert, { id, userId, filePath: target, name: 'foto.png', size: 1 });
+      const res = await call(cookie, 'POST', '/api/workflows/quick-run', {
+        fileIds: [id],
+        name: 'Für Anna',
+        steps: [{ kind: 'workshop', trick: 'encrypt', params: { contactIds } }],
+      });
+      expect(res.statusCode, res.body).toBe(201);
+      await (app.conbert.workflows.queue as unknown as { idle(): Promise<void> }).idle();
+      const runId = res.json<{ run: WorkflowRunDto }>().run.id;
+      return (await call(cookie, 'GET', `/api/workflow-runs/${runId}`)).json<{
+        run: WorkflowRunDto;
+      }>().run;
+    };
+
+    const run = await runFor(admin, [contact.id]);
+    expect(run.files[0], JSON.stringify(run)).toMatchObject({ status: 'done' });
+    const content = await call(admin, 'GET', `/api/files/${run.files[0]?.resultFileId}/content`);
+    const d = new Decrypter();
+    d.addIdentity(anna.identity);
+    expect(Buffer.from(await d.decrypt(new Uint8Array(content.rawPayload)))).toEqual(
+      readFileSync(path.join(fixtures, 'sample.png')),
+    );
+
+    // Bea can't borrow the admin's contact by its ID.
+    const bea = await secondUser();
+    const beaRun = await runFor(bea.cookie, [contact.id]);
+    expect(beaRun.files[0]?.error?.messageKey).toBe('errors.keyNoRecipients');
   });
 });

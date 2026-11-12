@@ -343,6 +343,24 @@ export const userKeys = sqliteTable('user_keys', {
 });
 export type UserKeyRecord = typeof userKeys.$inferSelect;
 
+/** Contact book: public age keys of people the user encrypts for, by name. */
+export const ageContacts = sqliteTable(
+  'age_contacts',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    publicKey: text('public_key').notNull(),
+    note: text('note'),
+    createdAt: createdAt(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (t) => [uniqueIndex('age_contacts_user_key_idx').on(t.userId, t.publicKey)],
+);
+export type AgeContactRecord = typeof ageContacts.$inferSelect;
+
 /** cookies.txt per user and platform, encrypted (see lib/secret-box), never sent back. */
 export const downloaderCookies = sqliteTable(
   'downloader_cookies',

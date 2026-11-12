@@ -2255,6 +2255,21 @@
       "what": "Das ist zu viel für eine ZIP-Datei.",
       "cause": "Alle Dateien zusammen sind größer als 4 GB – so große ZIP-Dateien kann Conbert nicht packen.",
       "action": "Lad die Dateien einzeln herunter oder lösch zuerst, was du schon hast."
+    },
+    "contactKeyInvalid": {
+      "what": "Das ist kein gültiger öffentlicher Schlüssel.",
+      "cause": "Öffentliche age-Schlüssel beginnen mit „age1“. Vielleicht fehlt beim Kopieren ein Stück – oder es ist ein privater Schlüssel (AGE-SECRET-KEY-…), der nie ins Kontaktbuch gehört.",
+      "action": "Lass dir den öffentlichen Schlüssel noch einmal schicken und füge ihn vollständig ein."
+    },
+    "contactExists": {
+      "what": "Dieser Schlüssel steht schon in deinem Kontaktbuch.",
+      "cause": "Jeder Schlüssel kommt nur einmal vor. Unter „Details anzeigen“ steht, unter welchem Namen.",
+      "action": "Benenne den vorhandenen Kontakt um, wenn der Name nicht mehr passt."
+    },
+    "contactLimit": {
+      "what": "Dein Kontaktbuch ist voll.",
+      "cause": "Es fasst höchstens 500 Kontakte.",
+      "action": "Lösche Kontakte, die du nicht mehr brauchst."
     }
   },
   "stages": {
@@ -5636,6 +5651,46 @@
         "wrong-key": "„{{name}}“: Die Datei ist nicht für deinen Schlüssel verschlüsselt.",
         "not-age": "„{{name}}“: Das ist keine age-verschlüsselte Datei."
       }
+    },
+    "contacts": {
+      "tab": "Kontakte",
+      "title": "Kontaktbuch",
+      "intro": "Speichere öffentliche Schlüssel unter einem Namen – beim Verschlüsseln hakst du die Empfänger dann einfach an.",
+      "help": "Im Kontaktbuch merkst du dir die öffentlichen Schlüssel von Menschen, für die du öfter verschlüsselst – mit Namen, z. B. „Anna“. Beim Verschlüsseln (auch im Workflow) wählst du sie dann per Häkchen aus, statt den langen age1…-Schlüssel jedes Mal herauszusuchen. Öffentliche Schlüssel sind nicht geheim: Mit ihnen kann man nur verschlüsseln, nichts öffnen. Dein Kontaktbuch sieht nur du.",
+      "new": "Neuer Kontakt",
+      "name": "Name",
+      "namePlaceholder": "z. B. Anna",
+      "nameFor": "Name für {{key}}",
+      "note": "Notiz (freiwillig)",
+      "notePlaceholder": "z. B. Arbeit, Laptop",
+      "key": "Öffentlicher Schlüssel",
+      "keyHelp": "Den bekommst du von der Person selbst, z. B. per Nachricht. Er beginnt mit „age1“. In Conbert steht er unter Einstellungen → Mein Schlüssel. Einen privaten Schlüssel (AGE-SECRET-KEY-…) gibt man nie weiter – der gehört hier nicht hinein.",
+      "invalidKey": "Das ist kein öffentlicher age-Schlüssel. Er beginnt mit „age1“ und hat keine Leerzeichen.",
+      "secretKey": "Vorsicht, das ist ein privater Schlüssel! Den behält sein Besitzer für sich. Hier gehört nur der öffentliche Schlüssel hin (age1…).",
+      "add": "Kontakt speichern",
+      "added": "„{{name}}“ steht jetzt im Kontaktbuch.",
+      "empty": "Noch keine Kontakte. Lege oben den ersten an.",
+      "search": "Kontakte durchsuchen",
+      "noMatch": "Kein Kontakt passt zu „{{query}}“.",
+      "copy": "Schlüssel von „{{name}}“ kopieren",
+      "copied": "Schlüssel kopiert.",
+      "edit": "„{{name}}“ bearbeiten",
+      "save": "Speichern",
+      "saved": "Gespeichert.",
+      "cancel": "Abbrechen",
+      "delete": "„{{name}}“ löschen",
+      "deleteTitle": "„{{name}}“ aus dem Kontaktbuch löschen?",
+      "deleteText": "Nur der Eintrag verschwindet. Dateien, die du schon für diese Person verschlüsselt hast, kann sie weiterhin öffnen. Workflows, in denen der Kontakt angehakt ist, verschlüsseln danach nicht mehr für ihn.",
+      "deleteConfirm": "Löschen",
+      "deleted": "„{{name}}“ ist gelöscht.",
+      "myKey": "Dein Schlüssel zum Weitergeben",
+      "myKeyHelp": "Schick diesen öffentlichen Schlüssel an Menschen, die dir verschlüsselte Dateien senden wollen. Sie speichern ihn dann in ihrem Kontaktbuch. Weitergeben ist ungefährlich: Öffnen kannst nur du.",
+      "copyMine": "Meinen öffentlichen Schlüssel kopieren",
+      "pick": "Aus dem Kontaktbuch",
+      "pickEmpty": "Dein Kontaktbuch ist noch leer. Kontakte legst du im Tab „Kontakte“ unter Werkstatt → Verschlüsseln für … oder in den Einstellungen an.",
+      "users": "Andere Nutzer dieser Conbert-Installation",
+      "saveAsContact": "Als Kontakt speichern",
+      "knownAs": "steht im Kontaktbuch als „{{name}}“"
     }
   },
   "swipe": {

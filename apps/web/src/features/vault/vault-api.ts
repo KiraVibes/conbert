@@ -1,14 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { create } from 'zustand';
 import {
+  contactListSchema,
+  contactResponseSchema,
   keyDirectoryResponseSchema,
   myKeyResponseSchema,
+  type CreateContactRequest,
   type SaveKeyRequest,
+  type UpdateContactRequest,
 } from '@conbert/schemas';
-import { apiDelete, apiGet, apiPatch, apiPut } from '@/lib/api';
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut } from '@/lib/api';
 
 export const MY_KEY_KEY = ['vault-key'] as const;
 export const KEY_DIRECTORY_KEY = ['vault-directory'] as const;
+export const CONTACTS_KEY = ['vault-contacts'] as const;
 
 export function useMyKey() {
   return useQuery({
@@ -26,6 +31,31 @@ export function useKeyDirectory() {
     select: (data) => data.keys,
   });
 }
+
+/** The own contact book: people (by name) and their public age keys. */
+export function useContacts() {
+  return useQuery({
+    queryKey: CONTACTS_KEY,
+    queryFn: ({ signal }) => apiGet('/api/keys/contacts', contactListSchema, { signal }),
+    select: (data) => data.contacts,
+  });
+}
+
+export const createContact = (body: CreateContactRequest) =>
+  apiPost('/api/keys/contacts', body, contactResponseSchema).then((r) => r.contact);
+
+export const updateContact = (id: string, body: UpdateContactRequest) =>
+  apiPatch(`/api/keys/contacts/${id}`, body, contactResponseSchema).then((r) => r.contact);
+
+export const deleteContact = (id: string) => apiDelete(`/api/keys/contacts/${id}`);
+
+/** "age1qyqs…x7k2m" – long enough to tell keys apart, short enough for a list. */
+export function shortKey(key: string): string {
+  return key.length > 24 ? `${key.slice(0, 12)}…${key.slice(-6)}` : key;
+}
+
+/** A private age key pasted where a public one belongs. */
+export const isSecretKey = (text: string) => /AGE-SECRET-KEY-/i.test(text);
 
 export const saveKey = (body: SaveKeyRequest) =>
   apiPut('/api/keys/me', body, myKeyResponseSchema).then((r) => r.key);

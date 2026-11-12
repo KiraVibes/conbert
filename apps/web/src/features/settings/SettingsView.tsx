@@ -20,6 +20,7 @@ import type { Feature } from '@conbert/schemas';
 import { WhisperCard } from './WhisperCard';
 import { ImageAiCard } from './ImageAiCard';
 import { ApiTokensCard } from './ApiTokensCard';
+import { ContactsCard } from '@/features/vault/ContactBook';
 import { VaultCard } from '@/features/vault/VaultCard';
 import { StorageCard } from '@/features/storage/StorageCard';
 import { DownloaderSettingsCard } from '@/features/downloader/DownloaderSettingsCard';
@@ -46,6 +47,7 @@ export function SettingsView({ children }: { children?: React.ReactNode }) {
 
       <AccountCard />
       <VaultCard />
+      <ContactsCard />
 
       <Card>
         <CardHeader>

@@ -39,6 +39,8 @@ PUT/DELETE /api/downloader/feeds/:id
 POST   /api/downloader/feeds/:id/check # „Jetzt nachsehen“
 GET/PUT/PATCH/DELETE /api/keys/me      # eigener Schlüssel: öffentlicher Schlüssel + verschlossener privater (nur scrypt-verschlossen angenommen)
 GET    /api/keys/directory             # öffentliche Schlüssel anderer Nutzer, die sie freigegeben haben
+GET/POST /api/keys/contacts           # Kontaktbuch: Name + öffentlicher age-Schlüssel (+ Notiz), nur eigene; Schlüssel geprüft (422 CONTACT_KEY_INVALID), doppelt → 409 CONTACT_EXISTS, max. 500 (CONTACT_LIMIT)
+PATCH/DELETE /api/keys/contacts/:id   # umbenennen/Notiz ändern (Schlüssel bleibt) bzw. löschen; fremde IDs → 404
 ```
 
 Alle Request/Response-Bodies sind über Zod-Schemas in `packages/schemas` definiert.

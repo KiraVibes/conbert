@@ -45,7 +45,7 @@ import {
   type WorkflowRunRecord,
 } from '../db/schema';
 import { withFileReader } from '../lib/file-reader';
-import { ownKey, sharedKeys } from '../routes/keys';
+import { contactsOf, ownKey, sharedKeys } from '../routes/keys';
 import { API_ERROR_KEYS, HttpError } from '../lib/http-error';
 import { ProcessError, runProcess } from '../lib/run-process';
 import { notify } from '../notifications/service';
@@ -443,6 +443,12 @@ export class WorkflowRunner {
     // Only keys their owners shared – nobody can be chosen behind their back.
     for (const key of sharedKeys(this.ctx, userId)) {
       if (userIds.includes(key.userId)) recipients.add(key.publicKey);
+    }
+    // Contacts from the user's own contact book – looked up at run time, so a
+    // deleted contact is simply skipped.
+    const contactIds = Array.isArray(params['contactIds']) ? params['contactIds'].map(String) : [];
+    for (const contact of contactsOf(this.ctx, userId)) {
+      if (contactIds.includes(contact.id)) recipients.add(contact.publicKey);
     }
     const pasted = Array.isArray(params['recipients']) ? params['recipients'].map(String) : [];
     for (const key of pasted) if (isAgeRecipient(key)) recipients.add(key.trim());

@@ -23,7 +23,8 @@ import {
 } from '@/components/ui/select';
 import { OptionsPanel } from '@/features/convert/OptionsPanel';
 import { useTargets } from '@/features/storage/storage-api';
-import { useKeyDirectory, useMyKey } from '@/features/vault/vault-api';
+import { ContactChecklist } from '@/features/vault/ContactBook';
+import { useContacts, useKeyDirectory, useMyKey } from '@/features/vault/vault-api';
 import { useChannels } from './workflows-api';
 
 const num = (text: string) => {
@@ -408,6 +409,8 @@ function EncryptRecipients({
   const { t } = useTranslation();
   const myKey = useMyKey().data;
   const directory = useKeyDirectory().data ?? [];
+  const contacts = useContacts().data ?? [];
+  const contactIds = Array.isArray(params['contactIds']) ? params['contactIds'].map(String) : [];
   const userIds = Array.isArray(params['userIds']) ? params['userIds'].map(String) : [];
   const pasted = Array.isArray(params['recipients']) ? params['recipients'].map(String) : [];
   return (
@@ -422,6 +425,13 @@ function EncryptRecipients({
         />
         {myKey ? t('vault.tool.forMe') : t('vault.tool.noOwnKey')}
       </label>
+      <p className="text-muted-foreground">{t('vault.contacts.pick')}</p>
+      <ContactChecklist
+        contacts={contacts}
+        selected={contactIds}
+        onChange={(ids) => onChange({ ...params, contactIds: ids })}
+      />
+      {directory.length > 0 && <p className="text-muted-foreground">{t('vault.contacts.users')}</p>}
       {directory.map((k) => (
         <label key={k.userId} className="flex items-center gap-2">
           <input
