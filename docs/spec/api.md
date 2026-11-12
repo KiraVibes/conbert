@@ -106,4 +106,16 @@ Funktionen (`FEATURES` in `packages/schemas/src/permissions.ts`): `convert`, `se
 | GET | `/api/admin/logs/download` | Admin: das ganze Log als Textdatei (eine JSON-Zeile pro Eintrag) |
 | DELETE | `/api/admin/logs` | Admin: Log leeren |
 
+### Server-Archiv (2026-11-12)
+
+| Methode | Pfad | Zweck |
+|---|---|---|
+| GET | `/api/archive/files` | Eigene Archiv-Dateien `{ files: [{ id, name, ext, size, createdAt, expiresAt, source, thumbnail }], keepHours }`; Inhalt über `GET /api/files/:id/content` |
+| GET | `/api/archive/files/:id/thumb` | Vorschaubild (JPEG) |
+| DELETE | `/api/archive/files/:id` · `/api/archive/files` | Eine bzw. alle Archiv-Dateien löschen |
+| GET | `/api/archive/zip?ids=a,b` | ZIP (ohne `ids`: alles), gespeichert ohne erneute Kompression; über 4 GB → `413 ARCHIVE_ZIP_TOO_BIG` |
+| PUT | `/api/admin/archive-keep` | Admin: `{ hours }` (1–2160) – Haltezeit neuer Archiv-Dateien; steht als `archiveKeepHours` in der Admin-Übersicht |
+
+`POST /api/downloader/jobs` und Abos nehmen `keepOnServer: true` (Ziel „Server-Archiv“); ein Ziel ist Pflicht (`toList`, `keepOnServer` oder `targetIds`). Rechte: `/api/archive` gehört zur Funktion „Downloader“.
+
 `POST /api/auth/login`: lokales Konto mit Passwort zuerst; sonst LDAP (wenn eingeschaltet). Ein lokales Konto wird nie von LDAP übernommen. Verzeichnis nicht erreichbar → `502 LDAP_UNREACHABLE` (nur für Nicht-lokale Namen). `/api/auth/status` meldet `ldap: true`, wenn LDAP an ist. Proxy-Modus: `CONBERT_PROXY_GROUPS_HEADER` (Komma oder `|` getrennt, nur von vertrauenswürdigen Proxys) ordnet Gruppen über `proxyName` zu.

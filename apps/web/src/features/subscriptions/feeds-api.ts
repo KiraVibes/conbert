@@ -69,6 +69,7 @@ export function feedBody(feed: FeedDto, patch: Partial<FeedDto> = {}): UpdateFee
     sleepSeconds: f.sleepSeconds,
     targetIds: f.targetIds,
     toList: f.toList,
+    keepOnServer: f.keepOnServer,
     after: f.after,
     notify: f.notify,
   };

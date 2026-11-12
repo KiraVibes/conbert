@@ -2250,6 +2250,11 @@
       "what": "Die Anmeldung über LDAP ist noch nicht eingerichtet.",
       "cause": "Adresse, Suchbasis oder Benutzerfilter fehlen, oder LDAP ist ausgeschaltet.",
       "action": "Richte LDAP in der Verwaltung ein und schalte es ein."
+    },
+    "archiveZipTooBig": {
+      "what": "Das ist zu viel für eine ZIP-Datei.",
+      "cause": "Alle Dateien zusammen sind größer als 4 GB – so große ZIP-Dateien kann Conbert nicht packen.",
+      "action": "Lad die Dateien einzeln herunter oder lösch zuerst, was du schon hast."
     }
   },
   "stages": {
@@ -2404,7 +2409,23 @@
     "yesterday": "Gestern",
     "tabs": {
       "files": "Dateien",
-      "history": "Verlauf"
+      "history": "Verlauf",
+      "server": "Auf dem Server"
+    },
+    "server": {
+      "intro": "Downloads, die du ohne Speicherort geladen hast. Sie liegen auf deinem Server, zählen zu deinem Speicher-Kontingent und werden nach der Haltezeit automatisch gelöscht – lade herunter, was du behalten willst.",
+      "empty": "Noch nichts auf dem Server. Wähl beim Herunterladen „Server-Archiv“, dann landen die Dateien hier und bleiben {{time}}.",
+      "goes": "Wird am {{date}} automatisch gelöscht",
+      "toList": "In die Umwandeln-Liste",
+      "toListNamed": "„{{name}}“ in die Umwandeln-Liste",
+      "allToList": "Alle in die Umwandeln-Liste",
+      "removeNamed": "„{{name}}“ vom Server löschen",
+      "clearText_one": "Die Datei wird vom Server gelöscht. Das lässt sich nicht rückgängig machen.",
+      "clearText_other": "Alle {{count}} Dateien werden vom Server gelöscht. Das lässt sich nicht rückgängig machen.",
+      "days_one": "{{count}} Tag",
+      "days_other": "{{count}} Tage",
+      "hours_one": "{{count}} Stunde",
+      "hours_other": "{{count}} Stunden"
     }
   },
   "history": {
@@ -3158,12 +3179,15 @@
     },
     "destination": {
       "label": "Speichern in",
-      "help": "Wohin die Dateien kommen. Jede Datei wird sofort weitergegeben, sobald sie fertig ist – nicht erst am Ende. Heruntergeladen wird immer von deinem Server, nie von deinem Browser.",
+      "help": "Wohin die Dateien kommen. Jede Datei wird sofort weitergegeben, sobald sie fertig ist – nicht erst am Ende. Heruntergeladen wird immer von deinem Server, nie von deinem Browser. „Server-Archiv“ ist ein Zwischenspeicher auf deinem Server: praktisch, wenn du die Dateien nur auf diesem Gerät brauchst und keinen Speicherort (NAS …) eingerichtet hast. Nach der Haltezeit löscht Conbert sie von selbst.",
       "list": "Umwandeln-Liste (die Dateien werden in diesen Browser geladen)",
       "target": "Speicherort „{{name}}“",
       "listMany": "Bei vielen Dateien lädt dein Browser alles herunter. Für ganze Kanäle ist ein Speicherort meist die bessere Wahl.",
       "onlyTargets": "Die Dateien landen nur auf dem Speicherort und werden danach vom Server gelöscht.",
-      "none": "Wähle mindestens ein Ziel."
+      "none": "Wähle mindestens ein Ziel.",
+      "server": "Server-Archiv (ohne Speicherort – bleibt {{time}}, dann automatisch gelöscht)",
+      "serverHint": "Die Dateien bleiben auf deinem Server, auch wenn du diese Seite schließt. Du findest sie unter Archiv → Auf dem Server und kannst sie dort herunterladen.",
+      "serverOpen": "Zum Server-Archiv"
     },
     "itemOf": "Datei {{current}} von {{total}} wird geladen",
     "itemOfUnknown": "Datei {{current}} wird geladen",
@@ -6104,6 +6128,10 @@
         "log settings changed": "Log-Einstellungen geändert",
         "log cleared": "Log geleert"
       }
+    },
+    "archiveKeep": {
+      "label": "Server-Archiv behalten für",
+      "help": "Wie lange Downloads ohne Speicherort auf dem Server bleiben, bevor Conbert sie automatisch löscht. Gilt für neue Downloads; sie zählen zum Speicher-Kontingent des Nutzers. Länger = bequemer, braucht aber mehr Platz auf der Festplatte."
     }
   },
   "quota": {

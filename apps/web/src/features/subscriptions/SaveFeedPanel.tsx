@@ -37,6 +37,7 @@ interface FeedChoices {
   limit: number;
   sleepSeconds: number;
   toList: boolean;
+  keepOnServer: boolean;
   after: AfterDownload;
   targetIds: string[];
 }

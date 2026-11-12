@@ -23,6 +23,8 @@ function readView(): View {
   if (window.location.hash === '#/workshop' || window.location.hash.startsWith('#/workshop/')) {
     return 'workshop';
   }
+  // #/archive/server opens the archive on its server tab.
+  if (window.location.hash.startsWith('#/archive/')) return 'archive';
   switch (window.location.hash) {
     case '#/settings':
       return 'settings';

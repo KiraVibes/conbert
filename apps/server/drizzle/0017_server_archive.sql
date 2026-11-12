@@ -1,0 +1,1 @@
+ALTER TABLE `files` ADD `archived_from` text;

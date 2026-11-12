@@ -16,6 +16,7 @@ const FEATURE_ROUTES: [prefix: string, feature: Feature][] = [
   ['/api/jobs', 'serverConvert'],
   ['/api/convert', 'serverConvert'],
   ['/api/downloader', 'downloader'],
+  ['/api/archive', 'downloader'],
   ['/api/booru', 'booru'],
   ['/api/subscriptions', 'booru'],
   ['/api/workflows', 'workflows'],

@@ -73,12 +73,14 @@ export const createDownloadRequestSchema = z
     targetIds: z.array(z.string().uuid()).max(10).default([]),
     /** Also into the conversion list (the browser loads the files). */
     toList: z.boolean().default(true),
+    /** Kept in the server archive until the admin's keeping time is over. */
+    keepOnServer: z.boolean().default(false),
     /** "Danach automatisch …": a saved workflow or a quick action. */
     after: afterDownloadSchema,
     /** Skip what was downloaded before (kept per user and platform). */
     skipKnown: z.boolean().default(true),
   })
-  .refine((r) => r.toList || r.targetIds.length > 0, {
+  .refine((r) => r.toList || r.keepOnServer || r.targetIds.length > 0, {
     message: 'destination',
     path: ['targetIds'],
   });
@@ -114,6 +116,8 @@ export const downloadSchema = z.object({
   current: z.number().min(0).max(100).nullable(),
   /** Files go into the conversion list. */
   toList: z.boolean(),
+  /** Files stay in the server archive (the list must not free them). */
+  keepOnServer: z.boolean().default(false),
   /** "3 of 12" while it runs. */
   done: z.number(),
   total: z.number().nullable(),
@@ -183,6 +187,8 @@ const feedOptions = {
     .default(DEFAULT_SLEEP_SECONDS),
   targetIds: z.array(z.string().uuid()).max(10).default([]),
   toList: z.boolean().default(true),
+  /** New files stay in the server archive. */
+  keepOnServer: z.boolean().default(false),
   after: afterDownloadSchema,
   notify: z.boolean().default(true),
 };
@@ -195,7 +201,7 @@ export const createFeedRequestSchema = z
     onlyNew: z.boolean().default(true),
     ...feedOptions,
   })
-  .refine((r) => r.toList || r.targetIds.length > 0, {
+  .refine((r) => r.toList || r.keepOnServer || r.targetIds.length > 0, {
     message: 'destination',
     path: ['targetIds'],
   });
@@ -203,7 +209,7 @@ export type CreateFeedRequest = z.input<typeof createFeedRequestSchema>;
 
 export const updateFeedRequestSchema = z
   .object(feedOptions)
-  .refine((r) => r.toList || r.targetIds.length > 0, {
+  .refine((r) => r.toList || r.keepOnServer || r.targetIds.length > 0, {
     message: 'destination',
     path: ['targetIds'],
   });
@@ -228,6 +234,7 @@ export const feedSchema = z.object({
   sleepSeconds: z.number(),
   targetIds: z.array(z.string()),
   toList: z.boolean(),
+  keepOnServer: z.boolean().default(false),
   after: afterDownloadSchema,
   notify: z.boolean(),
   /** A check is running right now. */

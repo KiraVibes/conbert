@@ -64,6 +64,7 @@ import { BlenderInstaller } from './blender/installer';
 import { registerBlenderRoutes } from './routes/blender';
 import { LogHub, logDir, readLogSettings } from './logs/hub';
 import { registerLogRoutes } from './routes/logs';
+import { registerArchiveRoutes } from './routes/archive';
 import { setProcessLog } from './lib/run-process';
 
 export { API_ERROR_KEYS } from './lib/http-error';
@@ -292,6 +293,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerOpenApiRoutes(app, pkg.version);
   registerAdminRoutes(app, ctx);
   registerLogRoutes(app, ctx);
+  registerArchiveRoutes(app, ctx);
   await registerWebSocket(app, ctx);
   const uploads = registerUploads(app, ctx);
 

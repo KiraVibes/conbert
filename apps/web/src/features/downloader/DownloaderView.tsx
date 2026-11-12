@@ -31,7 +31,12 @@ import {
   type ProfilePart,
   type UgoiraFormat,
 } from '@conbert/core';
-import type { DownloadDto, DownloadedFile, ProbeDownloadResponse } from '@conbert/schemas';
+import {
+  DEFAULT_ARCHIVE_KEEP_HOURS,
+  type DownloadDto,
+  type DownloadedFile,
+  type ProbeDownloadResponse,
+} from '@conbert/schemas';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -49,6 +54,7 @@ import {
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
 import { ViewIntro } from '@/components/ViewIntro';
+import { keepTimeText, useServerArchive } from '@/features/archive/server-archive-api';
 import { useFiles } from '@/features/convert/files-store';
 import { useSettings } from '@/features/settings/settings-store';
 import { useTargets } from '@/features/storage/storage-api';
@@ -95,13 +101,13 @@ export function DownloaderView() {
 
   /** Puts downloaded files into the conversion list (each file only once). */
   const takeOver = useCallback(
-    async (files: DownloadedFile[], announce: boolean) => {
+    async (files: DownloadedFile[], announce: boolean, keep: boolean) => {
       const taken = takenFiles();
       const fresh = files.filter((f) => f.onServer && !taken.has(f.fileId));
       if (fresh.length === 0) return;
       fresh.forEach((f) => markTaken(f.fileId));
       try {
-        const loaded = await fetchDownloadedFiles(fresh);
+        const loaded = await fetchDownloadedFiles(fresh, !keep);
         await addFiles(loaded, defaultMode, 'convert');
         if (announce) toast.success(t('downloader.added', { count: loaded.length }));
       } catch {
@@ -116,7 +122,7 @@ export function DownloaderView() {
   const onUpdate = useCallback(
     (download: DownloadDto) => {
       if (download.toList && download.files.length > 0) {
-        void takeOver(download.files, download.status === 'done');
+        void takeOver(download.files, download.status === 'done', download.keepOnServer);
       }
     },
     [takeOver],
@@ -212,7 +218,10 @@ export function DownloaderView() {
         <ul className="space-y-3">
           {downloads.data?.map((download) => (
             <li key={download.id}>
-              <DownloadRow download={download} onTake={() => void takeOver(download.files, true)} />
+              <DownloadRow
+                download={download}
+                onTake={() => void takeOver(download.files, true, download.keepOnServer)}
+              />
             </li>
           ))}
         </ul>
@@ -245,9 +254,16 @@ function ProbeCard({ probe, onStarted }: { probe: ProbeDownloadResponse; onStart
   const targetIds =
     chosenTargets ?? targets.filter((target) => target.isDefault).map((target) => target.id);
   const [after, setAfter] = useState('');
-  const [toList, setToList] = useState(true);
+  // Without a default location the files stay in the server archive; with
+  // one they go there and into the list (until the user changes it).
+  const hasDefault = targets.some((target) => target.isDefault);
+  const archiveKeepHours = useServerArchive().data?.keepHours ?? DEFAULT_ARCHIVE_KEEP_HOURS;
+  const [chosenList, setToList] = useState<boolean | null>(null);
+  const [chosenKeep, setKeepOnServer] = useState<boolean | null>(null);
+  const toList = chosenList ?? hasDefault;
+  const keepOnServer = chosenKeep ?? !hasDefault;
   const [skipKnown, setSkipKnown] = useState(true);
-  const noDestination = !toList && targetIds.length === 0;
+  const noDestination = !toList && !keepOnServer && targetIds.length === 0;
   const loginHint = probe.platform === 'instagram' || chosenParts.some((p) => p !== 'posts');
 
   const start = async () => {
@@ -263,6 +279,7 @@ function ProbeCard({ probe, onStarted }: { probe: ProbeDownloadResponse; onStart
         limit: many ? limit : 1,
         sleepSeconds,
         toList,
+        keepOnServer,
         after: afterFromValue(after),
         targetIds,
         skipKnown: many && skipKnown,
@@ -502,6 +519,17 @@ function ProbeCard({ probe, onStarted }: { probe: ProbeDownloadResponse; onStart
             <input
               type="checkbox"
               className="size-4"
+              checked={keepOnServer}
+              onChange={(e) => setKeepOnServer(e.target.checked)}
+            />
+            {t('downloader.destination.server', {
+              time: keepTimeText(t, archiveKeepHours),
+            })}
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="size-4"
               checked={toList}
               onChange={(e) => setToList(e.target.checked)}
             />
@@ -528,7 +556,15 @@ function ProbeCard({ probe, onStarted }: { probe: ProbeDownloadResponse; onStart
         {toList && many && (
           <p className="text-xs text-muted-foreground">{t('downloader.destination.listMany')}</p>
         )}
-        {!toList && targetIds.length > 0 && (
+        {keepOnServer && (
+          <p className="text-xs text-muted-foreground">
+            {t('downloader.destination.serverHint')}{' '}
+            <a href="#/archive/server" className="underline">
+              {t('downloader.destination.serverOpen')}
+            </a>
+          </p>
+        )}
+        {!toList && !keepOnServer && targetIds.length > 0 && (
           <p className="text-xs text-muted-foreground">{t('downloader.destination.onlyTargets')}</p>
         )}
         {noDestination && (
@@ -580,6 +616,7 @@ function ProbeCard({ probe, onStarted }: { probe: ProbeDownloadResponse; onStart
             limit,
             sleepSeconds,
             toList,
+            keepOnServer,
             after: afterFromValue(after),
             targetIds,
           }}

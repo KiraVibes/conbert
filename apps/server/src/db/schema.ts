@@ -171,6 +171,11 @@ export const files = sqliteTable(
     path: text('path').notNull(),
     createdAt: createdAt(),
     expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
+    /**
+     * Set = kept in the user's server archive (downloads without a storage
+     * location) until expiresAt; the value names where it came from.
+     */
+    archivedFrom: text('archived_from'),
   },
   (t) => [index('files_user_idx').on(t.userId), index('files_expires_idx').on(t.expiresAt)],
 );

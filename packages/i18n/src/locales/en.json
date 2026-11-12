@@ -2250,6 +2250,11 @@
       "what": "Sign-in through LDAP isn't set up yet.",
       "cause": "The address, search base or user filter is missing, or LDAP is switched off.",
       "action": "Set up LDAP in the administration and switch it on."
+    },
+    "archiveZipTooBig": {
+      "what": "That is too much for one ZIP file.",
+      "cause": "All files together are bigger than 4 GB – Conbert cannot pack ZIP files that big.",
+      "action": "Download the files one by one, or first delete what you already have."
     }
   },
   "stages": {
@@ -2404,7 +2409,23 @@
     "yesterday": "Yesterday",
     "tabs": {
       "files": "Files",
-      "history": "History"
+      "history": "History",
+      "server": "On the server"
+    },
+    "server": {
+      "intro": "Downloads you loaded without a storage location. They are on your server, count against your storage quota and are deleted automatically after the keeping time – download what you want to keep.",
+      "empty": "Nothing on the server yet. Choose “Server archive” when downloading; the files land here and stay {{time}}.",
+      "goes": "Deleted automatically on {{date}}",
+      "toList": "Into the conversion list",
+      "toListNamed": "“{{name}}” into the conversion list",
+      "allToList": "All into the conversion list",
+      "removeNamed": "Delete “{{name}}” from the server",
+      "clearText_one": "The file is deleted from the server. This cannot be undone.",
+      "clearText_other": "All {{count}} files are deleted from the server. This cannot be undone.",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "hours_one": "{{count}} hour",
+      "hours_other": "{{count}} hours"
     }
   },
   "history": {
@@ -3158,12 +3179,15 @@
     },
     "destination": {
       "label": "Save to",
-      "help": "Where the files go. Each file is passed on as soon as it is done – not only at the end. Downloading always happens on your server, never in your browser.",
+      "help": "Where the files go. Each file is passed on as soon as it is done – not only at the end. Downloading always happens on your server, never in your browser. “Server archive” is a temporary store on your server: handy when you only need the files on this device and have no storage location (NAS …) set up. After the keeping time, Conbert deletes them by itself.",
       "list": "Conversion list (the files are loaded into this browser)",
       "target": "Storage location “{{name}}”",
       "listMany": "With many files your browser loads them all. For whole channels a storage location is usually the better choice.",
       "onlyTargets": "The files only go to the storage location and are deleted from the server afterwards.",
-      "none": "Pick at least one destination."
+      "none": "Pick at least one destination.",
+      "server": "Server archive (no storage location – stays {{time}}, then deleted automatically)",
+      "serverHint": "The files stay on your server, even when you close this page. You find them under Archive → On the server and can download them there.",
+      "serverOpen": "Go to the server archive"
     },
     "itemOf": "Loading file {{current}} of {{total}}",
     "itemOfUnknown": "Loading file {{current}}",
@@ -6104,6 +6128,10 @@
         "log settings changed": "Log settings changed",
         "log cleared": "Log cleared"
       }
+    },
+    "archiveKeep": {
+      "label": "Keep the server archive for",
+      "help": "How long downloads without a storage location stay on the server before Conbert deletes them by itself. Applies to new downloads; they count against the user’s storage quota. Longer = more convenient, but needs more disk space."
     }
   },
   "quota": {

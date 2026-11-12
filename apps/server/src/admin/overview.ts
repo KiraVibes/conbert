@@ -10,6 +10,7 @@ import { downloads, jobs, users } from '../db/schema';
 import { imageAiModels } from '../engines/image-ai';
 import { whisperSetup } from '../whisper/setup';
 import { defaultQuota, quotaOf, usageByUser } from './quota';
+import { archiveKeepHours } from '../archive/server-archive';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -134,6 +135,7 @@ export async function adminOverview(ctx: AppContext): Promise<AdminOverview> {
       models: modelsBytes,
     },
     quotaDefault: defaultQuota(ctx),
+    archiveKeepHours: archiveKeepHours(ctx),
     users: ctx.db
       .select({
         id: users.id,

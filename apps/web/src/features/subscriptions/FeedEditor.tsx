@@ -16,7 +16,7 @@ import {
   type ProfilePart,
   type UgoiraFormat,
 } from '@conbert/core';
-import type { FeedDto } from '@conbert/schemas';
+import { DEFAULT_ARCHIVE_KEEP_HOURS, type FeedDto } from '@conbert/schemas';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { keepTimeText, useServerArchive } from '@/features/archive/server-archive-api';
 import { useTargets } from '@/features/storage/storage-api';
 import { AfterSelect } from '@/features/workflows/AfterSelect';
 import { afterFromValue } from '@/features/workflows/after-actions';
@@ -47,6 +48,7 @@ export function FeedEditor({ feed, onDone }: { feed: FeedDto; onDone: () => void
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const targets = (useTargets().data ?? []).filter((target) => target.usage.asTarget);
+  const archive = useServerArchive();
   const parts = profilePartsFor(feed.platform);
   const video = toolsFor(feed.platform)[0] === 'yt-dlp';
   const [name, setName] = useState(feed.name);
@@ -56,6 +58,7 @@ export function FeedEditor({ feed, onDone }: { feed: FeedDto; onDone: () => void
   const [pixiv, setPixiv] = useState<PixivOptions | null>(feed.pixiv);
   const [limit, setLimit] = useState(feed.limit);
   const [toList, setToList] = useState(feed.toList);
+  const [keepOnServer, setKeepOnServer] = useState(feed.keepOnServer);
   const [targetIds, setTargetIds] = useState<string[]>(feed.targetIds);
   // A quick action can't be shown again in the select; it stays unless changed.
   const [after, setAfter] = useState(afterValue(feed.after));
@@ -64,7 +67,7 @@ export function FeedEditor({ feed, onDone }: { feed: FeedDto; onDone: () => void
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<ApiRequestError | null>(null);
   const added = chosenParts.filter((p) => !feed.parts.includes(p));
-  const noDestination = !toList && targetIds.length === 0;
+  const noDestination = !toList && !keepOnServer && targetIds.length === 0;
 
   const save = async () => {
     setSaving(true);
@@ -80,6 +83,7 @@ export function FeedEditor({ feed, onDone }: { feed: FeedDto; onDone: () => void
           pixiv,
           limit,
           toList,
+          keepOnServer,
           targetIds,
           after: afterChanged ? afterFromValue(after) : feed.after,
           notify,
@@ -230,6 +234,16 @@ export function FeedEditor({ feed, onDone }: { feed: FeedDto; onDone: () => void
 
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">{t('feeds.edit.destination')}</legend>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={keepOnServer}
+            onChange={(e) => setKeepOnServer(e.target.checked)}
+          />
+          {t('downloader.destination.server', {
+            time: keepTimeText(t, archive.data?.keepHours ?? DEFAULT_ARCHIVE_KEEP_HOURS),
+          })}
+        </label>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={toList} onChange={(e) => setToList(e.target.checked)} />
           {t('downloader.destination.list')}

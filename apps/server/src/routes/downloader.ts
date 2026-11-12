@@ -56,6 +56,7 @@ import {
 } from '../downloader/feeds';
 import { probeUrl, type ProbeInfo } from '../downloader/probe';
 import { toDownloadDto } from '../downloader/runner';
+import { archivedFiles } from '../archive/server-archive';
 import { removeThumbnails, thumbnailPath } from '../downloader/thumbnails';
 import { toolVersion, updateTools } from '../downloader/tools';
 import { publicFetch } from '../lib/public-net';
@@ -159,7 +160,7 @@ export function registerDownloaderRoutes(app: FastifyInstance, ctx: AppContext):
     if (!url) throw new HttpError(400, 'DOWNLOAD_URL_INVALID');
     if (!queue.isHealthy()) throw new HttpError(503, 'QUEUE_UNAVAILABLE');
     // Files kept on the server count against the quota: a full one starts nothing.
-    if (body.toList) checkQuota(ctx, user.id, 1);
+    if (body.toList || body.keepOnServer) checkQuota(ctx, user.id, 1);
     const probe = ownProbe(user.id, body.probeId);
     const info = probe && probe.url === url.href ? probe.info : await probeUrl(ctx, user.id, url);
     const id = randomUUID();
@@ -194,6 +195,7 @@ export function registerDownloaderRoutes(app: FastifyInstance, ctx: AppContext):
           sleepSeconds: body.sleepSeconds,
           targetIds: body.targetIds,
           toList: body.toList,
+          keepOnServer: body.keepOnServer,
           after: body.after,
           ...(archiveFile && { archiveFile }),
           ...(body.dateAfter && { dateAfter: body.dateAfter }),
@@ -261,9 +263,12 @@ export function registerDownloaderRoutes(app: FastifyInstance, ctx: AppContext):
       return { download: toDownloadDto(ownDownload(user.id, id)) };
     }
     ctx.db.delete(downloads).where(eq(downloads.id, id)).run();
+    // Files still in the server archive keep their preview picture there.
+    const fileIds = toDownloadDto(row).files.map((f) => f.fileId);
+    const archived = new Set(archivedFiles(ctx, user.id, fileIds).map((r) => r.id));
     await removeThumbnails(
       ctx.config,
-      toDownloadDto(row).files.map((f) => f.fileId),
+      fileIds.filter((fileId) => !archived.has(fileId)),
     );
     return { download: toDownloadDto(row) };
   });

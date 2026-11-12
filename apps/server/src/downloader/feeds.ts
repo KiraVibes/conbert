@@ -52,6 +52,8 @@ export interface FeedOptions {
   sleepSeconds: number;
   targetIds: string[];
   toList: boolean;
+  /** New files stay in the server archive (older rows: no). */
+  keepOnServer?: boolean;
   after: AfterDownload;
   notify: boolean;
   /** Channel, profile or thread name for the folder (from the first look at the link). */
@@ -107,6 +109,7 @@ export function toFeedDto(ctx: AppContext, row: DownloadFeedRecord): FeedDto {
     sleepSeconds: o.sleepSeconds,
     targetIds: o.targetIds,
     toList: o.toList,
+    keepOnServer: o.keepOnServer === true,
     after: o.after,
     notify: o.notify,
     checking: activeCheck(ctx, row.id),
@@ -130,6 +133,7 @@ function optionsOf(input: UpdateFeedInput, before?: FeedOptions): FeedOptions {
     sleepSeconds: input.sleepSeconds,
     targetIds: input.targetIds,
     toList: input.toList,
+    keepOnServer: input.keepOnServer,
     after: input.after,
     notify: input.notify,
   };
@@ -339,6 +343,7 @@ export async function runFeed(ctx: AppContext, row: DownloadFeedRecord): Promise
         sleepSeconds: o.sleepSeconds,
         targetIds: o.targetIds,
         toList: o.toList,
+        keepOnServer: o.keepOnServer === true,
         after: o.after,
         feed: true,
         // Your own name for the subscription wins over the one the site gives.

@@ -6,7 +6,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from
 import type { FastifyInstance } from 'fastify';
 import { downloaderI18nKeys } from '@conbert/core';
 import { findMissingKeys } from '@conbert/i18n';
-import type { DownloadDto } from '@conbert/schemas';
+import type { DownloadDto, ServerArchive } from '@conbert/schemas';
 import { dataPaths } from '../config';
 import { downloads } from '../db/schema';
 import { API_ERROR_KEYS } from '../lib/http-error';
@@ -738,6 +738,23 @@ describe.skipIf(!hasYtDlp)('downloads with the real tools', () => {
       404,
     );
     expect(readdirSync(path.join(storage, 'NAS'))).toHaveLength(1);
+  });
+
+  it('without a storage location: kept in the server archive', { timeout: 120_000 }, async () => {
+    const result = await download(`${base}/clip.mp4`, 'yt-dlp', {
+      toList: false,
+      keepOnServer: true,
+      sourceName: 'Test-Kanal',
+    });
+    expect(result).toMatchObject({ status: 'done', keepOnServer: true });
+    const fileId = result.files[0]?.fileId;
+    const archive = (await api('GET', '/api/archive/files')).json<ServerArchive>();
+    expect(archive.files).toHaveLength(1);
+    expect(archive.files[0]).toMatchObject({ id: fileId, source: 'Test-Kanal', thumbnail: true });
+    // Removing the download from the list keeps the file and its picture in the archive.
+    await api('DELETE', `/api/downloader/jobs/${result.id}`);
+    expect((await api('GET', `/api/archive/files/${fileId}/thumb`)).statusCode).toBe(200);
+    expect((await api('GET', `/api/files/${fileId}/content`)).statusCode).toBe(200);
   });
 
   it(

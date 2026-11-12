@@ -41,6 +41,8 @@ export const adminOverviewSchema = z.object({
     models: z.number(),
   }),
   quotaDefault: z.number().nullable(),
+  /** Hours downloads stay in the server archive. */
+  archiveKeepHours: z.number(),
   users: z.array(
     z.object({
       id: z.string(),

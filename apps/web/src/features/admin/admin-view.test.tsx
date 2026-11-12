@@ -31,6 +31,7 @@ const overview: AdminOverview = {
   },
   disk: { path: '/data', total: 100 * GB, free: 1 * GB, uploads: 3 * GB, tmp: 0, models: 0.7 * GB },
   quotaDefault: 5 * GB,
+  archiveKeepHours: 168,
   users: [
     {
       id: 'a',

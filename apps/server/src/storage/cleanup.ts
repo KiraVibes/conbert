@@ -6,6 +6,7 @@ import { deleteExpiredSessions } from '../auth/sessions';
 import { dataPaths } from '../config';
 import type { AppContext } from '../context';
 import { files, jobs } from '../db/schema';
+import { removeThumbnails } from '../downloader/thumbnails';
 import { deleteFileRecord, type UploadService } from './uploads';
 
 export interface CleanupResult {
@@ -31,6 +32,11 @@ export async function runCleanup(
 ): Promise<CleanupResult> {
   const expiredFiles = ctx.db.select().from(files).where(lt(files.expiresAt, now)).all();
   for (const record of expiredFiles) await deleteFileRecord(ctx, record);
+  // Downloads keep a preview picture (archive, download list) – it goes with them.
+  await removeThumbnails(
+    ctx.config,
+    expiredFiles.map((r) => r.id),
+  );
 
   const expiredJobs = ctx.db.select().from(jobs).where(lt(jobs.expiresAt, now)).all();
   for (const job of expiredJobs) {

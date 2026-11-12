@@ -39,7 +39,10 @@ import { canPreviewInBrowser } from '@/lib/detect-type';
 import { useCover } from '@/lib/cover';
 import { formatBytes } from '@/lib/format-bytes';
 import { createZip, saveBlob, zipFileName } from '@/lib/zip';
+import { useCan } from '@/features/auth/use-auth';
 import { dayLabel } from './day-label';
+import { ServerArchiveFiles } from './ServerArchiveFiles';
+import { useServerArchive } from './server-archive-api';
 import { JobLogView } from './JobLogView';
 import { JOB_LOG_DAYS, useJobLog } from './job-log';
 import { ARCHIVE_DAYS } from './history-persistence';
@@ -132,20 +135,27 @@ function EntryCard({ entry, onPreview }: { entry: HistoryEntry; onPreview: () =>
   );
 }
 
-type ArchiveTab = 'files' | 'history';
+type ArchiveTab = 'files' | 'server' | 'history';
 
 /** The archive page: finished files and the history of every job. */
 export function ArchiveView() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<ArchiveTab>('files');
+  // #/archive/server (from the downloader) opens the server tab.
+  const [tab, setTab] = useState<ArchiveTab>(() =>
+    window.location.hash === '#/archive/server' ? 'server' : 'files',
+  );
   const files = useHistory((s) => s.entries.length);
   const jobs = useJobLog((s) => s.records.length);
+  const canDownload = useCan('downloader');
+  const onServer = useServerArchive(canDownload).data?.files.length ?? 0;
   return (
     <div className="space-y-6">
       <ViewIntro help="archive">
         {tab === 'files'
           ? t('archive.intro', { days: ARCHIVE_DAYS })
-          : t('history.intro', { days: JOB_LOG_DAYS })}
+          : tab === 'server'
+            ? t('archive.server.intro')
+            : t('history.intro', { days: JOB_LOG_DAYS })}
       </ViewIntro>
       <Tabs value={tab} onValueChange={(v) => setTab(v as ArchiveTab)} className="gap-4">
         <TabsList>
@@ -153,6 +163,14 @@ export function ArchiveView() {
             {t('archive.tabs.files')}
             {files > 0 && <span className="tabular-nums text-muted-foreground">{files}</span>}
           </TabsTrigger>
+          {canDownload && (
+            <TabsTrigger value="server">
+              {t('archive.tabs.server')}
+              {onServer > 0 && (
+                <span className="tabular-nums text-muted-foreground">{onServer}</span>
+              )}
+            </TabsTrigger>
+          )}
           <TabsTrigger value="history">
             {t('archive.tabs.history')}
             {jobs > 0 && <span className="tabular-nums text-muted-foreground">{jobs}</span>}
@@ -161,6 +179,11 @@ export function ArchiveView() {
         <TabsContent value="files">
           <ArchiveFiles />
         </TabsContent>
+        {canDownload && (
+          <TabsContent value="server">
+            <ServerArchiveFiles />
+          </TabsContent>
+        )}
         <TabsContent value="history">
           <JobLogView />
         </TabsContent>

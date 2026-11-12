@@ -36,6 +36,7 @@ export const API_ERROR_KEYS = {
   INVALID_TOKEN: 'errors.invalidToken',
   CONVERSION_FAILED: 'errors.convertFailed',
   QUOTA_EXCEEDED: 'errors.quotaExceeded',
+  ARCHIVE_ZIP_TOO_BIG: 'errors.archiveZipTooBig',
   TOKEN_NOT_ALLOWED: 'errors.tokenNotAllowed',
   NO_SERVER_ROUTE: 'errors.noServerRoute',
   ATTACHMENT_INVALID: 'errors.attachmentInvalid',

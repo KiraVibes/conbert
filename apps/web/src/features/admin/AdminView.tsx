@@ -13,11 +13,12 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { adminOverviewSchema, type AdminOverview } from '@conbert/schemas';
+import { ARCHIVE_KEEP_CHOICES, adminOverviewSchema, type AdminOverview } from '@conbert/schemas';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
 import { ViewIntro } from '@/components/ViewIntro';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { keepTimeText } from '@/features/archive/server-archive-api';
 import { BlenderCard } from './BlenderCard';
 import { UsersCard } from '@/features/auth/UsersCard';
 import { GroupsCard } from './GroupsCard';
@@ -175,6 +176,8 @@ export function AdminView() {
     void save(() =>
       apiPut('/api/admin/quota-default', { bytes: value === 'unlimited' ? null : Number(value) }),
     );
+  const setArchiveKeep = (value: string) =>
+    void save(() => apiPut('/api/admin/archive-keep', { hours: Number(value) }));
 
   return (
     <div className="space-y-6">
@@ -280,6 +283,24 @@ export function AdminView() {
               withDefault={false}
               label={t('admin.users.defaultQuota')}
             />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="flex items-center gap-1">
+              {t('admin.archiveKeep.label')}
+              <HelpTip helpKey="admin.archiveKeep.help" labelKey="admin.archiveKeep.label" />
+            </span>
+            <Select value={String(o.archiveKeepHours)} onValueChange={setArchiveKeep}>
+              <SelectTrigger className="w-44" aria-label={t('admin.archiveKeep.label')}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {ARCHIVE_KEEP_CHOICES.map((hours) => (
+                  <SelectItem key={hours} value={String(hours)}>
+                    {keepTimeText(t, hours)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <ul className="divide-y rounded-lg border">
             {o.users.map((u) => (

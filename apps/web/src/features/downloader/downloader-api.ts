@@ -69,7 +69,8 @@ export const startDownload = (body: CreateDownloadRequest) =>
 export const cancelOrRemove = (id: string) => apiDelete(`/api/downloader/jobs/${id}`);
 
 /** Loads the downloaded files into the browser (for the conversion list). */
-export async function fetchDownloadedFiles(files: DownloadedFile[]): Promise<File[]> {
+/** `free`: delete the server's copy once loaded (not for files kept in the server archive). */
+export async function fetchDownloadedFiles(files: DownloadedFile[], free = true): Promise<File[]> {
   return Promise.all(
     files.map(async (f) => {
       const response = await fetch(`/api/files/${f.fileId}/content`, {
@@ -78,7 +79,7 @@ export async function fetchDownloadedFiles(files: DownloadedFile[]): Promise<Fil
       if (!response.ok) throw new ApiRequestError(response.status, 'errors.resultGone');
       const blob = await response.blob();
       // The browser has it now: free the server's disk right away (small hosts).
-      void apiDelete(`/api/files/${f.fileId}`).catch(() => undefined);
+      if (free) void apiDelete(`/api/files/${f.fileId}`).catch(() => undefined);
       return new File([blob], f.name, { type: blob.type });
     }),
   );

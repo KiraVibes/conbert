@@ -33,6 +33,7 @@ const FEED = {
   sleepSeconds: 2,
   targetIds: [],
   toList: true,
+  keepOnServer: false,
   after: null,
   notify: false,
   onlyNew: true,

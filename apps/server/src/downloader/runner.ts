@@ -23,6 +23,7 @@ import { API_ERROR_KEYS, HttpError } from '../lib/http-error';
 import { tail, userName } from '../logs/who';
 import { ProcessError, runProcess } from '../lib/run-process';
 import type { JobEvents } from '../queue/events';
+import { archiveFile } from '../archive/server-archive';
 import { deleteFileRecord, recordFile } from '../storage/uploads';
 import { exportFile } from '../targets/export';
 import { cookieFile } from './cookies';
@@ -52,6 +53,8 @@ export interface DownloadOptions {
   targetIds?: string[];
   /** Into the conversion list (default for older rows: yes). */
   toList?: boolean;
+  /** Kept in the server archive until the admin's keeping time is over. */
+  keepOnServer?: boolean;
   /** "Danach automatisch …": the files go through a workflow first. */
   after?: AfterDownload;
   /** A subscription check: nothing new is no error. */
@@ -113,6 +116,7 @@ export function toDownloadDto(row: DownloadRecord, current?: number): DownloadDt
     current: row.status === 'running' && current !== undefined ? Math.round(current) : null,
     // With a workflow, its results (not the downloaded originals) go to the list.
     toList: (options.toList ?? true) && !options.after,
+    keepOnServer: options.keepOnServer === true,
     done: row.done,
     total: row.total,
     files: (row.files as Partial<DownloadedFile>[]).map((f) => ({
@@ -438,6 +442,9 @@ export class DownloadRunner {
           name: path.basename(full),
           size: info.size,
         });
+        if (options.keepOnServer) {
+          archiveFile(this.ctx, fileId, options.sourceName ?? row.title ?? row.platform);
+        }
         const entry: DownloadedFile = {
           fileId,
           name: saved.originalName,
@@ -483,7 +490,11 @@ export class DownloadRunner {
             results.find((r) => r.status === 'error')?.error?.messageKey ??
             (results.length === 0 ? API_ERROR_KEYS.STORAGE_FAILED : null);
           // Not for the list and safely saved: no need to keep it on the server.
-          if (options.toList === false && entry.savedTo.length === targets.length) {
+          if (
+            options.toList === false &&
+            !options.keepOnServer &&
+            entry.savedTo.length === targets.length
+          ) {
             await deleteFileRecord(this.ctx, saved);
             entry.onServer = false;
           }

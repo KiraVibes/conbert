@@ -624,7 +624,8 @@ export class WorkflowRunner {
     for (const fileId of row.fileIds as string[]) {
       if (keep.has(fileId)) continue;
       const record = this.ctx.db.select().from(files).where(eq(files.id, fileId)).get();
-      if (record) await deleteFileRecord(this.ctx, record);
+      // Kept in the server archive on purpose: stays.
+      if (record && !record.archivedFrom) await deleteFileRecord(this.ctx, record);
     }
   }
 
