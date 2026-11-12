@@ -67,6 +67,8 @@ export const startDownload = (body: CreateDownloadRequest) =>
 
 /** Cancels a running download or removes a finished one from the list. */
 export const cancelOrRemove = (id: string) => apiDelete(`/api/downloader/jobs/${id}`);
+/** Removes every finished download from the list (running ones stay). */
+export const clearFinishedDownloads = () => apiDelete('/api/downloader/jobs');
 
 /** Loads the downloaded files into the browser (for the conversion list). */
 /** `free`: delete the server's copy once loaded (not for files kept in the server archive). */

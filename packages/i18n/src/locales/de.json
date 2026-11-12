@@ -6795,5 +6795,14 @@
     "ended": "Beendet:",
     "feedStarted": "Vom Abo gestartet:",
     "feedDone": "Vom Abo heruntergeladen:"
+  },
+  "clearList": {
+    "button": "Liste leeren",
+    "title_one": "1 fertigen Eintrag entfernen?",
+    "title_other": "{{count}} fertige Einträge entfernen?",
+    "cancel": "Abbrechen",
+    "confirm": "Entfernen",
+    "downloads": "Alle fertigen, fehlgeschlagenen und abgebrochenen Downloads verschwinden aus der Liste. Laufende und wartende bleiben. Die Dateien selbst bleiben an deinen Speicherorten und im Server-Archiv.",
+    "booru": "Alle fertigen, fehlgeschlagenen und abgebrochenen Suchen verschwinden aus der Liste. Laufende, wartende und pausierte bleiben. Bilder an deinen Speicherorten bleiben; Bilder, die nur noch auf die Umwandeln-Liste warten, werden vom Server gelöscht."
   }
 }

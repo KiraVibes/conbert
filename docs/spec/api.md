@@ -123,3 +123,7 @@ Funktionen (`FEATURES` in `packages/schemas/src/permissions.ts`): `convert`, `se
 ### Zuletzt etwas geladen (2026-11-12)
 
 Abos (`GET /api/downloader/feeds`) und Booru-Abos (`GET /api/subscriptions`) liefern zusätzlich `lastFoundAt` (ISO-Zeit oder `null`): wann eine Prüfung zuletzt mindestens eine Datei geladen hat. Bestehende Abos übernehmen beim Update die Zeit ihrer letzten Prüfung, falls diese etwas gefunden hat.
+
+### Listen leeren (2026-11-12)
+
+`DELETE /api/downloader/jobs` und `DELETE /api/booru/jobs` (ohne ID) entfernen alle fertigen, fehlgeschlagenen und abgebrochenen Einträge des Nutzers auf einmal und liefern `{ removed }`. Laufende und wartende (bei Booru auch pausierte) bleiben. Downloads: Dateien bleiben (Speicherort/Server-Archiv). Booru: Dateien, die noch auf die Umwandeln-Liste warten, werden gelöscht – wie beim Entfernen einzelner Einträge.

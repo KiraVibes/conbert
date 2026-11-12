@@ -51,6 +51,7 @@ import {
   ownBooruJob,
   pauseBooruJob,
   resumeBooruJob,
+  clearFinishedBooruJobs,
 } from '../booru/jobs';
 
 const siteParams = z.object({ site: siteIdSchema });
@@ -193,6 +194,11 @@ export function registerBooruRoutes(app: FastifyInstance, ctx: AppContext): void
     const user = currentUser(request);
     const { id } = idParams.parse(request.params);
     return { job: await resumeBooruJob(ctx, user.id, id) };
+  });
+
+  app.delete('/api/booru/jobs', async (request) => {
+    const user = currentUser(request);
+    return { removed: await clearFinishedBooruJobs(ctx, user.id) };
   });
 
   app.delete('/api/booru/jobs/:id', async (request) => {

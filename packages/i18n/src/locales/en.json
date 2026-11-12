@@ -6795,5 +6795,14 @@
     "ended": "Ended:",
     "feedStarted": "Started by a subscription:",
     "feedDone": "Downloaded by a subscription:"
+  },
+  "clearList": {
+    "button": "Clear list",
+    "title_one": "Remove 1 finished entry?",
+    "title_other": "Remove {{count}} finished entries?",
+    "cancel": "Cancel",
+    "confirm": "Remove",
+    "downloads": "All finished, failed and cancelled downloads leave the list. Running and waiting ones stay. The files themselves stay at your storage locations and in the server archive.",
+    "booru": "All finished, failed and cancelled searches leave the list. Running, waiting and paused ones stay. Pictures at your storage locations stay; pictures only waiting for the conversion list are deleted from the server."
   }
 }

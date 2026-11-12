@@ -37,6 +37,7 @@ import type {
 } from '@conbert/schemas';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
+import { ClearListButton } from '@/components/ClearListButton';
 import { TimeStamp } from '@/components/TimeStamp';
 import { ViewIntro } from '@/components/ViewIntro';
 import { cardTimeKey } from '@/lib/stamp';
@@ -64,6 +65,7 @@ import { ApiRequestError } from '@/lib/api';
 import { formatBytes } from '@/lib/format-bytes';
 import {
   BOORU_JOBS_KEY,
+  clearFinishedBooruJobs,
   SUBSCRIPTIONS_KEY,
   createSubscription,
   pauseBooruJob,
@@ -101,6 +103,9 @@ interface Results {
   hidden: BooruSearchResponse['hidden'];
   scanned: number;
 }
+
+/** Crawls that are over (a list entry that can go). */
+const FINISHED: readonly string[] = ['done', 'error', 'cancelled'];
 
 export function BooruView() {
   const { t } = useTranslation();
@@ -148,6 +153,15 @@ export function BooruView() {
     [take],
   );
   const jobs = useBooruJobs(onUpdate);
+  const queryClient = useQueryClient();
+  const clearList = async () => {
+    try {
+      await clearFinishedBooruJobs();
+    } catch (e) {
+      toast.error(t(`${asError(e).messageKey}.what`));
+    }
+    await queryClient.invalidateQueries({ queryKey: BOORU_JOBS_KEY });
+  };
 
   const run = async (more: boolean) => {
     if (!site) return;
@@ -293,9 +307,16 @@ export function BooruView() {
       <SubscriptionsSection foldable />
 
       <section className="space-y-3" aria-labelledby="booru-jobs-title">
-        <h2 id="booru-jobs-title" className="text-lg font-semibold">
-          {t('booru.jobs.title')}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="booru-jobs-title" className="text-lg font-semibold">
+            {t('booru.jobs.title')}
+          </h2>
+          <ClearListButton
+            count={jobs.data?.filter((j) => FINISHED.includes(j.status)).length ?? 0}
+            textKey="clearList.booru"
+            onConfirm={clearList}
+          />
+        </div>
         {jobs.data?.length === 0 && (
           <p className="text-sm text-muted-foreground">{t('booru.jobs.empty')}</p>
         )}

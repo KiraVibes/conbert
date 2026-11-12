@@ -4,7 +4,7 @@ import { createReadStream, existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import type { FastifyInstance } from 'fastify';
-import { and, desc, eq, like } from 'drizzle-orm';
+import { and, desc, eq, inArray, like } from 'drizzle-orm';
 import { z } from 'zod';
 import { detectPlatform, downloadSourceName, parseDownloadUrl, type Platform } from '@conbert/core';
 import {
@@ -234,6 +234,27 @@ export function registerDownloaderRoutes(app: FastifyInstance, ctx: AppContext):
     return { downloads: rows.map(toDownloadDto) };
   });
 
+  /** Takes finished downloads off the list (the files themselves stay). */
+  async function removeFinished(userId: string, rows: (typeof downloads.$inferSelect)[]) {
+    if (rows.length === 0) return;
+    ctx.db
+      .delete(downloads)
+      .where(
+        inArray(
+          downloads.id,
+          rows.map((r) => r.id),
+        ),
+      )
+      .run();
+    // Files still in the server archive keep their preview picture there.
+    const fileIds = rows.flatMap((row) => toDownloadDto(row).files.map((f) => f.fileId));
+    const archived = new Set(archivedFiles(ctx, userId, fileIds).map((r) => r.id));
+    await removeThumbnails(
+      ctx.config,
+      fileIds.filter((fileId) => !archived.has(fileId)),
+    );
+  }
+
   const ownDownload = (userId: string, id: string) => {
     const row = ctx.db
       .select()
@@ -262,15 +283,25 @@ export function registerDownloaderRoutes(app: FastifyInstance, ctx: AppContext):
       }
       return { download: toDownloadDto(ownDownload(user.id, id)) };
     }
-    ctx.db.delete(downloads).where(eq(downloads.id, id)).run();
-    // Files still in the server archive keep their preview picture there.
-    const fileIds = toDownloadDto(row).files.map((f) => f.fileId);
-    const archived = new Set(archivedFiles(ctx, user.id, fileIds).map((r) => r.id));
-    await removeThumbnails(
-      ctx.config,
-      fileIds.filter((fileId) => !archived.has(fileId)),
-    );
+    await removeFinished(user.id, [row]);
     return { download: toDownloadDto(row) };
+  });
+
+  /** Empties the list: every finished download goes, running and waiting ones stay. */
+  app.delete('/api/downloader/jobs', async (request) => {
+    const user = currentUser(request);
+    const rows = ctx.db
+      .select()
+      .from(downloads)
+      .where(
+        and(
+          eq(downloads.userId, user.id),
+          inArray(downloads.status, ['done', 'error', 'cancelled']),
+        ),
+      )
+      .all();
+    await removeFinished(user.id, rows);
+    return { removed: rows.length };
   });
 
   /** Preview picture of a downloaded file – only for the owner of the download. */

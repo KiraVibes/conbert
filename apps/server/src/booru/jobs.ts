@@ -154,6 +154,19 @@ export async function deleteBooruJob(ctx: AppContext, userId: string, id: string
   return toBooruJobDto(ctx, row);
 }
 
+/** Empties the list: finished crawls go (with their files still waiting for the list); running, waiting and paused ones stay. */
+export async function clearFinishedBooruJobs(ctx: AppContext, userId: string): Promise<number> {
+  const rows = ctx.db
+    .select({ id: booruJobs.id })
+    .from(booruJobs)
+    .where(
+      and(eq(booruJobs.userId, userId), inArray(booruJobs.status, ['done', 'error', 'cancelled'])),
+    )
+    .all();
+  for (const row of rows) await deleteBooruJob(ctx, userId, row.id);
+  return rows.length;
+}
+
 /** The files of a crawl that are waiting for the conversion list. */
 export function booruJobFiles(ctx: AppContext, userId: string, id: string) {
   const state = ownBooruJob(ctx, userId, id).state as Partial<CrawlState>;

@@ -53,6 +53,7 @@ import {
 } from '@/components/ui/select';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
+import { ClearListButton } from '@/components/ClearListButton';
 import { TimeStamp } from '@/components/TimeStamp';
 import { ViewIntro } from '@/components/ViewIntro';
 import {
@@ -72,6 +73,7 @@ import { formatBytes } from '@/lib/format-bytes';
 import { cardTimeKey } from '@/lib/stamp';
 import {
   DOWNLOADS_KEY,
+  clearFinishedDownloads,
   cancelOrRemove,
   fetchDownloadedFiles,
   markTaken,
@@ -94,6 +96,9 @@ const formatDuration = (seconds: number) => {
 };
 
 /** Social-media downloader: paste a link, check it, download, hand over to the list. */
+/** Downloads that are over (a list entry that can go). */
+const FINISHED: readonly string[] = ['done', 'error', 'cancelled'];
+
 export function DownloaderView() {
   const { t } = useTranslation();
   // A link shared from another app ("Share → Conbert") is checked right away.
@@ -134,6 +139,15 @@ export function DownloaderView() {
     [takeOver],
   );
   const downloads = useDownloads(onUpdate);
+  const queryClient = useQueryClient();
+  const clearList = async () => {
+    try {
+      await clearFinishedDownloads();
+    } catch (e) {
+      toast.error(t(`${e instanceof ApiRequestError ? e.messageKey : 'errors.network'}.what`));
+    }
+    await queryClient.invalidateQueries({ queryKey: DOWNLOADS_KEY });
+  };
 
   const checkLink = useCallback(async (link: string) => {
     setChecking(true);
@@ -215,9 +229,16 @@ export function DownloaderView() {
 
       <FeedsSection foldable />
       <section className="space-y-3" aria-labelledby="downloads-title">
-        <h2 id="downloads-title" className="text-lg font-semibold">
-          {t('downloader.list.title')}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="downloads-title" className="text-lg font-semibold">
+            {t('downloader.list.title')}
+          </h2>
+          <ClearListButton
+            count={downloads.data?.filter((d) => FINISHED.includes(d.status)).length ?? 0}
+            textKey="clearList.downloads"
+            onConfirm={clearList}
+          />
+        </div>
         {downloads.data?.length === 0 && (
           <p className="text-sm text-muted-foreground">{t('downloader.list.empty')}</p>
         )}

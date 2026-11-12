@@ -25,6 +25,8 @@ import { useCan } from '@/features/auth/use-auth';
 export const BOORU_SITES_KEY = ['booru-sites'] as const;
 export const BOORU_SETTINGS_KEY = ['booru-settings'] as const;
 export const BOORU_JOBS_KEY = ['booru-jobs'] as const;
+/** Removes every finished crawl from the list (running, waiting and paused ones stay). */
+export const clearFinishedBooruJobs = () => apiDelete('/api/booru/jobs');
 
 const settingsResponse = z.object({ settings: booruSettingsSchema });
 
