@@ -54,7 +54,11 @@ import {
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
 import { ViewIntro } from '@/components/ViewIntro';
-import { keepTimeText, useServerArchive } from '@/features/archive/server-archive-api';
+import {
+  archiveZipUrl,
+  keepTimeText,
+  useServerArchive,
+} from '@/features/archive/server-archive-api';
 import { useFiles } from '@/features/convert/files-store';
 import { useSettings } from '@/features/settings/settings-store';
 import { useTargets } from '@/features/storage/storage-api';
@@ -650,7 +654,7 @@ function Field({
   );
 }
 
-function DownloadRow({ download, onTake }: { download: DownloadDto; onTake: () => void }) {
+export function DownloadRow({ download, onTake }: { download: DownloadDto; onTake: () => void }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const active = download.status === 'queued' || download.status === 'running';
@@ -666,6 +670,10 @@ function DownloadRow({ download, onTake }: { download: DownloadDto; onTake: () =
   const before = download.known + alreadyAtTarget;
   // Files still on the server that this browser has not put into the list yet.
   const onServer = download.files.filter((f) => f.onServer && !takenFiles().has(f.fileId)).length;
+  // Kept in the server archive: all of them can be fetched as one ZIP.
+  const archived = download.keepOnServer
+    ? download.files.filter((f) => f.onServer).map((f) => f.fileId)
+    : [];
   return (
     <Card className="gap-2 p-3" data-testid="download-row">
       <div className="flex min-w-0 items-start gap-2">
@@ -731,7 +739,7 @@ function DownloadRow({ download, onTake }: { download: DownloadDto; onTake: () =
         >
           {download.files.map((file) => (
             <li key={file.fileId}>
-              <FileTile file={file} />
+              <FileTile file={file} keep={download.keepOnServer} />
             </li>
           ))}
         </ul>
@@ -748,11 +756,23 @@ function DownloadRow({ download, onTake }: { download: DownloadDto; onTake: () =
               {t('downloader.skipped', { count: download.skipped })}
             </p>
           )}
-          {onServer > 0 && (
-            <Button size="sm" variant="outline" onClick={onTake}>
-              <ListPlusIcon aria-hidden="true" />
-              {t('downloader.addToList')}
-            </Button>
+          {(onServer > 0 || archived.length > 1) && (
+            <div className="flex flex-wrap gap-2">
+              {archived.length > 1 && (
+                <Button size="sm" variant="outline" asChild>
+                  <a href={archiveZipUrl(archived)} download="conbert-download.zip">
+                    <DownloadIcon aria-hidden="true" />
+                    {t('archive.downloadAll')}
+                  </a>
+                </Button>
+              )}
+              {onServer > 0 && (
+                <Button size="sm" variant="outline" onClick={onTake}>
+                  <ListPlusIcon aria-hidden="true" />
+                  {t('downloader.addToList')}
+                </Button>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -770,7 +790,7 @@ const CATEGORY_ICONS = {
 } as const;
 
 /** One finished file of a download: picture or icon, name, size, where it went. */
-function FileTile({ file }: { file: DownloadedFile }) {
+function FileTile({ file, keep }: { file: DownloadedFile; keep: boolean }) {
   const { t, i18n } = useTranslation();
   const category = getFormat(file.ext)?.category;
   const Icon =
@@ -817,6 +837,19 @@ function FileTile({ file }: { file: DownloadedFile }) {
           </p>
         )}
       </div>
+      {/* Taken into the list without the archive = the server copy is gone. */}
+      {file.onServer && (keep || !takenFiles().has(file.fileId)) && (
+        <Button size="sm" variant="ghost" className="mx-2 mb-2 mt-auto" asChild>
+          <a
+            href={`/api/files/${file.fileId}/content`}
+            download={file.name}
+            aria-label={t('archive.downloadNamed', { name: file.name })}
+          >
+            <DownloadIcon aria-hidden="true" />
+            {t('convert.download')}
+          </a>
+        </Button>
+      )}
     </div>
   );
 }
