@@ -5746,8 +5746,8 @@
       "deletePost_one": "{{count}} post deleted completely",
       "deletePost_other": "{{count}} posts deleted completely"
     },
-    "holdDelete": "Hold (or Shift+←): delete every picture and video of this post",
-    "postDeleted": "Every picture and video of this post will be deleted. “Back” brings them back.",
+    "holdDelete": "Hold (or Shift+←): delete every picture and video of this post not sorted yet – kept ones and favourites stay",
+    "postDeleted": "Every picture and video of this post not sorted yet will be deleted – what you kept stays. “Back” brings them back.",
     "wholePostOf": "Everything from post {{id}}"
   },
   "similar": {

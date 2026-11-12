@@ -306,11 +306,21 @@ async function carryOut(
 /**
  * The other files of a card's post that are still to be sorted (same
  * location, same folder, same post – see postOf). Empty for a single file.
+ * Files already decided (kept, favourites, or a decision still waiting)
+ * stay as they are.
  */
 function postSiblings(ctx: AppContext, item: MediaItemRecord): MediaItemRecord[] {
   const post = postOf(item.path);
   if (!post) return [];
   const prefix = post.folder ? `${post.folder}/` : '';
+  const decided = new Set(
+    ctx.db
+      .select({ itemId: swipeActions.itemId })
+      .from(swipeActions)
+      .where(and(eq(swipeActions.userId, item.userId), isNull(swipeActions.committedAt)))
+      .all()
+      .map((row) => row.itemId),
+  );
   return ctx.db
     .select()
     .from(mediaItems)
@@ -318,13 +328,13 @@ function postSiblings(ctx: AppContext, item: MediaItemRecord): MediaItemRecord[]
       and(
         eq(mediaItems.userId, item.userId),
         eq(mediaItems.targetId, item.targetId),
-        inArray(mediaItems.status, ['present', 'kept']),
+        eq(mediaItems.status, 'present'),
         startsWith(prefix),
         ne(mediaItems.id, item.id),
       ),
     )
     .all()
-    .filter((row) => inPost(row.path, post));
+    .filter((row) => !decided.has(row.id) && inPost(row.path, post));
 }
 
 /** Carries out the given pending actions, oldest first. */

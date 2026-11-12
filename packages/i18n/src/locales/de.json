@@ -5746,8 +5746,8 @@
       "deletePost_one": "{{count}} Beitrag ganz gelöscht",
       "deletePost_other": "{{count}} Beiträge ganz gelöscht"
     },
-    "holdDelete": "Gedrückt halten (oder Umschalt+←): alle Bilder und Videos dieses Beitrags löschen",
-    "postDeleted": "Alle Bilder und Videos dieses Beitrags werden gelöscht. Mit „Zurück“ holst du sie wieder.",
+    "holdDelete": "Gedrückt halten (oder Umschalt+←): alle noch nicht sortierten Bilder und Videos dieses Beitrags löschen – behaltene und Favoriten bleiben",
+    "postDeleted": "Alle noch nicht sortierten Bilder und Videos dieses Beitrags werden gelöscht – was du behalten hast, bleibt. Mit „Zurück“ holst du sie wieder.",
     "wholePostOf": "Alles aus Beitrag {{id}}"
   },
   "similar": {

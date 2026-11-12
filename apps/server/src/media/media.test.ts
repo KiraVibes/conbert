@@ -300,18 +300,24 @@ describe.skipIf(!hasRclone)('swipe game (real rclone)', () => {
     put('Pixiv/x/42/42_p0.jpg');
     put('Pixiv/x/42/42_p1.jpg');
     put('Pixiv/x/42/42_p2.jpg');
+    put('Pixiv/x/42/42_p3.jpg');
     put('Pixiv/x/421_p0.jpg');
     await sync();
+    // Pages swiped right or made a favourite before stay.
+    await swipe(byName(await next(), '42_p2.jpg'), 'keep');
+    await swipe(byName(await next(), '42_p3.jpg'), 'favorite');
     const first = byName(await next(), '42_p0.jpg');
     const state = await swipe(first, 'deletePost');
-    expect(state.pending).toBe(1);
+    expect(state.pending).toBe(3);
     // The other pages wait for the same decision: no cards for them any more.
     expect((await next()).map((i) => i.name)).toEqual(['421_p0.jpg']);
     const flushed = (await api('POST', '/api/swipe/flush')).json<SwipeState>();
-    expect(flushed.done.filter((d) => d.ok && d.action === 'delete')).toHaveLength(3);
+    expect(flushed.done.filter((d) => d.ok && d.action === 'delete')).toHaveLength(2);
     expect(there('Pixiv/x/42/42_p0.jpg')).toBe(false);
-    expect(there('Pixiv/x/42/42_p2.jpg')).toBe(false);
+    expect(there('Pixiv/x/42/42_p1.jpg')).toBe(false);
     expect(there('Pixiv/x/421_p0.jpg')).toBe(true);
+    expect(flushed.done.find((d) => d.name === '42_p2.jpg')?.action).toBe('keep');
+    expect(flushed.done.find((d) => d.name === '42_p3.jpg')?.action).toBe('favorite');
   });
 
   it('tidying up gives loose Pixiv works with several pages their own folder', async () => {
