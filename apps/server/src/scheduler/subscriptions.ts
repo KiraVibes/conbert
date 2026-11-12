@@ -60,6 +60,7 @@ export function toSubscriptionDto(ctx: AppContext, row: BooruSubscriptionRecord)
     lastCheckAt: row.lastCheckAt?.toISOString() ?? null,
     nextCheckAt: row.nextCheckAt?.toISOString() ?? null,
     lastNew: row.lastNew,
+    lastFoundAt: row.lastFoundAt?.toISOString() ?? null,
     totalLoaded: row.totalLoaded,
     lastError: row.lastError,
     createdAt: row.createdAt.toISOString(),
@@ -245,6 +246,7 @@ export function subscriptionCrawlFinished(ctx: AppContext, job: BooruJobRecord):
       lastPostId: newest,
       lastCheckAt: new Date(),
       lastNew: loaded,
+      ...(loaded > 0 && { lastFoundAt: new Date() }),
       totalLoaded: row.totalLoaded + loaded,
       lastError: job.status === 'error' ? job.errorKey : null,
     })

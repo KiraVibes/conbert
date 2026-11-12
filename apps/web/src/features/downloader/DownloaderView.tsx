@@ -53,6 +53,7 @@ import {
 } from '@/components/ui/select';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
+import { TimeStamp } from '@/components/TimeStamp';
 import { ViewIntro } from '@/components/ViewIntro';
 import {
   archiveZipUrl,
@@ -68,6 +69,7 @@ import { AfterSelect } from '@/features/workflows/AfterSelect';
 import { afterFromValue } from '@/features/workflows/after-actions';
 import { ApiRequestError } from '@/lib/api';
 import { formatBytes } from '@/lib/format-bytes';
+import { cardTimeKey } from '@/lib/stamp';
 import {
   DOWNLOADS_KEY,
   cancelOrRemove,
@@ -686,6 +688,10 @@ export function DownloadRow({ download, onTake }: { download: DownloadDto; onTak
             {t(`downloader.status.${download.status}`)}
             {ready > 0 && ` · ${t('downloader.files', { count: ready })}`}
           </p>
+          <TimeStamp
+            labelKey={cardTimeKey(download.status, !!download.feedId)}
+            iso={download.finishedAt ?? download.createdAt}
+          />
         </div>
         <Button
           size="icon"

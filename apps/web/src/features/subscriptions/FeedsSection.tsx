@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select';
 import { DOWNLOADS_KEY } from '@/features/downloader/downloader-api';
 import { ApiRequestError } from '@/lib/api';
+import { stamp } from '@/lib/stamp';
 import { FeedEditor } from './FeedEditor';
 import { FEEDS_KEY, checkFeed, deleteFeed, feedBody, updateFeed, useFeeds } from './feeds-api';
 
@@ -196,7 +197,9 @@ function FeedRow({ feed }: { feed: FeedDto }) {
                 ? t('feeds.paused')
                 : t('feeds.next', { time: relative(feed.nextCheckAt, i18n.language) })}
         {feed.lastCheckAt &&
-          ` · ${t('feeds.last', { time: relative(feed.lastCheckAt, i18n.language), count: feed.lastNew })}`}
+          ` · ${t('feeds.last', { time: stamp(feed.lastCheckAt, i18n.language), count: feed.lastNew })}`}
+        {feed.lastFoundAt &&
+          ` · ${t('feeds.lastFound', { time: stamp(feed.lastFoundAt, i18n.language) })}`}
         {feed.totalLoaded > 0 && ` · ${t('feeds.total', { count: feed.totalLoaded })}`}
       </p>
       {feed.lastError && <p className="text-xs text-destructive">{t(`${feed.lastError}.what`)}</p>}

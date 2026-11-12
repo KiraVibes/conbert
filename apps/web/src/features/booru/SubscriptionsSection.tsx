@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ApiRequestError } from '@/lib/api';
+import { stamp } from '@/lib/stamp';
 import {
   BOORU_JOBS_KEY,
   SUBSCRIPTIONS_KEY,
@@ -155,7 +156,9 @@ function SubscriptionRow({ sub }: { sub: SubscriptionDto }) {
           ? t('booru.subs.paused')
           : t('booru.subs.next', { time: when(sub.nextCheckAt) })}
         {sub.lastCheckAt &&
-          ` · ${t('booru.subs.last', { time: when(sub.lastCheckAt), count: sub.lastNew })}`}
+          ` · ${t('booru.subs.last', { time: stamp(sub.lastCheckAt, i18n.language), count: sub.lastNew })}`}
+        {sub.lastFoundAt &&
+          ` · ${t('booru.subs.lastFound', { time: stamp(sub.lastFoundAt, i18n.language) })}`}
         {sub.totalLoaded > 0 && ` · ${t('booru.subs.total', { count: sub.totalLoaded })}`}
       </p>
       {sub.lastError && <p className="text-xs text-destructive">{t(`${sub.lastError}.what`)}</p>}

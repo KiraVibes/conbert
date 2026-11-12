@@ -3572,10 +3572,11 @@
       "remove": "Delete subscription",
       "paused": "Paused",
       "next": "next check {{time}}",
-      "last_one": "last {{time}}: {{count}} new",
-      "last_other": "last {{time}}: {{count}} new",
+      "last_one": "last checked {{time}}: {{count}} new",
+      "last_other": "last checked {{time}}: {{count}} new",
       "total_one": "{{count}} picture in total",
-      "total_other": "{{count}} pictures in total"
+      "total_other": "{{count}} pictures in total",
+      "lastFound": "last loaded something {{time}}"
     },
     "off": {
       "title": "The booru area is turned off",
@@ -5518,8 +5519,8 @@
     "checking": "Looking right now …",
     "paused": "Paused",
     "next": "Next check {{time}}",
-    "last_one": "last {{time}}: 1 new",
-    "last_other": "last {{time}}: {{count}} new",
+    "last_one": "last checked {{time}}: 1 new",
+    "last_other": "last checked {{time}}: {{count}} new",
     "total_one": "1 file in total",
     "total_other": "{{count}} files in total",
     "save": {
@@ -5562,7 +5563,8 @@
       "save": "Save changes",
       "saved": "Subscription saved.",
       "savedCatchUp": "Subscription saved – Conbert is fetching the new parts now."
-    }
+    },
+    "lastFound": "last loaded something {{time}}"
   },
   "vault": {
     "title": "My key",
@@ -6786,5 +6788,12 @@
       "done_one": "{{count}} group taken over. Now choose which functions it allows.",
       "done_other": "{{count}} groups taken over. Now choose which functions they allow."
     }
+  },
+  "cardTime": {
+    "started": "Started:",
+    "done": "Downloaded:",
+    "ended": "Ended:",
+    "feedStarted": "Started by a subscription:",
+    "feedDone": "Downloaded by a subscription:"
   }
 }

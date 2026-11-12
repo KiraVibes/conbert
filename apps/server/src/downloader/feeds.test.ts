@@ -375,9 +375,16 @@ describe.skipIf(!hasGalleryDl)('subscriptions with the real tools', () => {
       platform: '4chan',
     });
     await runFeed(app.conbert, feed);
-    expect(ownFeed(app.conbert, userId(), feed.id)).toMatchObject({ lastNew: 1, totalLoaded: 1 });
-    await runFeed(app.conbert, ownFeed(app.conbert, userId(), feed.id));
-    expect(ownFeed(app.conbert, userId(), feed.id)).toMatchObject({ lastNew: 0, totalLoaded: 1 });
+    const first = ownFeed(app.conbert, userId(), feed.id);
+    expect(first).toMatchObject({ lastNew: 1, totalLoaded: 1 });
+    expect(first.lastFoundAt).toBeInstanceOf(Date);
+    await runFeed(app.conbert, first);
+    // Nothing new: the time it last found something stays.
+    expect(ownFeed(app.conbert, userId(), feed.id)).toMatchObject({
+      lastNew: 0,
+      totalLoaded: 1,
+      lastFoundAt: first.lastFoundAt,
+    });
   });
 
   it(

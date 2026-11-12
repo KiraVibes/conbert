@@ -3572,10 +3572,11 @@
       "remove": "Abo löschen",
       "paused": "Pausiert",
       "next": "nächste Prüfung {{time}}",
-      "last_one": "zuletzt {{time}}: {{count}} neu",
-      "last_other": "zuletzt {{time}}: {{count}} neu",
+      "last_one": "zuletzt geprüft {{time}}: {{count}} neu",
+      "last_other": "zuletzt geprüft {{time}}: {{count}} neu",
       "total_one": "insgesamt {{count}} Bild",
-      "total_other": "insgesamt {{count}} Bilder"
+      "total_other": "insgesamt {{count}} Bilder",
+      "lastFound": "zuletzt etwas geladen {{time}}"
     },
     "off": {
       "title": "Der Booru-Bereich ist ausgeschaltet",
@@ -5518,8 +5519,8 @@
     "checking": "Sieht gerade nach …",
     "paused": "Pausiert",
     "next": "Nächste Prüfung {{time}}",
-    "last_one": "zuletzt {{time}}: 1 neu",
-    "last_other": "zuletzt {{time}}: {{count}} neu",
+    "last_one": "zuletzt geprüft {{time}}: 1 neu",
+    "last_other": "zuletzt geprüft {{time}}: {{count}} neu",
     "total_one": "insgesamt 1 Datei",
     "total_other": "insgesamt {{count}} Dateien",
     "save": {
@@ -5562,7 +5563,8 @@
       "save": "Änderungen speichern",
       "saved": "Abo gespeichert.",
       "savedCatchUp": "Abo gespeichert – Conbert lädt die neuen Teile jetzt nach."
-    }
+    },
+    "lastFound": "zuletzt etwas geladen {{time}}"
   },
   "vault": {
     "title": "Mein Schlüssel",
@@ -6786,5 +6788,12 @@
       "done_one": "{{count}} Gruppe übernommen. Leg jetzt fest, welche Funktionen sie erlaubt.",
       "done_other": "{{count}} Gruppen übernommen. Leg jetzt fest, welche Funktionen sie erlauben."
     }
+  },
+  "cardTime": {
+    "started": "Gestartet:",
+    "done": "Heruntergeladen:",
+    "ended": "Beendet:",
+    "feedStarted": "Vom Abo gestartet:",
+    "feedDone": "Vom Abo heruntergeladen:"
   }
 }

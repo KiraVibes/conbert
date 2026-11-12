@@ -299,6 +299,8 @@ export const subscriptionSchema = z.object({
   nextCheckAt: z.string().nullable(),
   /** New posts found by the last check. */
   lastNew: z.number(),
+  /** Last check that loaded something. */
+  lastFoundAt: z.string().nullable().default(null),
   totalLoaded: z.number(),
   lastError: z.string().nullable(),
   createdAt: z.string(),

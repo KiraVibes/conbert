@@ -119,3 +119,7 @@ Funktionen (`FEATURES` in `packages/schemas/src/permissions.ts`): `convert`, `se
 `POST /api/downloader/jobs` und Abos nehmen `keepOnServer: true` (Ziel „Server-Archiv“); ein Ziel ist Pflicht (`toList`, `keepOnServer` oder `targetIds`). Rechte: `/api/archive` gehört zur Funktion „Downloader“.
 
 `POST /api/auth/login`: lokales Konto mit Passwort zuerst; sonst LDAP (wenn eingeschaltet). Ein lokales Konto wird nie von LDAP übernommen. Verzeichnis nicht erreichbar → `502 LDAP_UNREACHABLE` (nur für Nicht-lokale Namen). `/api/auth/status` meldet `ldap: true`, wenn LDAP an ist. Proxy-Modus: `CONBERT_PROXY_GROUPS_HEADER` (Komma oder `|` getrennt, nur von vertrauenswürdigen Proxys) ordnet Gruppen über `proxyName` zu.
+
+### Zuletzt etwas geladen (2026-11-12)
+
+Abos (`GET /api/downloader/feeds`) und Booru-Abos (`GET /api/subscriptions`) liefern zusätzlich `lastFoundAt` (ISO-Zeit oder `null`): wann eine Prüfung zuletzt mindestens eine Datei geladen hat. Bestehende Abos übernehmen beim Update die Zeit ihrer letzten Prüfung, falls diese etwas gefunden hat.

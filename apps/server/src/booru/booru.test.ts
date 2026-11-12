@@ -495,7 +495,7 @@ describe('booru subscriptions', () => {
       .json<{ subscriptions: SubscriptionDto[] }>()
       .subscriptions.find((s) => s.id === id);
     // Post 3 was loaded by an earlier crawl: nothing new, but it is now "seen".
-    expect(sub).toMatchObject({ lastNew: 0, lastError: null });
+    expect(sub).toMatchObject({ lastNew: 0, lastError: null, lastFoundAt: null });
     expect(sub?.lastCheckAt).not.toBeNull();
 
     POSTS.unshift({ id: 11, rating: 'g', tags: ['red_hair', 'cat_ears'] });
@@ -505,6 +505,7 @@ describe('booru subscriptions', () => {
       .json<{ subscriptions: SubscriptionDto[] }>()
       .subscriptions.find((s) => s.id === id);
     expect(sub).toMatchObject({ lastNew: 1, totalLoaded: 1 });
+    expect(sub?.lastFoundAt).not.toBeNull();
     const jobs = (await call('GET', '/api/booru/jobs')).json<{ jobs: BooruJobDto[] }>().jobs;
     const latest = jobs.find((j) => j.subscriptionId === id);
     // It stopped at the post it had seen before.

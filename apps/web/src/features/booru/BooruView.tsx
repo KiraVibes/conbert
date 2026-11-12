@@ -37,7 +37,9 @@ import type {
 } from '@conbert/schemas';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { HelpTip } from '@/components/HelpTip';
+import { TimeStamp } from '@/components/TimeStamp';
 import { ViewIntro } from '@/components/ViewIntro';
+import { cardTimeKey } from '@/lib/stamp';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -845,6 +847,10 @@ function JobRow({ job, onTake }: { job: BooruJobDto; onTake: () => void }) {
               job.resumeAt &&
               ` ${t('booru.jobs.until', { time: new Date(job.resumeAt).toLocaleString(i18n.language) })}`}
           </p>
+          <TimeStamp
+            labelKey={cardTimeKey(job.status, !!job.subscriptionId)}
+            iso={job.finishedAt ?? job.createdAt}
+          />
         </div>
         {(job.status === 'running' || job.status === 'queued' || job.status === 'waiting') && (
           <Button

@@ -117,6 +117,7 @@ export function toFeedDto(ctx: AppContext, row: DownloadFeedRecord): FeedDto {
     lastCheckAt: row.lastCheckAt?.toISOString() ?? null,
     nextCheckAt: row.nextCheckAt?.toISOString() ?? null,
     lastNew: row.lastNew,
+    lastFoundAt: row.lastFoundAt?.toISOString() ?? null,
     totalLoaded: row.totalLoaded,
     lastError: row.lastError,
     createdAt: row.createdAt.toISOString(),
@@ -394,6 +395,7 @@ export function feedDownloadFinished(ctx: AppContext, download: DownloadRecord):
     .set({
       lastCheckAt: new Date(),
       lastNew: loaded,
+      ...(loaded > 0 && { lastFoundAt: new Date() }),
       totalLoaded: row.totalLoaded + loaded,
       ...(download.status === 'done' && {
         initialized: true,

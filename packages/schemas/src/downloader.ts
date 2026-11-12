@@ -244,6 +244,8 @@ export const feedSchema = z.object({
   lastCheckAt: z.string().nullable(),
   nextCheckAt: z.string().nullable(),
   lastNew: z.number(),
+  /** Last check that loaded something. */
+  lastFoundAt: z.string().nullable().default(null),
   totalLoaded: z.number(),
   lastError: z.string().nullable(),
   createdAt: z.string(),

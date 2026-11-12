@@ -36,6 +36,7 @@ describe('download card', () => {
     const link = screen.getByRole('link', { name: '„a.mp4“ herunterladen' });
     expect(link).toHaveAttribute('href', '/api/files/a/content');
     expect(link).toHaveAttribute('download', 'a.mp4');
+    expect(screen.getByTestId('time-stamp')).toHaveTextContent('Heruntergeladen:');
     expect(screen.getByRole('link', { name: /ZIP/ })).toHaveAttribute(
       'href',
       '/api/archive/zip?ids=a,b',

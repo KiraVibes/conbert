@@ -315,6 +315,8 @@ export const downloadFeeds = sqliteTable(
     lastCheckAt: integer('last_check_at', { mode: 'timestamp_ms' }),
     nextCheckAt: integer('next_check_at', { mode: 'timestamp_ms' }),
     lastNew: integer('last_new').notNull().default(0),
+    /** Last check that loaded something. */
+    lastFoundAt: integer('last_found_at', { mode: 'timestamp_ms' }),
     totalLoaded: integer('total_loaded').notNull().default(0),
     lastError: text('last_error'),
     createdAt: createdAt(),
@@ -476,6 +478,8 @@ export const booruSubscriptions = sqliteTable(
     lastCheckAt: integer('last_check_at', { mode: 'timestamp_ms' }),
     nextCheckAt: integer('next_check_at', { mode: 'timestamp_ms' }),
     lastNew: integer('last_new').notNull().default(0),
+    /** Last check that loaded something. */
+    lastFoundAt: integer('last_found_at', { mode: 'timestamp_ms' }),
     totalLoaded: integer('total_loaded').notNull().default(0),
     lastError: text('last_error'),
     createdAt: createdAt(),
