@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { FEED_INTERVALS_MINUTES, minFeedInterval } from '@conbert/core';
 import type { FeedDto } from '@conbert/schemas';
+import { FoldableSection } from '@/components/FoldableSection';
 import { HelpTip } from '@/components/HelpTip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,16 +42,25 @@ function relative(iso: string | null, language: string): string {
 }
 
 /** The subscribed profiles, channels and threads. */
-export function FeedsSection({ showEmpty = false }: { showEmpty?: boolean }) {
+export function FeedsSection({
+  showEmpty = false,
+  foldable = false,
+}: {
+  showEmpty?: boolean;
+  /** Closed at first, opens on click (on busy pages like the downloader). */
+  foldable?: boolean;
+}) {
   const { t } = useTranslation();
   const feeds = useFeeds();
   if (!feeds.data || (feeds.data.length === 0 && !showEmpty)) return null;
   return (
-    <section className="space-y-3" aria-labelledby="feeds-title">
-      <h2 id="feeds-title" className="flex items-center gap-1.5 text-lg font-semibold">
-        {t('feeds.title')}
-        <HelpTip helpKey="feeds.help" labelKey="feeds.title" />
-      </h2>
+    <FoldableSection
+      id="feeds"
+      title={t('feeds.title')}
+      help={<HelpTip helpKey="feeds.help" labelKey="feeds.title" />}
+      count={feeds.data.length}
+      foldable={foldable}
+    >
       {feeds.data.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('feeds.empty')}</p>
       ) : (
@@ -62,7 +72,7 @@ export function FeedsSection({ showEmpty = false }: { showEmpty?: boolean }) {
           ))}
         </ul>
       )}
-    </section>
+    </FoldableSection>
   );
 }
 

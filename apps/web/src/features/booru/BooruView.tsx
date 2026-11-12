@@ -288,7 +288,7 @@ export function BooruView() {
         />
       )}
 
-      <SubscriptionsSection />
+      <SubscriptionsSection foldable />
 
       <section className="space-y-3" aria-labelledby="booru-jobs-title">
         <h2 id="booru-jobs-title" className="text-lg font-semibold">

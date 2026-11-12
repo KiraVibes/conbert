@@ -211,7 +211,7 @@ export function DownloaderView() {
       )}
       {probe && <ProbeCard key={probe.probeId} probe={probe} onStarted={() => setProbe(null)} />}
 
-      <FeedsSection />
+      <FeedsSection foldable />
       <section className="space-y-3" aria-labelledby="downloads-title">
         <h2 id="downloads-title" className="text-lg font-semibold">
           {t('downloader.list.title')}

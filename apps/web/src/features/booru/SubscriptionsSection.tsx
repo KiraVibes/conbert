@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { BellRingIcon, PauseIcon, PlayIcon, RefreshCwIcon, Trash2Icon } from 'lucide-react';
 import { SUBSCRIPTION_INTERVALS_HOURS } from '@conbert/core';
 import type { SubscriptionDto } from '@conbert/schemas';
+import { FoldableSection } from '@/components/FoldableSection';
 import { HelpTip } from '@/components/HelpTip';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -41,16 +42,25 @@ function subscriptionBody(sub: SubscriptionDto, patch: Partial<SubscriptionDto> 
 }
 
 /** The saved tag searches that are checked regularly. */
-export function SubscriptionsSection({ titleKey = 'booru.subs.title' }: { titleKey?: string }) {
+export function SubscriptionsSection({
+  titleKey = 'booru.subs.title',
+  foldable = false,
+}: {
+  titleKey?: string;
+  /** Closed at first, opens on click (on busy pages like the booru view). */
+  foldable?: boolean;
+}) {
   const { t } = useTranslation();
   const subscriptions = useSubscriptions();
   if (!subscriptions.data || subscriptions.data.length === 0) return null;
   return (
-    <section className="space-y-3" aria-labelledby="booru-subs-title">
-      <h2 id="booru-subs-title" className="flex items-center gap-1.5 text-lg font-semibold">
-        {t(titleKey)}
-        <HelpTip helpKey="booru.subs.help" labelKey={titleKey} />
-      </h2>
+    <FoldableSection
+      id="booru-subs"
+      title={t(titleKey)}
+      help={<HelpTip helpKey="booru.subs.help" labelKey={titleKey} />}
+      count={subscriptions.data.length}
+      foldable={foldable}
+    >
       <ul className="space-y-2">
         {subscriptions.data.map((sub) => (
           <li key={sub.id}>
@@ -58,7 +68,7 @@ export function SubscriptionsSection({ titleKey = 'booru.subs.title' }: { titleK
           </li>
         ))}
       </ul>
-    </section>
+    </FoldableSection>
   );
 }
 
