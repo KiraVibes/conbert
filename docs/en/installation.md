@@ -162,6 +162,11 @@ A **reverse proxy** does this, for example:
 Important: the proxy has to let **WebSockets** through (for the progress) and
 allow large uploads (e.g. `client_max_body_size 2g;` for Nginx).
 
+For **Nginx** there is a ready-made template in
+[reverse-proxy/nginx.conf](../reverse-proxy/nginx.conf) – HTTP only,
+`certbot --nginx` adds the certificate afterwards. The important part: Nginx
+has to pass on the real `Host`, otherwise Conbert refuses sign-in and uploads.
+
 ## 7. Limits for RAM and CPU (for small NAS devices)
 
 Converting videos takes a lot of power. So that your NAS stays usable

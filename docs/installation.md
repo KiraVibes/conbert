@@ -163,6 +163,11 @@ Das übernimmt ein **Reverse-Proxy**, z. B.:
 Wichtig dabei: Der Proxy muss **WebSockets** durchlassen (für den Fortschritt)
 und große Uploads erlauben (z. B. bei Nginx `client_max_body_size 2g;`).
 
+Für **Nginx** liegt eine fertige Vorlage in
+[reverse-proxy/nginx.conf](reverse-proxy/nginx.conf) – nur HTTP, das
+Zertifikat ergänzt danach `certbot --nginx`. Wichtig darin: Nginx muss den
+echten `Host` weitergeben, sonst lehnt Conbert Anmelden und Hochladen ab.
+
 ## 7. Grenzen für Arbeitsspeicher und CPU (für kleine NAS)
 
 Videos umwandeln braucht viel Kraft. Damit deine NAS daneben benutzbar bleibt,
