@@ -61,15 +61,17 @@ test('compresses a photo in the same format and shows the savings', async ({ pag
 test('hits a target size', async ({ page }) => {
   const card = await addToCompress(page, bigJpegPath());
   await card.getByRole('radio', { name: 'Zielgröße' }).click();
-  await card.getByRole('spinbutton', { name: 'Zielgröße in MB' }).fill('0.2');
+  await card.getByRole('radio', { name: 'KB' }).click();
+  await card.getByRole('textbox', { name: 'Zielgröße' }).fill('200');
   await card.getByRole('button', { name: 'Komprimieren', exact: true }).click();
   await expect(card.getByText(/% gespart/)).toBeVisible({ timeout: 90_000 });
-  await expect(card.getByText(/Zielgröße wurde nicht ganz erreicht/)).toHaveCount(0);
+  await expect(card.getByText(/Kleiner ging es nicht/)).toHaveCount(0);
+  await expect(card.getByText(/Ziel: höchstens 200 KB/)).toBeVisible();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
     card.getByRole('link', { name: 'Herunterladen' }).click(),
   ]);
-  expect(readFileSync(await download.path()).length).toBeLessThanOrEqual(0.2 * 1024 * 1024);
+  expect(readFileSync(await download.path()).length).toBeLessThanOrEqual(200 * 1024);
 });
 
 test('compresses music and lists files separately from "Umwandeln"', async ({ page }) => {

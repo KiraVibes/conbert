@@ -66,7 +66,7 @@ export const PURPOSE_RULES: Record<PurposeId, RuleTable> = {
       targets: ['mp3'],
       compress: { level: 'target', targetMb: EMAIL_TARGET_MB },
     },
-    pdf: { id: 'pdf', targets: SAME, compress: { level: 'small', targetMb: null } },
+    pdf: { id: 'pdf', targets: SAME, compress: { level: 'target', targetMb: EMAIL_TARGET_MB } },
     document: { id: 'document', targets: ['pdf'] },
     ebook: { id: 'document', targets: ['pdf'] },
   },

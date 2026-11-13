@@ -46,6 +46,9 @@ function prepare(api: MagickApi, image: Magick.IMagickImage, to: string, o: Imag
   if (to === 'ico' && (image.width > 256 || image.height > 256)) {
     // Icons can be at most 256 × 256 pixels.
     image.resize(new api.MagickGeometry('256x256>'));
+  } else if (o.scalePercent < 100) {
+    // Compressing to a size: fewer pixels.
+    image.resize(new api.MagickGeometry(`${o.scalePercent}%`));
   }
   if (LOSSY.has(to)) image.quality = o.lossless ? 100 : o.quality;
   if (to === 'webp' && o.lossless)

@@ -17,6 +17,7 @@ import {
   findRoutes,
   getFormat,
   listTargets,
+  targetPrecision,
   type CompressLevel,
   type TargetOption,
 } from '@conbert/core';
@@ -25,7 +26,6 @@ import { PurposeNoteLine } from './PurposePicker';
 import { Button } from '@/components/ui/button';
 import { useCover } from '@/lib/cover';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -38,6 +38,7 @@ import { ConversionStatus } from './ConversionStatus';
 import { FileNameEditor } from './FileNameEditor';
 import { FormatSelect } from './FormatSelect';
 import { ModeSelector } from './ModeSelector';
+import { TargetSizeInput } from './TargetSizeInput';
 import { CardTabs } from '@/features/metadata/CardTabs';
 import { OptionsPanel } from './OptionsPanel';
 import { formatName } from './format-text';
@@ -46,6 +47,8 @@ import { cancelConversion, runConversion } from './run-conversion';
 import { useRemoveAfterDownload } from './use-remove-after-download';
 
 /** Formats a file can be compressed into: the same one first, then smaller ones. */
+const MB = 1024 * 1024;
+
 function useCompressTargets(item: FileItem): TargetOption[] {
   const { engines, serverAvailable } = useAvailableEngines();
   return useMemo(() => {
@@ -186,25 +189,28 @@ export function CompressCard({ item }: { item: FileItem }) {
             </ToggleGroup>
             <p className="text-sm text-muted-foreground">{t(`compress.level.${level}Help`)}</p>
             {level === 'target' && (
-              <div className="flex flex-wrap items-center gap-2">
-                <Label htmlFor={`target-mb-${item.id}`}>{t('compress.targetMb')}</Label>
-                <Input
+              <div className="space-y-1.5">
+                <TargetSizeInput
                   id={`target-mb-${item.id}`}
-                  type="number"
-                  inputMode="decimal"
-                  min={0.01}
-                  step={0.1}
-                  className="h-8 w-28"
-                  value={targetMb ?? ''}
+                  targetMb={targetMb}
                   disabled={busy}
-                  onChange={(e) => {
-                    const value = Number(e.target.value.replace(',', '.'));
-                    setCompress(item.id, { targetMb: value > 0 ? value : null });
-                  }}
+                  onChange={(mb) => setCompress(item.id, { targetMb: mb })}
                 />
-                <span className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {t('compress.originalSize', { size: formatBytes(item.file.size, i18n.language) })}
-                </span>
+                </p>
+                {targetMb !== null &&
+                (target ?? item.ext) === item.ext &&
+                item.file.size <= targetMb * MB ? (
+                  <p className="text-sm text-muted-foreground">{t('compress.alreadySmall')}</p>
+                ) : (
+                  targetPrecision(getFormat(target ?? item.ext)?.category) === 'levels' && (
+                    <p className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <TriangleAlertIcon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                      {t('compress.targetLevels')}
+                    </p>
+                  )
+                )}
               </div>
             )}
           </div>

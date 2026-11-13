@@ -103,6 +103,11 @@ describe('convertWithVips – behaviour', () => {
     expect(decode(output, { n: -1 }).pages).toBe(1);
   });
 
+  it('shrinks the picture for a target size (scalePercent)', () => {
+    const output = convertWithVips(vips, fixture('png'), 'png', 'png', { scalePercent: 50 });
+    expect(decode(output)).toMatchObject({ width: 4, height: 4 });
+  });
+
   it('lower quality gives a smaller file', () => {
     const big = vips.Image.newFromBuffer(fixture('jpg')).resize(16);
     const input = big.writeToBuffer('.png');

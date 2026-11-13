@@ -87,6 +87,11 @@ export function convertWithVips(
     // phone photos would end up sideways.
     if (!animated) image = track(image.autorot());
 
+    // Compressing to a size: fewer pixels (still pictures only).
+    if (!animated && options.scalePercent < 100) {
+      image = track(image.resize(options.scalePercent / 100));
+    }
+
     // CMYK or Lab images (print files) need converting for screen formats.
     if (image.interpretation === 'cmyk' || image.interpretation === 'lab') {
       image = track(image.colourspace('srgb'));

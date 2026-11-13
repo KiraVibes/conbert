@@ -5,8 +5,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import {
   ConversionError,
   defaultOptions,
-  findQualityForSize,
-  getFormat,
+  compressToSize,
   isAbortError,
   outputFileName,
   type Engine,
@@ -135,27 +134,30 @@ export class JobRunner {
             },
           });
         const targetBytes = Number(options['targetBytes']);
-        // Pictures to a target size: try a few qualities, keep the best fit.
-        const searchSize =
-          isLast &&
-          job.mode === 'compress' &&
-          targetBytes > 0 &&
-          getFormat(step.to)?.category === 'image';
+        // Compressing to a size: try settings until the result fits.
+        const searchSize = isLast && job.mode === 'compress' && targetBytes > 0;
+        const tried: string[] = [];
         const output = searchSize
-          ? await findQualityForSize(
-              async (quality) => {
-                const out = await run({ ...options, quality });
-                return { out, size: typeof out === 'string' ? (await stat(out)).size : 0 };
-              },
-              (r) => r.size,
+          ? await compressToSize({
+              outputExt: step.to,
               targetBytes,
-              (attempt, total) =>
+              encode: async (overrides) => {
+                const out = await run({ ...options, ...overrides });
+                if (typeof out === 'string') tried.push(out);
+                return out;
+              },
+              sizeOf: async (out) => (typeof out === 'string' ? (await stat(out)).size : 0),
+              onTry: (attempt, total) =>
                 this.update(jobId, {
-                  progress: Math.round((attempt / total) * 95),
+                  progress: Math.min(95, Math.round((attempt / total) * 95)),
                   stage: 'converting',
                 }),
-            ).then((r) => r.out)
+            })
           : await run(options);
+        // Only the chosen attempt stays on disk.
+        for (const file of tried) {
+          if (file !== output) await rm(file, { force: true }).catch(() => undefined);
+        }
         if (typeof output !== 'string') {
           throw new ConversionError('errors.convertFailed', 'server engine returned no file');
         }

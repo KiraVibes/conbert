@@ -2643,12 +2643,11 @@
     "format": "Format",
     "formatHelp": "Usually the format stays the same (a PNG becomes a smaller PNG). Modern formats like WebP, AVIF or Opus often save much more space – but don't open in every older program.",
     "notPossible": "Conbert can't compress “{{format}}” yet. The “Convert” tab may offer a smaller format.",
-    "targetMb": "Target size in MB",
     "originalSize": "Original: {{size}}",
     "expertHint": "Fine-tuning – these settings win over the chosen level:",
     "saved": "{{before}} → {{after}} ({{percent}} % saved)",
     "keptOriginal": "It couldn't get any smaller – the original was already packed well. Conbert kept it unchanged.",
-    "targetMissed": "The target size wasn't quite reached. Try a slightly smaller number, the “Smallest” level or a more modern format.",
+    "targetMissed": "It couldn’t get any smaller without making the file useless. Try a slightly bigger target size or a more modern format (e.g. WebP, AVIF or Opus).",
     "level": {
       "label": "How much smaller?",
       "help": "The smaller the file should be, the more detail is lost. For photos and videos “Balanced” is usually hard to notice.",
@@ -2659,8 +2658,15 @@
       "small": "Smallest",
       "smallHelp": "As small as possible. Pictures and sound get visibly or audibly worse, large videos are reduced to 720p.",
       "target": "Target size",
-      "targetHelp": "You enter the size you want in MB, e.g. 10 for an email attachment. Conbert finds the best quality that still fits."
-    }
+      "targetHelp": "You say how big the file may be at most, e.g. 10 MB for an e-mail attachment. Conbert looks for the best quality that still fits – for pictures it also lowers the resolution if needed."
+    },
+    "targetSize": "Target size",
+    "targetUnit": "Unit of the target size",
+    "targetSizeHelp": "The finished file may be at most this big. Example: 10 MB for an e-mail attachment or 500 KB for an upload form. 1 MB is 1024 KB. Conbert never makes the file bigger than this and stays as close to it as it can.",
+    "targetLevels": "Conbert can’t set an exact size for this format. It tries the levels from “Maximum quality” to “Smallest” and takes the best one that fits. If none fits, you get the smallest.",
+    "alreadySmall": "The file is already smaller than the target size. Conbert leaves it as it is.",
+    "targetResult": "Target: at most {{target}} · reached: {{after}}.",
+    "targetMissedLevels": "This format couldn’t get any smaller – this is the smallest level. Conbert can’t set an exact size here."
   },
   "storage": {
     "types": {
@@ -6503,7 +6509,7 @@
         "image": "Many e-mail providers refuse attachments over 10 MB. So the picture becomes a JPG of just under 10 MB or less.",
         "video": "Many e-mail providers refuse attachments over 10 MB. So the video becomes an MP4 that stays just below that. For long videos the quality drops noticeably.",
         "audio": "Many e-mail providers refuse attachments over 10 MB. So the sound becomes an MP3 that stays just below that.",
-        "pdf": "The PDF is made as small as possible so it goes through as an attachment.",
+        "pdf": "Many e-mail providers refuse attachments over 10 MB. So Conbert tries the levels from best quality to “Smallest” and takes the best one that stays below. An exact size isn’t possible for PDFs.",
         "document": "Anyone can open a PDF and it looks the same everywhere – even without Word."
       }
     },

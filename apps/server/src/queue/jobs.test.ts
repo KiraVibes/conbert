@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import sharp from 'sharp';
 import { abortError, type Engine } from '@conbert/core';
 import { jobSchema, wsServerMessageSchema, type JobDto } from '@conbert/schemas';
 import { sharpEngine } from '../engines/sharp';
@@ -76,6 +77,33 @@ describe('server conversion jobs', () => {
       "filename*=UTF-8''Ferienfoto%20%C3%9Cbersee.webp",
     );
     expect(result.rawPayload.subarray(8, 12).toString('ascii')).toBe('WEBP');
+  });
+
+  it('compresses a picture to a target size, never above it', async () => {
+    // Noise packs badly: even low JPEG quality needs fewer pixels to fit.
+    const noisy = await sharp({
+      create: {
+        width: 600,
+        height: 400,
+        channels: 3,
+        background: '#808080',
+        noise: { type: 'gaussian', mean: 128, sigma: 60 },
+      },
+    })
+      .png()
+      .toBuffer();
+    const fileId = await tusUpload(app, cookie, noisy, 'noise.png');
+    const targetBytes = 30 * 1024;
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/jobs',
+      headers: { cookie },
+      payload: { fileId, outputExt: 'jpg', options: { targetBytes }, mode: 'compress' },
+    });
+    expect(res.statusCode).toBe(201);
+    const done = await waitForJob(jobSchema.parse((res.json() as { job: unknown }).job).id, 'done');
+    expect(done.resultSize).toBeLessThanOrEqual(targetBytes);
+    expect(done.resultSize).toBeGreaterThan(targetBytes * 0.8);
   });
 
   it('explains when the server has no way for a conversion', async () => {

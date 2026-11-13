@@ -4,7 +4,7 @@ import {
   decideRoute,
   defaultOptions,
   readTrim,
-  findQualityForSize,
+  compressToSize,
   getFormat,
   hasMetadataEdits,
   isAbortError,
@@ -148,6 +148,7 @@ export async function runConversion(
     compress && item.compress.level === 'target' && item.compress.targetMb
       ? Math.round(item.compress.targetMb * MB)
       : undefined;
+  const media = category === 'video' || category === 'audio';
   let options = item.options;
   // The route that ran (or ran last), for the history.
   let usedRoute: Route = decision.route;
@@ -171,21 +172,25 @@ export async function runConversion(
           signal: controller.signal,
           onProgress: ({ percent, stage }) => onProgress(percent, stage),
         })
-      : targetBytes && category === 'image'
-        ? // Pictures to a size: try a few qualities, keep the best fit.
-          findQualityForSize(
-            (quality) =>
+      : targetBytes
+        ? // Compressing to a size: try settings until the result fits.
+          compressToSize({
+            outputExt: targetExt,
+            targetBytes,
+            encode: (overrides) =>
               runBrowserSteps(
                 item.file,
                 route.steps,
-                { ...options, quality },
+                { ...options, ...overrides },
                 controller.signal,
-                () => undefined,
+                // Video and sound report their own progress per try.
+                media ? onProgress : () => undefined,
               ),
-            (blob) => blob.size,
-            targetBytes,
-            (attempt, total) => onProgress((attempt / total) * 100, 'converting'),
-          )
+            sizeOf: (blob) => blob.size,
+            onTry: media
+              ? undefined
+              : (attempt, total) => onProgress((attempt / total) * 100, 'converting'),
+          })
         : runBrowserSteps(item.file, route.steps, options, controller.signal, onProgress);
   try {
     if (compress) {
@@ -205,8 +210,11 @@ export async function runConversion(
     // If an engine can't handle the file right now (module missing, engine
     // didn't load), quietly try the next possible route.
     const routes = [decision.route, ...decision.alternatives];
-    let current: Blob | undefined;
-    for (const [index, route] of routes.entries()) {
+    // Already small enough in the same format: nothing to do, keep it.
+    const alreadyFits =
+      targetBytes !== undefined && targetExt === item.ext && item.file.size <= targetBytes;
+    let current: Blob | undefined = alreadyFits ? item.file : undefined;
+    for (const [index, route] of alreadyFits ? [] : routes.entries()) {
       try {
         usedRoute = route;
         current = await runRoute(route);

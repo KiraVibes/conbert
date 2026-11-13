@@ -55,6 +55,15 @@ async function convert(req: ConvertRequest): Promise<string> {
     let image = sharp(req.input, { animated, failOn: 'error' });
     // Apply the EXIF orientation before metadata is removed.
     if (!animated) image = image.rotate();
+    // Compressing to a size: fewer pixels (longest side, any orientation).
+    if (o.scalePercent < 100) {
+      const meta = await image.metadata();
+      const side = Math.max(
+        1,
+        Math.round((Math.max(meta.width, meta.pageHeight ?? meta.height) * o.scalePercent) / 100),
+      );
+      image = image.resize(side, side, { fit: 'inside', withoutEnlargement: true });
+    }
     if (target?.supportsTransparency === false) image = image.flatten({ background: '#ffffff' });
     // Keep only the color profile unless all metadata should stay.
     image = o.stripMetadata ? image.keepIccProfile() : image.keepMetadata();

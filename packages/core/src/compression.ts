@@ -51,11 +51,20 @@ export const COMPRESS_ALTERNATIVES: Partial<Record<Category, readonly string[]>>
   archive: ['7z', 'zip'],
 };
 
-/** Levels a category offers (3D, PDF, fonts and archives can't hit an exact size). */
+/** Levels a category offers – every category can aim for a size. */
 export function compressLevels(category: Category | undefined): readonly CompressLevel[] {
-  return category && ['3d', 'pdf', 'font', 'archive', 'vector'].includes(category)
-    ? ['max', 'balanced', 'small']
-    : ['max', 'balanced', 'small', 'target'];
+  return category && COMPRESSIBLE.includes(category)
+    ? ['max', 'balanced', 'small', 'target']
+    : ['max', 'balanced', 'small'];
+}
+
+/**
+ * How well a target size can be met: pictures, video and sound are tuned
+ * until they fit ("exact"); other formats only have a few fixed levels, so
+ * Conbert takes the best one that fits, or else the smallest ("levels").
+ */
+export function targetPrecision(category: Category | undefined): 'exact' | 'levels' {
+  return category === 'image' || category === 'video' || category === 'audio' ? 'exact' : 'levels';
 }
 
 const IMAGE_QUALITY = { max: 90, balanced: 75, small: 55 } as const;
@@ -99,7 +108,7 @@ export function bitratesForTarget(
 /**
  * Engine options for a compression. For "target" with video/audio the
  * engines turn `targetBytes` + `durationSeconds` into bitrates; pictures
- * are searched with `findQualityForSize`.
+ * are searched with `compressToSize`.
  */
 export function compressionOptions(
   outputExt: string,
@@ -160,36 +169,178 @@ export function compressionOptions(
   return options;
 }
 
+/** One finished attempt of a size search. */
+interface Sized<T> {
+  result: T;
+  size: number;
+}
+
+export interface SizeSearch<T> {
+  /** Format of the result (decides how the size is reached). */
+  outputExt: string;
+  targetBytes: number;
+  /**
+   * Runs the compression once; `overrides` go on top of the options
+   * (quality, scalePercent, targetBytes or a whole compression level).
+   */
+  encode: (overrides: Record<string, unknown>) => Promise<T>;
+  sizeOf: (result: T) => number | Promise<number>;
+  /** Called before each attempt (for a progress bar). */
+  onTry?: (attempt: number, total: number) => void;
+}
+
+/** Results within this share of the target count as "close enough". */
+const CLOSE_ENOUGH = 0.93;
+/** Quality while shrinking the picture – lower looks blocky. */
+const SCALE_QUALITY = 60;
+/** Never shrink a picture below this share of its width. */
+const MIN_SCALE_PERCENT = 3;
+
+type Runner<T> = (overrides: Record<string, unknown>, total: number) => Promise<Sized<T>>;
+
+/** The largest attempt that fits, else the smallest one. */
+function pickBest<T>(attempts: Sized<T>[], targetBytes: number): Sized<T> {
+  const fits = attempts.filter((a) => a.size <= targetBytes);
+  return fits.length > 0
+    ? fits.reduce((a, b) => (b.size > a.size ? b : a))
+    : attempts.reduce((a, b) => (b.size < a.size ? b : a));
+}
+
 /**
- * Finds the best picture quality that still fits `targetBytes` (binary
- * search, a handful of tries). Returns the largest result that fits, or the
- * smallest one if nothing fits.
+ * Compresses so the result is at most `targetBytes` and as close to it as
+ * the format allows:
+ * - pictures: best quality that fits; if even the lowest quality is too
+ *   big, the picture gets fewer pixels until it fits,
+ * - video and sound: bitrates from the length, then up to two corrections
+ *   if the encoder ended up too big (or far too small),
+ * - everything else: the compression levels from best to smallest; the
+ *   first one that fits wins.
+ * If nothing fits, the smallest attempt is returned – the caller compares
+ * its size with the target and says so.
  */
-export async function findQualityForSize<T>(
-  encode: (quality: number) => Promise<T>,
-  sizeOf: (result: T) => number,
+export async function compressToSize<T>(search: SizeSearch<T>): Promise<T> {
+  const ext = normalizeExt(search.outputExt);
+  const category = getFormat(ext)?.category;
+  let tries = 0;
+  const run: Runner<T> = async (overrides, total) => {
+    search.onTry?.(tries++, total);
+    const result = await search.encode(overrides);
+    return { result, size: await search.sizeOf(result) };
+  };
+  const attempts =
+    category === 'image'
+      ? await imageAttempts(ext, search.targetBytes, run)
+      : category === 'video' || category === 'audio'
+        ? await mediaAttempts(search.targetBytes, run)
+        : await levelAttempts(ext, search.targetBytes, run);
+  return pickBest(attempts, search.targetBytes).result;
+}
+
+async function imageAttempts<T>(
+  ext: string,
   targetBytes: number,
-  onTry?: (attempt: number, total: number) => void,
-): Promise<T> {
-  const TRIES = 6;
-  let low = 5;
-  let high = 95;
-  let best: { result: T; size: number } | null = null;
-  let smallest: { result: T; size: number } | null = null;
-  for (let attempt = 0; attempt < TRIES && low <= high; attempt++) {
-    onTry?.(attempt, TRIES);
-    const quality = Math.round((low + high) / 2);
-    const result = await encode(quality);
-    const size = sizeOf(result);
-    if (!smallest || size < smallest.size) smallest = { result, size };
-    if (size <= targetBytes) {
-      if (!best || size > best.size) best = { result, size };
-      low = quality + 1;
+  run: Runner<T>,
+): Promise<Sized<T>[]> {
+  const attempts: Sized<T>[] = [];
+  // Lossy formats: binary search on the quality first.
+  const lossy = getFormat(ext)?.lossy === true;
+  if (lossy) {
+    const TRIES = 6;
+    let low = 5;
+    let high = 95;
+    for (let i = 0; i < TRIES && low <= high; i++) {
+      const quality = Math.round((low + high) / 2);
+      const attempt = await run({ quality }, TRIES + 6);
+      attempts.push(attempt);
+      if (attempt.size <= targetBytes) low = quality + 1;
+      else high = quality - 1;
+    }
+  } else {
+    attempts.push(await run({}, 7));
+  }
+  if (attempts.some((a) => a.size <= targetBytes)) return attempts;
+
+  // Still too big: fewer pixels. The size follows the pixel count, so the
+  // width scales with the square root of the ratio.
+  const quality = lossy ? { quality: SCALE_QUALITY } : {};
+  const base = lossy ? await run(quality, 12) : attempts[0];
+  if (!base) return attempts;
+  if (lossy) {
+    attempts.push(base);
+    if (base.size <= targetBytes) return attempts;
+  }
+  let fits = 0; // largest scale known to fit
+  let tooBig = 100; // smallest scale known to be too big
+  let scale = 100;
+  let lastSize = base.size;
+  for (let i = 0; i < 6; i++) {
+    let next = scale * Math.sqrt(targetBytes / lastSize) * 0.97;
+    if (!(next > fits && next < tooBig)) next = (fits + tooBig) / 2;
+    next = Math.max(MIN_SCALE_PERCENT, Math.round(next * 10) / 10);
+    if (next === scale || next >= tooBig) break;
+    scale = next;
+    const attempt = await run({ ...quality, scalePercent: scale }, 12);
+    attempts.push(attempt);
+    lastSize = attempt.size;
+    if (attempt.size <= targetBytes) {
+      fits = scale;
+      if (attempt.size >= targetBytes * CLOSE_ENOUGH) break;
     } else {
-      high = quality - 1;
+      tooBig = scale;
+      if (scale <= MIN_SCALE_PERCENT) break;
     }
   }
-  const pick = best ?? smallest;
-  if (!pick) throw new Error('findQualityForSize: no attempt');
-  return pick.result;
+  return attempts;
+}
+
+async function mediaAttempts<T>(targetBytes: number, run: Runner<T>): Promise<Sized<T>[]> {
+  // The engines turn targetBytes into bitrates (bitratesForTarget).
+  let last = await run({}, 3);
+  const attempts = [last];
+  let aim = targetBytes;
+  for (let i = 0; i < 2; i++) {
+    const tooBig = last.size > targetBytes;
+    const tooSmall = last.size < targetBytes * 0.85;
+    if (!tooBig && !tooSmall) break;
+    // Bitrates follow the aim linearly, so correct by the miss.
+    aim = Math.max(1, Math.round(aim * (targetBytes / Math.max(1, last.size)) * 0.98));
+    const attempt = await run({ targetBytes: aim }, 3);
+    attempts.push(attempt);
+    // Same size again: a bitrate limit was hit, more tries won't help.
+    if (Math.abs(attempt.size - last.size) <= last.size * 0.01) break;
+    last = attempt;
+  }
+  return attempts;
+}
+
+async function levelAttempts<T>(
+  ext: string,
+  targetBytes: number,
+  run: Runner<T>,
+): Promise<Sized<T>[]> {
+  const levels = sizeLadder(ext);
+  const attempts: Sized<T>[] = [];
+  for (const options of levels) {
+    const attempt = await run(options, levels.length);
+    attempts.push(attempt);
+    if (attempt.size <= targetBytes) break;
+  }
+  return attempts;
+}
+
+/**
+ * The compression levels of a format from best to smallest, without
+ * duplicates (fonts and archives have fewer real steps).
+ */
+export function sizeLadder(outputExt: string): Record<string, unknown>[] {
+  const seen = new Set<string>();
+  const ladder: Record<string, unknown>[] = [];
+  for (const level of ['max', 'balanced', 'small'] as const) {
+    const options = compressionOptions(outputExt, { level, stripMetadata: true });
+    const key = JSON.stringify(options);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    ladder.push(options);
+  }
+  return ladder;
 }

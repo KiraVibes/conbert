@@ -68,6 +68,13 @@ describe('convertWithMagick', () => {
     expect(frames).toBe(2);
   });
 
+  it('shrinks the picture for a target size (scalePercent)', () => {
+    const jpg = convertWithMagick(Magick, fixture('sample.png'), 'png', 'jpg', {
+      scalePercent: 50,
+    });
+    expect(inspect(jpg)).toMatchObject({ width: 4, height: 4 });
+  });
+
   it('limits icons to 256 px', () => {
     const big = Magick.ImageMagick.read(fixture('sample.png'), Magick.MagickFormat.Png, (image) => {
       image.resize(600, 600);

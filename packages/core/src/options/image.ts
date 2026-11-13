@@ -107,6 +107,11 @@ export interface ImageOptions {
   keepAnimation: boolean;
   pngPalette: boolean;
   tiffCompression: 'deflate' | 'lzw' | 'jpeg' | 'none';
+  /**
+   * Internal (compressing to a size): width and height in percent of the
+   * original, 100 = unchanged. Not shown as an option.
+   */
+  scalePercent: number;
 }
 
 const DEFAULTS: ImageOptions = {
@@ -117,6 +122,7 @@ const DEFAULTS: ImageOptions = {
   keepAnimation: true,
   pngPalette: false,
   tiffCompression: 'deflate',
+  scalePercent: 100,
 };
 
 /** Validates raw option values from the UI and fills in defaults. */
@@ -125,6 +131,7 @@ export function resolveImageOptions(raw: Record<string, unknown>): ImageOptions 
     (ok(raw[key]) ? raw[key] : DEFAULTS[key]) as ImageOptions[K];
   const isBool = (v: unknown) => typeof v === 'boolean';
   const quality = Number(raw['quality']);
+  const scale = Number(raw['scalePercent']);
   return {
     quality: Number.isFinite(quality) ? Math.min(100, Math.max(1, Math.round(quality))) : 80,
     lossless: pick('lossless', isBool),
@@ -135,6 +142,7 @@ export function resolveImageOptions(raw: Record<string, unknown>): ImageOptions 
     tiffCompression: pick('tiffCompression', (v) =>
       ['deflate', 'lzw', 'jpeg', 'none'].includes(String(v)),
     ),
+    scalePercent: Number.isFinite(scale) && scale > 0 && scale < 100 ? Math.max(1, scale) : 100,
   };
 }
 

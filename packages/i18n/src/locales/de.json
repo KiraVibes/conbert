@@ -2643,12 +2643,11 @@
     "format": "Format",
     "formatHelp": "Normalerweise bleibt das Format gleich (aus PNG wird ein kleineres PNG). Moderne Formate wie WebP, AVIF oder Opus sparen oft noch viel mehr Platz – öffnen sich aber nicht in jedem älteren Programm.",
     "notPossible": "„{{format}}“ kann Conbert noch nicht komprimieren. Im Tab „Umwandeln“ findest du vielleicht ein kleineres Format.",
-    "targetMb": "Zielgröße in MB",
     "originalSize": "Original: {{size}}",
     "expertHint": "Feineinstellungen – sie haben Vorrang vor der gewählten Stufe:",
     "saved": "{{before}} → {{after}} ({{percent}} % gespart)",
     "keptOriginal": "Kleiner ging es nicht – das Original war schon gut gepackt. Conbert hat es unverändert behalten.",
-    "targetMissed": "Die Zielgröße wurde nicht ganz erreicht. Probier eine etwas kleinere Zahl, die Stufe „Maximal klein“ oder ein moderneres Format.",
+    "targetMissed": "Kleiner ging es nicht, ohne dass die Datei unbrauchbar wird. Probier eine etwas größere Zielgröße oder ein moderneres Format (z. B. WebP, AVIF oder Opus).",
     "level": {
       "label": "Wie stark verkleinern?",
       "help": "Je kleiner die Datei werden soll, desto mehr Details gehen verloren. Bei Fotos und Videos fällt „Ausgewogen“ meist kaum auf.",
@@ -2659,8 +2658,15 @@
       "small": "Maximal klein",
       "smallHelp": "So klein wie möglich. Bilder und Ton werden sichtbar bzw. hörbar schlechter, große Videos auf 720p verkleinert.",
       "target": "Zielgröße",
-      "targetHelp": "Du gibst die gewünschte Größe in MB an, z. B. 10 für einen E-Mail-Anhang. Conbert sucht die beste Qualität, die noch hineinpasst."
-    }
+      "targetHelp": "Du gibst an, wie groß die Datei höchstens sein darf, z. B. 10 MB für einen E-Mail-Anhang. Conbert sucht die beste Qualität, die noch hineinpasst – bei Bildern wird notfalls auch die Auflösung kleiner."
+    },
+    "targetSize": "Zielgröße",
+    "targetUnit": "Einheit der Zielgröße",
+    "targetSizeHelp": "So groß darf die fertige Datei höchstens sein. Beispiel: 10 MB für einen E-Mail-Anhang oder 500 KB für ein Upload-Formular. 1 MB sind 1024 KB. Conbert macht die Datei nie größer als angegeben und bleibt so nah wie möglich dran.",
+    "targetLevels": "Bei diesem Format kann Conbert keine genaue Größe einstellen. Es probiert die Stufen von „Maximale Qualität“ bis „Maximal klein“ und nimmt die beste, die passt. Passt keine, bekommst du die kleinste.",
+    "alreadySmall": "Die Datei ist schon kleiner als die Zielgröße. Conbert lässt sie, wie sie ist.",
+    "targetResult": "Ziel: höchstens {{target}} · erreicht: {{after}}.",
+    "targetMissedLevels": "Bei diesem Format ging es nicht kleiner – das ist die kleinste Stufe. Eine genaue Größe kann Conbert hier nicht einstellen."
   },
   "storage": {
     "types": {
@@ -6503,7 +6509,7 @@
         "image": "Viele E-Mail-Anbieter nehmen keine Anhänge über 10 MB. Darum wird das Bild ein JPG mit knapp 10 MB oder weniger.",
         "video": "Viele E-Mail-Anbieter nehmen keine Anhänge über 10 MB. Darum wird das Video ein MP4, das knapp darunter bleibt. Bei langen Videos sinkt dafür die Qualität deutlich.",
         "audio": "Viele E-Mail-Anbieter nehmen keine Anhänge über 10 MB. Darum wird der Ton ein MP3, das knapp darunter bleibt.",
-        "pdf": "Das PDF wird so klein wie möglich gemacht, damit es als Anhang durchgeht.",
+        "pdf": "Viele E-Mail-Anbieter nehmen keine Anhänge über 10 MB. Darum probiert Conbert die Stufen von bester Qualität bis „Maximal klein“ und nimmt die beste, die darunter bleibt. Eine genaue Größe geht bei PDFs nicht.",
         "document": "Ein PDF kann jeder öffnen und sieht überall gleich aus – auch ohne Word."
       }
     },

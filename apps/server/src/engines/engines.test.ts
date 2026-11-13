@@ -91,6 +91,17 @@ describe('sharp', () => {
     expect((await sharp(String(webp)).metadata()).pages).toBe(2);
   });
 
+  it('shrinks the picture for a target size (scalePercent)', async () => {
+    const jpg = await sharpEngine.convert({
+      input: path.join(fixtures, 'sample.png'),
+      inputExt: 'png',
+      outputExt: 'jpg',
+      options: { scalePercent: 50 },
+      workDir,
+    });
+    expect(await sharp(String(jpg)).metadata()).toMatchObject({ width: 4, height: 4 });
+  });
+
   it('removes EXIF by default', async () => {
     const withExif = path.join(workDir, 'exif.jpg');
     await sharp(path.join(fixtures, 'sample.jpg'))
@@ -175,6 +186,15 @@ describe('ImageMagick', () => {
   it('limits icons to 256 px and uses PNG8 for palette PNGs', () => {
     const ico = buildArgs('/in', 'png', '/out.ico', 'ico', {}, { input: 'PNG', output: 'ICO' });
     expect(ico).toEqual(expect.arrayContaining(['-resize', '256x256>']));
+    const smaller = buildArgs(
+      '/in',
+      'png',
+      '/out.jpg',
+      'jpg',
+      { scalePercent: 42.5 },
+      { input: 'PNG', output: 'JPEG' },
+    );
+    expect(smaller).toEqual(expect.arrayContaining(['-resize', '42.5%']));
     const png8 = buildArgs(
       '/in',
       'bmp',

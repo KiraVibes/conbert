@@ -89,6 +89,8 @@ export function buildArgs(
   // Remove all metadata except the color profile.
   if (o.stripMetadata) args.push('+profile', '!icc,*');
   if (outputExt === 'ico') args.push('-resize', '256x256>');
+  // Compressing to a size: fewer pixels.
+  else if (o.scalePercent < 100) args.push('-resize', `${o.scalePercent}%`);
   if (LOSSY.has(outputExt) && !o.lossless) args.push('-quality', String(o.quality));
   if (outputExt === 'webp' && o.lossless) args.push('-define', 'webp:lossless=true');
   if (outputExt === 'tiff') {

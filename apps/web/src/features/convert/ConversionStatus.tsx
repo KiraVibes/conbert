@@ -1,5 +1,6 @@
 import { DownloadIcon, EyeIcon, RotateCcwIcon, SparklesIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getFormat, targetPrecision } from '@conbert/core';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ErrorMessage } from '@/components/ErrorMessage';
@@ -48,6 +49,11 @@ export function ConversionStatus({
     const before = item.file.size;
     const after = item.result.blob.size;
     const change = before > 0 ? Math.round(((after - before) / before) * 100) : 0;
+    // Compressing to a size: the size asked for, in bytes.
+    const targetBytes =
+      item.task === 'compress' && item.compress.level === 'target' && item.compress.targetMb
+        ? Math.round(item.compress.targetMb * 1024 * 1024)
+        : null;
     return (
       <div
         className="flex flex-col gap-3 rounded-lg bg-emerald-500/10 p-3 sm:flex-row sm:items-center sm:justify-between"
@@ -62,8 +68,14 @@ export function ConversionStatus({
             {t(magic ? 'convert.doneMagic' : 'convert.done')}
           </p>
           {item.result.keptOriginal ? (
-            // Compressing would have made it bigger – the original stays.
-            <p className="text-muted-foreground">{t('compress.keptOriginal')}</p>
+            // Compressing would have made it bigger (or it already fit) – the original stays.
+            <p className="text-muted-foreground">
+              {t(
+                targetBytes !== null && before <= targetBytes
+                  ? 'compress.alreadySmall'
+                  : 'compress.keptOriginal',
+              )}
+            </p>
           ) : item.task === 'compress' ? (
             <p className="text-muted-foreground">
               {t('compress.saved', {
@@ -84,12 +96,24 @@ export function ConversionStatus({
           {item.task !== 'compress' && change > 0 && (
             <p className="text-muted-foreground">{t('convert.gotBigger')}</p>
           )}
-          {item.task === 'compress' &&
-            item.compress.level === 'target' &&
-            item.compress.targetMb !== null &&
-            after > item.compress.targetMb * 1024 * 1024 && (
-              <p className="text-amber-800 dark:text-amber-300">{t('compress.targetMissed')}</p>
-            )}
+          {targetBytes !== null && (
+            <p
+              className={
+                after > targetBytes ? 'text-amber-800 dark:text-amber-300' : 'text-muted-foreground'
+              }
+            >
+              {t('compress.targetResult', {
+                target: formatBytes(targetBytes, i18n.language),
+                after: formatBytes(after, i18n.language),
+              })}{' '}
+              {after > targetBytes &&
+                t(
+                  targetPrecision(getFormat(item.result.ext)?.category) === 'levels'
+                    ? 'compress.targetMissedLevels'
+                    : 'compress.targetMissed',
+                )}
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           {onPreview && (
