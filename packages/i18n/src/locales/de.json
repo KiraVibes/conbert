@@ -4100,6 +4100,11 @@
         "title": "Testdateien",
         "teaser": "Erzeug Dateien in genau der Größe, die du brauchst – oder Testbild, Testton, Test-PDF und Testvideo.",
         "how": "Manchmal braucht man einfach eine Datei zum Ausprobieren: Klappt der Upload bis 100 MB? Landet ein 2-GB-Film wirklich auf der NAS? Spielt der Fernseher Videos in 1080p ab? Conbert baut dir solche Dateien direkt auf deinem Gerät, nichts wird hochgeladen. Dateien mit fester Größe werden mit Nullen, Zufallsdaten oder Textzeilen gefüllt. Zufallsdaten lassen sich nicht komprimieren, so testest du echte Übertragungen, ohne dass ein ZIP oder der Server sie kleiner rechnet. Das Testvideo kodiert dein Browser selbst (WebCodecs): mit Farbbalken, laufender Uhr, Bildnummer und einem Piepton pro Sekunde. So siehst du sofort, ob Bild und Ton zusammenpassen."
+      },
+      "compare": {
+        "title": "Vergleichen",
+        "teaser": "Leg zwei Dateien nebeneinander und sieh genau, was sich unterscheidet.",
+        "how": "Zuerst vergleicht Conbert die beiden Dateien Byte für Byte, also jedes einzelne Zeichen der Rohdaten. Sind alle gleich, sind die Dateien identisch, egal wie sie heißen. Unterscheiden sie sich, schaut Conbert genauer hin. Bei Texten sucht es (wie das Programm „diff“) die kleinste Zahl an Zeilen, die man löschen und hinzufügen muss, um aus Datei A Datei B zu machen. Bei Bildern vergleicht es jedes Pixel und färbt veränderte Stellen rot; eine Toleranz blendet winziges JPEG-Rauschen aus. Bei allen anderen Dateien siehst du, an welcher Stelle (Offset) welche Bytes anders sind. Alles passiert auf deinem Gerät."
       }
     },
     "identify": {
@@ -5575,6 +5580,46 @@
       "videoFailed": "Dein Browser konnte das Video nicht erzeugen. Wahrscheinlich kann er dieses Format nicht kodieren – probier das andere Format (MP4/WebM) oder einen aktuellen Chrome, Edge oder Firefox.",
       "pdfTitle": "Conbert Testseite",
       "pagesWord": "Seiten"
+    },
+    "compare": {
+      "fileA": "Datei A",
+      "fileB": "Datei B",
+      "swap": "A und B tauschen",
+      "comparing": "Vergleiche … {{percent}} %",
+      "identical": "Die Dateien sind identisch – jedes Byte ist gleich.",
+      "different": "Die Dateien unterscheiden sich.",
+      "sameSize_one": "Beide {{size}} groß, aber {{count}} Byte ist anders (erste Abweichung bei Byte {{first}}).",
+      "sameSize_other": "Beide {{size}} groß, aber {{count}} Bytes sind anders (erste Abweichung bei Byte {{first}}).",
+      "otherSize": "Unterschiedlich groß: A hat {{a}}, B hat {{b}}. Erste Abweichung bei Byte {{first}}.",
+      "added_one": "{{count}} Zeile hinzugefügt",
+      "added_other": "{{count}} Zeilen hinzugefügt",
+      "removed_one": "{{count}} Zeile entfernt",
+      "removed_other": "{{count}} Zeilen entfernt",
+      "unchanged_one": "{{count}} Zeile gleich",
+      "unchanged_other": "{{count}} Zeilen gleich",
+      "skipped_one": "… {{count}} gleiche Zeile …",
+      "skipped_other": "… {{count}} gleiche Zeilen …",
+      "srAdded": "hinzugefügt:",
+      "srRemoved": "entfernt:",
+      "moreRows_one": "{{count}} weitere Zeile wird nicht angezeigt.",
+      "moreRows_other": "{{count}} weitere Zeilen werden nicht angezeigt.",
+      "tooDifferent": "Die Texte unterscheiden sich so stark, dass eine Zeilen-Gegenüberstellung nicht mehr hilft (über 20 000 geänderte Zeilen).",
+      "resized": "Die Bilder sind unterschiedlich groß. Bild B wurde für den Vergleich auf die Größe von Bild A gebracht – dadurch können überall kleine Unterschiede auftauchen.",
+      "pixelsSame": "Die Pixel sind gleich (innerhalb der Toleranz) – die Dateien unterscheiden sich nur in der Speicherung, z. B. Kompression oder Metadaten.",
+      "pixelsChanged_one": "{{percent}} % der Pixel sind anders ({{count}} Pixel).",
+      "pixelsChanged_other": "{{percent}} % der Pixel sind anders ({{count}} Pixel).",
+      "slider": "Schieberegler",
+      "mask": "Unterschiede",
+      "side": "Nebeneinander",
+      "sliderLabel": "Trennlinie zwischen Bild A (links) und Bild B (rechts)",
+      "sliderHint": "Links von der Linie siehst du Bild A, rechts Bild B.",
+      "maskLabel": "Unterschiede: veränderte Pixel sind rot markiert",
+      "tolerance": "Toleranz",
+      "toleranceHelp": "Wie stark sich ein Pixel unterscheiden muss, damit es als „anders“ zählt (0–128). 0 zeigt jede Kleinigkeit, auch unsichtbares Rauschen nach JPEG-Speichern. Höher = nur deutliche Änderungen.",
+      "ranges": "Wo sich die Bytes unterscheiden",
+      "offset": "Stelle (Offset)",
+      "length": "Länge",
+      "moreRanges": "Es gibt noch weitere Abweichungen – hier stehen nur die ersten 50."
     }
   },
   "feeds": {

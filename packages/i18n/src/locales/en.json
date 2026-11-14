@@ -4100,6 +4100,11 @@
         "title": "Test files",
         "teaser": "Make files of exactly the size you need – or a test picture, test tone, test PDF and test video.",
         "how": "Sometimes you just need a file to try something out: does the upload work up to 100 MB? Does a 2 GB movie really arrive on the NAS? Does the TV play 1080p videos? Conbert makes such files right on your device, nothing is uploaded. Files of a fixed size are filled with zeros, random data or lines of text. Random data can't be compressed, so you test real transfers without a ZIP or the server making them smaller. Your browser encodes the test video itself (WebCodecs): colour bars, a running clock, the frame number and one beep per second – so you see right away whether picture and sound stay in sync."
+      },
+      "compare": {
+        "title": "Compare",
+        "teaser": "Put two files side by side and see exactly what is different.",
+        "how": "First Conbert compares the two files byte by byte – every single character of the raw data. If all are the same, the files are identical, whatever their names. If they differ, Conbert looks closer. For text it finds (like the “diff” program) the smallest number of lines to delete and add to turn file A into file B. For pictures it compares every pixel and colours changed spots red; a tolerance hides tiny JPEG noise. For all other files you see where (offset) which bytes are different. Everything happens on your device."
       }
     },
     "identify": {
@@ -5575,6 +5580,46 @@
       "videoFailed": "Your browser couldn't make the video. Most likely it can't encode this format – try the other format (MP4/WebM) or a current Chrome, Edge or Firefox.",
       "pdfTitle": "Conbert test page",
       "pagesWord": "pages"
+    },
+    "compare": {
+      "fileA": "File A",
+      "fileB": "File B",
+      "swap": "Swap A and B",
+      "comparing": "Comparing … {{percent}} %",
+      "identical": "The files are identical – every byte is the same.",
+      "different": "The files are different.",
+      "sameSize_one": "Both are {{size}}, but {{count}} byte is different (first difference at byte {{first}}).",
+      "sameSize_other": "Both are {{size}}, but {{count}} bytes are different (first difference at byte {{first}}).",
+      "otherSize": "Different sizes: A is {{a}}, B is {{b}}. First difference at byte {{first}}.",
+      "added_one": "{{count}} line added",
+      "added_other": "{{count}} lines added",
+      "removed_one": "{{count}} line removed",
+      "removed_other": "{{count}} lines removed",
+      "unchanged_one": "{{count}} line unchanged",
+      "unchanged_other": "{{count}} lines unchanged",
+      "skipped_one": "… {{count}} unchanged line …",
+      "skipped_other": "… {{count}} unchanged lines …",
+      "srAdded": "added:",
+      "srRemoved": "removed:",
+      "moreRows_one": "{{count}} more line isn't shown.",
+      "moreRows_other": "{{count}} more lines aren't shown.",
+      "tooDifferent": "The texts are so different that a line-by-line view doesn't help any more (over 20,000 changed lines).",
+      "resized": "The pictures have different sizes. Picture B was scaled to the size of picture A for the comparison – so small differences may show up everywhere.",
+      "pixelsSame": "The pixels are the same (within the tolerance) – the files only differ in how they are stored, e.g. compression or metadata.",
+      "pixelsChanged_one": "{{percent}} % of the pixels are different ({{count}} pixel).",
+      "pixelsChanged_other": "{{percent}} % of the pixels are different ({{count}} pixels).",
+      "slider": "Slider",
+      "mask": "Differences",
+      "side": "Side by side",
+      "sliderLabel": "Dividing line between picture A (left) and picture B (right)",
+      "sliderHint": "Left of the line you see picture A, right of it picture B.",
+      "maskLabel": "Differences: changed pixels are marked red",
+      "tolerance": "Tolerance",
+      "toleranceHelp": "How much a pixel has to differ to count as “different” (0–128). 0 shows every little thing, even invisible noise after saving as JPEG. Higher = only clear changes.",
+      "ranges": "Where the bytes differ",
+      "offset": "Position (offset)",
+      "length": "Length",
+      "moreRanges": "There are more differences – only the first 50 are listed here."
     }
   },
   "feeds": {

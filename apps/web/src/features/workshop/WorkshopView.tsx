@@ -5,6 +5,7 @@ import {
   SmileIcon,
   SplitIcon,
   TestTubeIcon,
+  DiffIcon,
   ArrowLeftIcon,
   AudioLinesIcon,
   BinaryIcon,
@@ -55,6 +56,7 @@ import { RepairTool } from './repair/RepairTool';
 import { RingtoneTool } from './ringtone/RingtoneTool';
 import { SplitTool } from './split/SplitTool';
 import { TestFilesTool } from './testfiles/TestFilesTool';
+import { CompareTool } from './compare/CompareTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
 import { StegoTool } from './stego/StegoTool';
 import { TreasureTool } from './treasure/TreasureTool';
@@ -87,6 +89,7 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   ringtone: RingtoneTool,
   split: SplitTool,
   testfiles: TestFilesTool,
+  compare: CompareTool,
 };
 
 const ICONS: Record<string, LucideIcon> = {
@@ -119,6 +122,7 @@ const ICONS: Record<string, LucideIcon> = {
   ringtone: BellRingIcon,
   split: SplitIcon,
   testfiles: TestTubeIcon,
+  compare: DiffIcon,
 };
 
 /** The FileWizard workshop: an overview of the tricks, or the open trick. */

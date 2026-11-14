@@ -27,6 +27,7 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 | **Hex-Viewer** | Virtualisierte Hex-/ASCII-Ansicht auch für große Dateien, Header-Strukturen farbig markiert und erklärt (PNG-Chunks, ZIP-Einträge, JPEG-Marker). |
 | **Hashes & Prüfsummen** | MD5, SHA-1, SHA-256, SHA-512, CRC32, BLAKE3; Vergleich mit eingefügtem Hash („✅ Datei ist unverändert“). |
 | **Datei-Entropie** | Grafik, wie „zufällig“ die Datei ist – erklärt, warum komprimierte/verschlüsselte Daten nicht weiter schrumpfen. |
+| **Vergleichen** (ergänzt 2026-11-14) | Zwei Dateien: erst Byte für Byte (identisch? erste Abweichung, Anzahl), dann je nach Art: Texte als Zeilen-Diff (Myers, gleiche Abschnitte eingeklappt, bis 10 MB), Bilder mit Schieberegler, Unterschiedsmaske mit Toleranz und Nebeneinander (andere Größe → B wird skaliert, mit Hinweis), sonst Liste der abweichenden Stellen mit Hex-Ausschnitt. Alles im Browser. |
 
 **Schutz, Prüfen & Reparieren** (ergänzt 2026-10-30 auf Wunsch des Nutzers)
 | Trick | Beschreibung |
