@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  audioCuts,
-  bytesToWav,
-  decodeMorseAudio,
-  morseAudio,
-} from './audio-forensics';
+import { audioCuts, bytesToWav, decodeMorseAudio, morseAudio } from './audio-forensics';
 import { fromMorse, toMorse } from './ciphers';
 import { parseWav } from './wav';
 
@@ -70,6 +65,24 @@ describe('Morse', () => {
     expect(fromMorse('... --- ... / .... ..')).toBe('SOS HI');
     expect(fromMorse('·· ___')).toBe('IO');
     expect(fromMorse('...---.-.-.-.-')).toBe('?');
+  });
+
+  it('reads a microphone-like recording: echo, noise, hum, changing volume', () => {
+    const rate = 48_000;
+    const clean = morseAudio(toMorse('SOS 73 DL'), rate, 16, 800);
+    const rec = new Float32Array(clean.length + rate);
+    // Room echo: a decaying copy of the sound (about 60 ms).
+    let tail = 0;
+    for (let i = 0; i < rec.length; i++) {
+      const dry = clean[i] ?? 0;
+      tail = tail * Math.exp(-1 / (0.06 * rate)) + dry * 0.02;
+      const gain = 0.4 + 0.3 * Math.sin(i / rate); // automatic volume control
+      rec[i] =
+        gain * (dry + 0.5 * Math.sin((2 * Math.PI * 800 * i) / rate) * Math.abs(tail)) +
+        0.08 * noise() +
+        0.15 * Math.sin((2 * Math.PI * 50 * i) / rate);
+    }
+    expect(decodeMorseAudio(rec, rate).text).toBe('SOS 73 DL');
   });
 
   it('reads its own sound back, also with noise', () => {

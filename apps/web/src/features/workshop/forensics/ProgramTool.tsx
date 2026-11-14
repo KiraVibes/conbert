@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2Icon } from 'lucide-react';
+import { libraryKind } from '@conbert/core';
 import { formatBytes } from '@/lib/format-bytes';
+import { cn } from '@/lib/utils';
 import { HowItWorks, SingleFile } from '../SingleFile';
 import { withForensics } from './forensics-worker';
 import { useFileJob } from './use-file-job';
@@ -94,11 +96,36 @@ export function ProgramTool() {
                 )}
               </p>
             ) : (
-              <ul className="list-disc space-y-1 pl-5 text-sm">
-                {result.abilities.map((a) => (
-                  <li key={a}>{t(`workshop.program.ability.${a}`)}</li>
-                ))}
-              </ul>
+              (['notable', 'common'] as const).map((level) => {
+                const hits = result.abilities.filter((a) => a.level === level);
+                if (hits.length === 0) return null;
+                return (
+                  <div key={level} className="space-y-1">
+                    <p className="text-sm font-medium">{t(`workshop.program.level.${level}`)}</p>
+                    <ul className="space-y-2 text-sm">
+                      {hits.map((a) => (
+                        <li
+                          key={a.ability}
+                          className={cn(
+                            'rounded-lg border p-2',
+                            level === 'notable' && 'border-amber-500/40 bg-amber-500/5',
+                          )}
+                        >
+                          <p className="font-medium">
+                            {t(`workshop.program.ability.${a.ability}`)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t(`workshop.program.abilityWhy.${a.ability}`)}
+                          </p>
+                          <p className="mt-1 font-mono text-xs break-words">
+                            {t('workshop.program.seenAt', { functions: a.functions.join(', ') })}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })
             )}
             <p className="text-xs text-muted-foreground">{t('workshop.program.abilitiesHint')}</p>
           </section>
@@ -110,7 +137,14 @@ export function ProgramTool() {
               <ul className="mt-2 space-y-2 text-sm">
                 {result.imports.map((imp, i) => (
                   <li key={i}>
-                    <p className="font-mono">{imp.library}</p>
+                    <p className="font-mono">
+                      {imp.library || t('workshop.program.unknownLibrary')}
+                    </p>
+                    {libraryKind(imp.library) && (
+                      <p className="text-xs">
+                        {t(`workshop.program.libs.${libraryKind(imp.library)}`)}
+                      </p>
+                    )}
                     {imp.functions.length > 0 && (
                       <p className="font-mono text-xs break-words text-muted-foreground">
                         {imp.functions.slice(0, 400).join(', ')}

@@ -55,31 +55,152 @@ export interface ProgramInfo {
   packed: string | null;
   sections: ProgramSection[];
   imports: ProgramImport[];
-  abilities: ProgramAbility[];
+  abilities: ProgramAbilityHit[];
 }
 
-const ABILITY_FUNCTIONS: [ProgramAbility, RegExp][] = [
-  ['keyboard', /^(SetWindowsHookEx|GetAsyncKeyState|GetKeyboardState|RegisterRawInputDevices)/],
-  ['inject', /^(WriteProcessMemory|CreateRemoteThread|VirtualAllocEx|NtMapViewOfSection|QueueUserAPC|SetThreadContext)/],
-  ['internet', /^(InternetOpen|WinHttpOpen|HttpSendRequest|WSAStartup|connect$|socket$|getaddrinfo$|curl_easy)/],
-  ['download', /^(URLDownloadToFile|InternetReadFile|WinHttpReadData|BITS)/],
-  ['registry', /^(RegSetValue|RegCreateKey|RegDeleteKey|RegDeleteValue)/],
-  ['screen', /^(BitBlt|GetDC$|GetWindowDC|CGWindowListCreateImage|CGDisplayCreateImage)/],
-  ['crypto', /^(CryptEncrypt|CryptDecrypt|BCryptEncrypt|BCryptDecrypt|EVP_Encrypt|CCCrypt)/],
-  ['process', /^(CreateProcess|ShellExecute|WinExec|execve$|system$|posix_spawn)/],
-  ['services', /^(CreateService|StartService|ChangeServiceConfig)/],
-  ['debugger', /^(IsDebuggerPresent|CheckRemoteDebuggerPresent|NtQueryInformationProcess|ptrace$)/],
-  ['clipboard', /^(GetClipboardData|SetClipboardData|OpenClipboard)/],
-  ['microphone', /^(waveInOpen|mciSendString|AudioQueueNewInput)/],
+/** Unusual abilities are worth a look, common ones nearly every program has. */
+export const ABILITY_LEVEL: Record<ProgramAbility, 'notable' | 'common'> = {
+  keyboard: 'notable',
+  inject: 'notable',
+  screen: 'notable',
+  debugger: 'notable',
+  microphone: 'notable',
+  internet: 'common',
+  download: 'common',
+  registry: 'common',
+  crypto: 'common',
+  process: 'common',
+  services: 'common',
+  clipboard: 'common',
+};
+
+interface AbilityRule {
+  ability: ProgramAbility;
+  /** Functions that show the ability … */
+  any: RegExp;
+  /** … but only together with one of these (when set). */
+  also?: RegExp;
+}
+
+/*
+ * Deliberately left out because (nearly) every program has them:
+ * GetDC/BitBlt alone (every window draws itself so), IsDebuggerPresent (part
+ * of the C++ start-up code), GetAsyncKeyState (games read keys so),
+ * NtQueryInformationProcess, QueueUserAPC, NtMapViewOfSection (system tools).
+ */
+const ABILITY_RULES: AbilityRule[] = [
+  { ability: 'keyboard', any: /^SetWindowsHookEx/ },
+  { ability: 'inject', any: /^(WriteProcessMemory|CreateRemoteThread|VirtualAllocEx|SetThreadContext|NtWriteVirtualMemory)/ },
+  { ability: 'screen', any: /^(BitBlt|StretchBlt|PrintWindow)$/, also: /^GetDesktopWindow$/ },
+  { ability: 'screen', any: /^(CGWindowListCreateImage|CGDisplayCreateImage)/ },
+  { ability: 'debugger', any: /^(CheckRemoteDebuggerPresent|ptrace)$/ },
+  { ability: 'microphone', any: /^(waveInOpen|AudioQueueNewInput)/ },
+  { ability: 'internet', any: /^(InternetOpen|WinHttpOpen|HttpSendRequest|WSAStartup|connect|socket|getaddrinfo|curl_easy\w*)$|^(InternetOpen|WinHttpOpen|HttpSendRequest)/ },
+  { ability: 'download', any: /^(URLDownloadToFile|InternetReadFile|WinHttpReadData)/ },
+  { ability: 'registry', any: /^(RegSetValue|RegCreateKey|RegDeleteKey|RegDeleteValue)/ },
+  { ability: 'crypto', any: /^(CryptEncrypt|CryptDecrypt|BCryptEncrypt|BCryptDecrypt|EVP_Encrypt\w*|CCCrypt)/ },
+  { ability: 'process', any: /^(CreateProcess|ShellExecute|WinExec)|^(execve|system|posix_spawn)$/ },
+  { ability: 'services', any: /^(CreateService|StartService|ChangeServiceConfig)/ },
+  { ability: 'clipboard', any: /^(GetClipboardData|SetClipboardData)$/ },
 ]; // prettier-ignore
 
-function abilitiesOf(imports: readonly ProgramImport[]): ProgramAbility[] {
-  const found = new Set<ProgramAbility>();
-  for (const imp of imports)
-    for (const fn of imp.functions)
-      for (const [ability, re] of ABILITY_FUNCTIONS) if (re.test(fn)) found.add(ability);
-  return PROGRAM_ABILITIES.filter((a) => found.has(a));
+export interface ProgramAbilityHit {
+  ability: ProgramAbility;
+  level: 'notable' | 'common';
+  /** The functions it was read from, "Name (LIBRARY)". */
+  functions: string[];
 }
+
+/** Abilities read from imports (exported for tests and other readers). */
+export function abilitiesFor(imports: readonly ProgramImport[]): ProgramAbilityHit[] {
+  const all = imports.flatMap((imp) =>
+    imp.functions.map((name) => ({ name, library: imp.library })),
+  );
+  const hits = new Map<ProgramAbility, string[]>();
+  for (const rule of ABILITY_RULES) {
+    if (rule.also && !all.some((f) => rule.also?.test(f.name))) continue;
+    const found = all.filter((f) => rule.any.test(f.name));
+    if (found.length === 0) continue;
+    const list = hits.get(rule.ability) ?? [];
+    for (const f of found) {
+      const label = f.library ? `${f.name} (${f.library})` : f.name;
+      if (!list.includes(label)) list.push(label);
+    }
+    if (rule.also) {
+      const extra = all.find((f) => rule.also?.test(f.name));
+      if (extra) list.push(extra.library ? `${extra.name} (${extra.library})` : extra.name);
+    }
+    hits.set(rule.ability, list);
+  }
+  return PROGRAM_ABILITIES.filter((a) => hits.has(a)).map((ability) => ({
+    ability,
+    level: ABILITY_LEVEL[ability],
+    functions: (hits.get(ability) ?? []).slice(0, 6),
+  }));
+}
+
+/** Plain-language groups of well-known libraries (text key under workshop.program.libs). */
+const LIBRARY_KINDS: [RegExp, string][] = [
+  [
+    /^api-ms-win-crt-|^(msvc[rp]\d*|vcruntime\d*|ucrtbase|libgcc|libstdc\+\+|libc\+\+|msvcrt)/,
+    'runtime',
+  ],
+  [/^api-ms-win-|^ext-ms-win-/, 'apiset'],
+  [/^(kernel32|kernelbase)\./, 'kernel'],
+  [/^ntdll\./, 'ntdll'],
+  [/^user32\./, 'user'],
+  [/^(gdi32|gdiplus|msimg32)\./, 'gdi'],
+  [/^advapi32\./, 'advapi'],
+  [/^(shell32|shlwapi|shcore|propsys)\./, 'shell'],
+  [/^(ole32|oleaut32|combase|olepro32|rpcrt4)\./, 'com'],
+  [/^(comctl32|uxtheme|dwmapi|dui70|duser)\./, 'controls'],
+  [/^comdlg32\./, 'dialogs'],
+  [/^(ws2_32|wsock32|mswsock)\./, 'sockets'],
+  [/^(wininet|winhttp)\./, 'http'],
+  [/^urlmon\./, 'urlmon'],
+  [/^(crypt32|bcrypt|ncrypt|wintrust|cryptbase)\./, 'crypto'],
+  [/^(secur32|sspicli)\./, 'security'],
+  [/^version\./, 'version'],
+  [/^(winmm|dsound|avrt|mmdevapi|xaudio2_\d+)\./, 'sound'],
+  [/^(d3d\w*|dxgi|dxcore|ddraw|opengl32|vulkan-1|d2d1|dwrite)\./, 'graphics'],
+  [/^mscms\./, 'colors'],
+  [/^wldap32\./, 'ldap'],
+  [/^uiautomationcore\./, 'automation'],
+  [/^credui\./, 'credentials'],
+  [/^(msys-2\.0|cygwin1)\./, 'unixlayer'],
+  [/^(setupapi|cfgmgr32|hid|newdev|devobj)\./, 'devices'],
+  [/^psapi\./, 'psapi'],
+  [/^(iphlpapi|dnsapi|netapi32|wlanapi|nsi)\./, 'network'],
+  [/^powrprof\./, 'power'],
+  [/^dbghelp\./, 'dbghelp'],
+  [/^winspool\./, 'print'],
+  [/^imm32\./, 'ime'],
+  [/^mscoree\./, 'dotnet'],
+  [/^wtsapi32\./, 'sessions'],
+  [/^userenv\./, 'userenv'],
+  [/^(wbemuuid|wbemprox|wmi)/, 'wmi'],
+  [/^pdh\./, 'pdh'],
+  [/^(libc|libm|libdl|libpthread|librt)\.so/, 'libc'],
+  [/^(libssl|libcrypto)\.so/, 'openssl'],
+  [/^(libx11|libxcb|libwayland|libgtk|libqt|libgdk)/, 'gui'],
+  [/^(libgl|libegl|libvulkan)\.so/, 'graphics'],
+  [/^libz\.so/, 'zlib'],
+  [/libsystem\.b\.dylib$/, 'macsystem'],
+  [
+    /\/(foundation|appkit|cocoa|corefoundation|coregraphics|security|iokit)\.framework\//,
+    'macframework',
+  ],
+];
+
+/** What a library is for, as a text key – or null for unknown ones. */
+export function libraryKind(name: string): string | null {
+  const full = name.toLowerCase();
+  const base = full.split(/[\\/]/).pop() ?? '';
+  for (const [re, key] of LIBRARY_KINDS) if (re.test(base) || re.test(full)) return key;
+  return null;
+}
+
+export const LIBRARY_KINDS_KEYS: readonly string[] = [...new Set(LIBRARY_KINDS.map(([, k]) => k))];
 
 const cstr = (b: Uint8Array, at: number, max = 256): string => {
   let s = '';
@@ -215,7 +336,7 @@ function readPe(b: Uint8Array): ProgramInfo | null {
     packed: packerOf(sections),
     sections,
     imports,
-    abilities: abilitiesOf(imports),
+    abilities: abilitiesFor(imports),
   };
 }
 
@@ -297,10 +418,12 @@ function readElf(b: Uint8Array): ProgramInfo | null {
       }
     }
   }
-  const imports =
-    libraries.length > 0 || functions.length > 0
-      ? [{ library: libraries.join(', ') || '?', functions }]
-      : [];
+  // ELF doesn't say which library a function comes from: libraries are
+  // listed on their own, the functions under an empty name.
+  const imports: ProgramImport[] = [
+    ...libraries.map((library) => ({ library, functions: [] })),
+    ...(functions.length > 0 ? [{ library: '', functions }] : []),
+  ];
   const kind: ProgramKind =
     type === 3
       ? headers.some((s) => s.type === 6) && sections.some((s) => s.name === '.interp')
@@ -323,7 +446,7 @@ function readElf(b: Uint8Array): ProgramInfo | null {
     packed: packerOf(sections),
     sections,
     imports,
-    abilities: abilitiesOf(imports),
+    abilities: abilitiesFor(imports),
   };
 }
 

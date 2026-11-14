@@ -227,53 +227,91 @@ export function morseAudio(code: string, rate: number, wpm = 18, freq = 650): Fl
 }
 
 /**
- * Reads Morse from a recording: the tone's loudness over time, on/off
- * lengths, then dots vs dashes and the kinds of gaps by their lengths.
+ * Reads Morse from a recording (also through a microphone): first the beep's
+ * pitch is found (the strongest tone between 300 and 1500 Hz), then only
+ * that pitch is followed – room noise, voices and hum don't count. On and
+ * off are told apart in decibels with a little hysteresis, so echo tails
+ * don't swallow the gaps; dots and dashes are told apart by their lengths.
  */
 export function decodeMorseAudio(
   samples: Float32Array,
   rate: number,
 ): { code: string; text: string } {
-  const hop = Math.max(1, Math.round(rate * 0.005));
-  const env: number[] = [];
-  for (let i = 0; i + hop <= samples.length; i += hop) {
+  const none = { code: '', text: '' };
+  // About 8000 samples per second are plenty for a beep up to 1500 Hz.
+  const factor = Math.max(1, Math.floor(rate / 8000));
+  const sr = rate / factor;
+  const x = new Float32Array(Math.floor(samples.length / factor));
+  for (let i = 0; i < x.length; i++) {
     let s = 0;
-    for (let k = i; k < i + hop; k++) s += Math.abs(samples[k] ?? 0);
-    env.push(s / hop);
+    for (let k = 0; k < factor; k++) s += samples[i * factor + k] ?? 0;
+    x[i] = s / factor;
   }
-  if (env.length === 0) return { code: '', text: '' };
+  const frame = Math.round(sr * 0.02);
+  if (x.length < frame * 5) return none;
+  // The beep's pitch: the loudest frequency summed over all frames.
+  let best = 0;
+  let pitch = 0;
+  for (let f = 300; f <= 1500; f += 10) {
+    let sum = 0;
+    for (let i = 0; i + frame <= x.length; i += frame) sum += goertzel(x, i, i + frame, f, sr);
+    if (sum > best) {
+      best = sum;
+      pitch = f;
+    }
+  }
+  // Loudness of that pitch every 5 ms (window 15 ms), in dB.
+  const hop = Math.max(1, Math.round(sr * 0.005));
+  const win = hop * 3;
+  const env: number[] = [];
+  for (let i = 0; i + win <= x.length; i += hop) env.push(db(goertzel(x, i, i + win, pitch, sr)));
   const sorted = [...env].sort((a, b) => a - b);
-  const low = sorted[Math.floor(sorted.length * 0.2)] ?? 0;
+  const low = sorted[Math.floor(sorted.length * 0.1)] ?? 0;
   const high = sorted[Math.floor(sorted.length * 0.95)] ?? 0;
-  if (high < low * 3 || high < 0.01) return { code: '', text: '' };
-  const threshold = (low + high) / 2;
-  // Runs of on/off, in hops – very short blips are noise.
+  if (high - low < 8) return none;
+  const mid = (low + high) / 2;
+  const band = (high - low) * 0.08;
+  // On/off with hysteresis: a wobbling level doesn't flicker.
   const runs: { on: boolean; len: number }[] = [];
+  let on = false;
   for (const v of env) {
-    const on = v > threshold;
+    if (!on && v > mid + band) on = true;
+    else if (on && v < mid - band) on = false;
     const last = runs.at(-1);
     if (last && last.on === on) last.len++;
     else runs.push({ on, len: 1 });
   }
-  const clean = runs.filter((r, i) => r.len > 2 || i === 0 || i === runs.length - 1);
+  // Blips under 15 ms are noise: they join their neighbours.
   const merged: { on: boolean; len: number }[] = [];
-  for (const r of clean) {
+  for (const r of runs) {
     const last = merged.at(-1);
-    if (last && last.on === r.on) last.len += r.len;
+    if (last && (last.on === r.on || r.len < 3)) last.len += r.len;
     else merged.push({ ...r });
   }
   while (merged[0] && !merged[0].on) merged.shift();
   while (merged.at(-1) && !merged.at(-1)?.on) merged.pop();
   const ons = merged.filter((r) => r.on).map((r) => r.len);
-  if (ons.length === 0) return { code: '', text: '' };
-  // Dot length: the shorter group of tone lengths.
-  const shortest = Math.min(...ons);
-  const longest = Math.max(...ons);
-  const unit =
-    longest > shortest * 2
-      ? ons.filter((l) => l < (shortest + longest) / 2).reduce((a, b) => a + b, 0) /
-        Math.max(1, ons.filter((l) => l < (shortest + longest) / 2).length)
-      : shortest;
+  if (ons.length === 0) return none;
+  const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)] ?? 1;
+  // Dots and dashes: split the tone lengths at the biggest jump between them.
+  const lengths = [...ons].sort((a, b) => a - b);
+  let split = -1;
+  let ratio = 1;
+  for (let i = 1; i < lengths.length; i++) {
+    const r = (lengths[i] ?? 1) / Math.max(1, lengths[i - 1] ?? 1);
+    if (r > ratio) {
+      ratio = r;
+      split = i;
+    }
+  }
+  let unit: number;
+  if (ratio > 1.7 && split > 0) unit = median(lengths.slice(0, split));
+  else {
+    // Only one kind of tone: the gaps tell whether they are dots or dashes.
+    const gaps = merged.filter((r) => !r.on).map((r) => r.len);
+    const shortGap = gaps.length ? Math.min(...gaps) : median(ons);
+    unit = median(ons) > shortGap * 2 ? median(ons) / 3 : median(ons);
+  }
   let code = '';
   for (const r of merged) {
     if (r.on) code += r.len > unit * 2 ? '-' : '.';

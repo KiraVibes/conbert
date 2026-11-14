@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { zipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
 import { dangerCheck } from './danger';
-import { inspectProgram } from './program';
+import { abilitiesFor, inspectProgram, libraryKind } from './program';
 import { bytesReader } from './reader';
 import { classifyString, findStrings } from './strings';
 
@@ -59,7 +59,9 @@ describe('program inspector', () => {
     });
     expect(info?.built?.startsWith('2021-06-01')).toBe(true);
     expect(info?.imports).toEqual([{ library: 'KERNEL32.dll', functions: ['CreateRemoteThread'] }]);
-    expect(info?.abilities).toEqual(['inject']);
+    expect(info?.abilities).toEqual([
+      { ability: 'inject', level: 'notable', functions: ['CreateRemoteThread (KERNEL32.dll)'] },
+    ]);
   });
 
   it('reads the real program running this test', () => {
@@ -68,6 +70,33 @@ describe('program inspector', () => {
       process.platform === 'win32' ? 'pe' : process.platform === 'darwin' ? 'macho' : 'elf',
     );
     expect(info?.sections.length).toBeGreaterThan(2);
+  });
+
+  it('does not call every window program a screen grabber', () => {
+    const imports = (names: string[]) => [{ library: 'USER32.dll', functions: names }];
+    // Drawing a window: GetDC + BitBlt – normal.
+    expect(
+      abilitiesFor(imports(['GetDC', 'BitBlt', 'IsDebuggerPresent', 'GetAsyncKeyState'])),
+    ).toEqual([]);
+    // Copying the whole screen: the desktop window + BitBlt.
+    expect(abilitiesFor(imports(['GetDesktopWindow', 'BitBlt']))).toEqual([
+      {
+        ability: 'screen',
+        level: 'notable',
+        functions: ['BitBlt (USER32.dll)', 'GetDesktopWindow (USER32.dll)'],
+      },
+    ]);
+  });
+
+  it('explains well-known libraries', () => {
+    expect(libraryKind('KERNEL32.dll')).toBe('kernel');
+    expect(libraryKind('api-ms-win-crt-runtime-l1-1-0.dll')).toBe('runtime');
+    expect(libraryKind('api-ms-win-core-synch-l1-2-0.dll')).toBe('apiset');
+    expect(libraryKind('libc.so.6')).toBe('libc');
+    expect(libraryKind('/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit')).toBe(
+      'macframework',
+    );
+    expect(libraryKind('nvcuda.dll')).toBeNull();
   });
 
   it('says nothing about other files', () => {

@@ -222,7 +222,11 @@ function ListenMorse() {
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Speech filters (noise suppression, echo cancelling, automatic volume)
+      // treat a steady beep as noise and fade it out – switch them off.
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { noiseSuppression: false, echoCancellation: false, autoGainControl: false },
+      });
       const rec = new MediaRecorder(stream);
       const parts: Blob[] = [];
       rec.ondataavailable = (e) => parts.push(e.data);
