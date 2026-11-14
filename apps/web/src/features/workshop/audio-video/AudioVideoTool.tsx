@@ -4,12 +4,12 @@ import { DownloadIcon, Loader2Icon, SquareIcon, VideoIcon } from 'lucide-react';
 import {
   ConversionError,
   VISUALIZER_COLORS,
+  liftForDark,
   VISUALIZER_COVER_TYPES,
   VISUALIZER_INPUTS,
   VISUALIZER_SIZES,
   VISUALIZER_STYLES,
   isAbortError,
-  type VisualizerColor,
   type VisualizerSize,
   type VisualizerStyle,
 } from '@conbert/core';
@@ -29,8 +29,10 @@ import { formatBytes } from '@/lib/format-bytes';
 import { saveBlob } from '@/lib/zip';
 import { extOf } from '../audio-convert';
 import { HowItWorks, SingleFile } from '../SingleFile';
-import { lyricsFileOk, type LyricsChoice } from './lyrics';
+import { ColorPicker } from './ColorPicker';
+import { lyricsFileOk, swatchHex, useCoverPalette, type LyricsChoice } from './lyrics';
 import { LyricsSection } from './LyricsSection';
+import { TextStyleSection, type TextStyle } from './TextStyleSection';
 
 const CONTAINERS = ['mp4', 'webm'] as const;
 type Container = (typeof CONTAINERS)[number];
@@ -78,7 +80,12 @@ export function AudioVideoTool() {
   const [cover, setCover] = useState<File | null>(null);
   const [style, setStyle] = useState<VisualizerStyle>('wave');
   const [size, setSize] = useState<VisualizerSize>('landscape720');
-  const [color, setColor] = useState<VisualizerColor>('violet');
+  const [color, setColor] = useState<string>('violet');
+  const [textStyle, setTextStyle] = useState<TextStyle>({
+    font: 'sans',
+    color: 'white',
+    size: 'medium',
+  });
   const [container, setContainer] = useState<Container>('mp4');
   const [lyrics, setLyrics] = useState<LyricsChoice>({
     source: 'none',
@@ -95,6 +102,8 @@ export function AudioVideoTool() {
   const url = useMemo(() => (result ? URL.createObjectURL(result.blob) : null), [result]);
   useEffect(() => () => (url ? URL.revokeObjectURL(url) : undefined), [url]);
 
+  const coverColors = useCoverPalette(cover);
+  const waveColor = liftForDark(swatchHex(color) ?? coverColors[0] ?? '#a78bfa');
   const soundExt = sound ? extOf(sound.name) : '';
   const soundOk = !sound || VISUALIZER_INPUTS.includes(soundExt);
   const coverOk = !cover || VISUALIZER_COVER_TYPES.includes(extOf(cover.name));
@@ -119,6 +128,11 @@ export function AudioVideoTool() {
           vizLyrics: lyrics.source,
           ...(lyrics.source === 'file' && lyrics.file && { vizLyricsFile: lyrics.file }),
           ...(lyrics.source === 'auto' && { speechLanguage: lyrics.language }),
+          ...(lyrics.source !== 'none' && {
+            vizFont: textStyle.font,
+            vizTextColor: textStyle.color,
+            vizTextSize: textStyle.size,
+          }),
         },
         signal: abort.signal,
         onProgress: ({ percent, stage }) => setBusy({ percent, ...(stage && { stage }), abort }),
@@ -194,22 +208,34 @@ export function AudioVideoTool() {
         </div>
       </fieldset>
 
-      <LyricsSection value={lyrics} onChange={setLyrics} />
+      {style !== 'still' && (
+        <ColorPicker
+          id="viz-color"
+          option="vizColor"
+          value={color}
+          onChange={setColor}
+          named={VISUALIZER_COLORS}
+          coverColors={coverColors}
+        />
+      )}
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <LyricsSection value={lyrics} onChange={setLyrics} />
+      {lyrics.source !== 'none' && (
+        <TextStyleSection
+          value={textStyle}
+          onChange={setTextStyle}
+          waveColor={waveColor}
+          coverColors={coverColors}
+        />
+      )}
+
+      <div className="grid gap-3 sm:grid-cols-2">
         <OptionSelect
           id="viz-size"
           option="vizSize"
           value={size}
           values={VISUALIZER_SIZES}
           onChange={setSize}
-        />
-        <OptionSelect
-          id="viz-color"
-          option="vizColor"
-          value={color}
-          values={VISUALIZER_COLORS}
-          onChange={setColor}
         />
         <div className="space-y-2">
           <Label htmlFor="viz-container">{t('workshop.audiovideo.container')}</Label>

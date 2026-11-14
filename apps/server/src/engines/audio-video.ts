@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { copyFile, mkdir, open, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import sharp from 'sharp';
 import {
   ConversionError,
   VISUALIZER_INPUTS,
@@ -8,6 +9,7 @@ import {
   VISUALIZER_OUTPUTS,
   abortError,
   buildVisualizerArgs,
+  coverPalette,
   lyricsAss,
   resolveVisualizer,
   getFormat,
@@ -54,9 +56,24 @@ async function coverType(file: string): Promise<string | null> {
  * SRT, VTT, ASS – the type is read from the content) or recognised with
  * Whisper. Null when no lyrics are wanted.
  */
+/** The cover's strongest colour (for the colour choice "cover"); null if it can't be read. */
+async function coverColorOf(cover: string): Promise<string | null> {
+  try {
+    const { data } = await sharp(cover)
+      .resize(64, 64, { fit: 'inside' })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    return coverPalette(new Uint8Array(data), 3, 1)[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function lyricsFile(
   req: ConvertRequest & { input: string; workDir: string },
   hasCover: boolean,
+  coverColor: string | null,
 ): Promise<string | null> {
   const { lyrics } = resolveVisualizer(req.options);
   if (lyrics === 'none') return null;
@@ -86,7 +103,7 @@ async function lyricsFile(
   const cues = parseSubtitles(text, subtitleFormatOf(text));
   if (cues.length === 0) throw new ConversionError('errors.lyricsEmpty', 'no timed lines found');
   const file = path.join(req.workDir, `${randomUUID()}.ass`);
-  await writeFile(file, lyricsAss(cues, req.options, hasCover));
+  await writeFile(file, lyricsAss(cues, req.options, hasCover, coverColor));
   return file;
 }
 
@@ -111,9 +128,11 @@ async function convert(req: ConvertRequest): Promise<string> {
   }
 
   req.onProgress?.({ percent: 1, stage: 'converting' });
+  const coverColor = cover ? await coverColorOf(cover) : null;
   const lyrics = await lyricsFile(
     { ...req, input: req.input, workDir: req.workDir },
     cover !== null,
+    coverColor,
   );
   // With recognised lyrics the video is the second half of the progress bar.
   const base = lyrics && resolveVisualizer(req.options).lyrics === 'auto' ? 50 : 0;
@@ -127,6 +146,7 @@ async function convert(req: ConvertRequest): Promise<string> {
     cover,
     duration,
     lyrics,
+    coverColor,
   });
   try {
     await runProcess(FFMPEG, args, {

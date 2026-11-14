@@ -744,13 +744,21 @@
     },
     "vizColor": {
       "label": "Colour",
-      "help": "The colour of the wave or bars. The spectrum always has its own colour gradient.",
+      "help": "The colour of the wave or bars. Pick one of the colours, a colour from your cover, or any colour of your own with the rainbow field. “From the cover” automatically takes the picture's strongest colour. Very dark colours are brightened a little so they show on the dark background. The spectrum always has its own colour gradient.",
       "choices": {
         "violet": "Violet",
         "white": "White",
         "cyan": "Turquoise",
         "orange": "Orange",
-        "green": "Green"
+        "green": "Green",
+        "red": "Red",
+        "pink": "Pink",
+        "yellow": "Yellow",
+        "blue": "Blue",
+        "teal": "Teal",
+        "gold": "Gold",
+        "silver": "Silver",
+        "cover": "From the cover"
       }
     },
     "vizLyrics": {
@@ -770,6 +778,50 @@
     "vizLyricsFile": {
       "label": "Lyrics file",
       "help": "A file with the song's words and times. Most common is LRC (lines like “[00:12.30]First line”) – many music players and lyrics sites offer it as “synced lyrics”. SRT, VTT and ASS work too. Plain text without times doesn't, because Conbert wouldn't know when which line comes."
+    },
+    "vizTextColor": {
+      "label": "Text colour",
+      "help": "The colour of the lyrics. Light letters automatically get a dark outline, dark letters a light one – so they stay readable everywhere. “Like the wave” uses the wave's colour.",
+      "choices": {
+        "white": "White",
+        "black": "Black",
+        "wave": "Like the wave",
+        "violet": "Violet",
+        "cyan": "Turquoise",
+        "orange": "Orange",
+        "green": "Green",
+        "red": "Red",
+        "pink": "Pink",
+        "yellow": "Yellow",
+        "blue": "Blue",
+        "teal": "Teal",
+        "gold": "Gold",
+        "silver": "Silver",
+        "cover": "From the cover"
+      }
+    },
+    "vizFont": {
+      "label": "Font",
+      "help": "The font for the lyrics. All fonts are on your server. The preview here shows a similar font from your device – in the video it may look slightly different.",
+      "choices": {
+        "sans": "Clear (DejaVu Sans)",
+        "serif": "With serifs (DejaVu Serif)",
+        "elegant": "Elegant (Palatino style)",
+        "modern": "Modern round (Gothic)",
+        "narrow": "Narrow (Nimbus Narrow)",
+        "classic": "Playful classic (Bookman)",
+        "typewriter": "Typewriter (Mono)",
+        "script": "Handwriting (Chancery)"
+      }
+    },
+    "vizTextSize": {
+      "label": "Text size",
+      "help": "How big the lyrics are. Big reads better on phones; long lines then wrap more often.",
+      "choices": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      }
     }
   },
   "engineStatus": {
@@ -5809,7 +5861,14 @@
       "noSpeech": "Not available: this needs speech recognition on your server.",
       "lyricsWrongType": "This isn't a lyrics file with times. LRC, SRT, VTT and ASS work.",
       "autoHint": "The first time, the server downloads the speech model (a few hundred MB). Recognition takes about as long as the song or longer. Tip: choosing the language is more exact than “automatic”.",
-      "recognizing": "Recognising the lyrics … {{percent}} %"
+      "recognizing": "Recognising the lyrics … {{percent}} %",
+      "customColor": "Choose your own colour",
+      "customColorFor": "Own colour for {{name}}",
+      "fromCover": "From the cover:",
+      "coverColorN": "Cover colour {{n}} ({{hex}})",
+      "previewLabel": "Preview of the lyrics",
+      "previewText": "This is how your lyrics look",
+      "previewHint": "The preview shows a similar font from your device – the video uses the matching font from the server."
     },
     "scanner": {
       "camera": "Take a photo",

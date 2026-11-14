@@ -1,4 +1,12 @@
-import { LYRICS_FILE_TYPES, type LyricsSource, type WhisperLanguage } from '@conbert/core';
+import { useEffect, useState } from 'react';
+import {
+  COLOR_HEX,
+  LYRICS_FILE_TYPES,
+  isHexColor,
+  coverPalette,
+  type LyricsSource,
+  type WhisperLanguage,
+} from '@conbert/core';
 import { useAvailableEngines } from '@/engines/use-engines';
 import { useCan } from '@/features/auth/use-auth';
 import { extOf } from '../audio-convert';
@@ -19,3 +27,32 @@ export function useSpeechAvailable(): boolean {
 
 export const lyricsFileOk = (file: File | null) =>
   !file || LYRICS_FILE_TYPES.includes(extOf(file.name));
+
+/** The strongest colours of the cover picture (worked out on this device). */
+export function useCoverPalette(cover: File | null): string[] {
+  const [state, setState] = useState<{ file: File; colours: string[] } | null>(null);
+  useEffect(() => {
+    if (!cover) return;
+    let alive = true;
+    void (async () => {
+      const bitmap = await createImageBitmap(cover);
+      const canvas = new OffscreenCanvas(64, 64);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(bitmap, 0, 0, 64, 64);
+      bitmap.close();
+      const colours = coverPalette(ctx.getImageData(0, 0, 64, 64).data, 4, 6);
+      if (alive) setState({ file: cover, colours });
+    })().catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [cover]);
+  return cover && state?.file === cover ? state.colours : [];
+}
+
+/** The colour a choice stands for (for the swatch); "cover"/"wave" have none of their own. */
+export function swatchHex(value: string): string | null {
+  if (isHexColor(value)) return value;
+  return value in COLOR_HEX ? COLOR_HEX[value as keyof typeof COLOR_HEX] : null;
+}

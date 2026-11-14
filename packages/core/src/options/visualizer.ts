@@ -1,6 +1,22 @@
 import type { EngineOption } from '../engine';
 import { DEMUXER, filterPath } from '../ffmpeg-args';
 import type { Cue } from '../subtitles/convert';
+import {
+  FONT_FAMILY,
+  LYRICS_COLORS,
+  LYRICS_FONTS,
+  LYRICS_SIZES,
+  LYRICS_SIZE_FACTOR,
+  VISUALIZER_COLORS,
+  assColor,
+  brightness,
+  ffmpegColor,
+  isHexColor,
+  liftForDark,
+  resolveColor,
+  type LyricsFont,
+  type LyricsSize,
+} from './visualizer-style';
 import { WHISPER_OPTIONS } from './whisper';
 
 /**
@@ -13,19 +29,8 @@ import { WHISPER_OPTIONS } from './whisper';
 export const VISUALIZER_STYLES = ['wave', 'bars', 'spectrum', 'still'] as const;
 export type VisualizerStyle = (typeof VISUALIZER_STYLES)[number];
 
-export const VISUALIZER_COLORS = ['violet', 'white', 'cyan', 'orange', 'green'] as const;
-export type VisualizerColor = (typeof VISUALIZER_COLORS)[number];
-
 export const VISUALIZER_SIZES = ['landscape720', 'landscape1080', 'square', 'portrait'] as const;
 export type VisualizerSize = (typeof VISUALIZER_SIZES)[number];
-
-const COLOR_HEX: Record<VisualizerColor, string> = {
-  violet: '0xa78bfa',
-  white: '0xffffff',
-  cyan: '0x22d3ee',
-  orange: '0xfb923c',
-  green: '0x4ade80',
-};
 
 const SIZE_PX: Record<VisualizerSize, [number, number]> = {
   landscape720: [1280, 720],
@@ -114,15 +119,52 @@ export const VISUALIZER_OPTIONS: EngineOption[] = [
     default: null,
     accept: LYRICS_FILE_TYPES,
   },
+  {
+    key: 'vizFont',
+    labelKey: 'options.vizFont.label',
+    helpKey: 'options.vizFont.help',
+    advanced: true,
+    type: 'select',
+    default: 'sans',
+    choices: LYRICS_FONTS.map((value) => ({ value, labelKey: `options.vizFont.choices.${value}` })),
+  },
+  {
+    key: 'vizTextColor',
+    labelKey: 'options.vizTextColor.label',
+    helpKey: 'options.vizTextColor.help',
+    advanced: true,
+    type: 'select',
+    default: 'white',
+    choices: LYRICS_COLORS.map((value) => ({
+      value,
+      labelKey: `options.vizTextColor.choices.${value}`,
+    })),
+  },
+  {
+    key: 'vizTextSize',
+    labelKey: 'options.vizTextSize.label',
+    helpKey: 'options.vizTextSize.help',
+    advanced: true,
+    type: 'select',
+    default: 'medium',
+    choices: LYRICS_SIZES.map((value) => ({
+      value,
+      labelKey: `options.vizTextSize.choices.${value}`,
+    })),
+  },
   // The language for "recognise automatically" (same choices as speech recognition).
   ...(speechLanguage ? [{ ...speechLanguage, advanced: true, appliesTo: undefined }] : []),
 ];
 
 export interface VisualizerSettings {
   style: VisualizerStyle;
-  color: VisualizerColor;
+  /** A named colour, "cover" or an own colour "#rrggbb". */
+  color: string;
   size: VisualizerSize;
   lyrics: LyricsSource;
+  font: LyricsFont;
+  textColor: string;
+  textSize: LyricsSize;
 }
 
 function pick<T extends string>(value: unknown, allowed: readonly T[], fallback: T): T {
@@ -132,10 +174,30 @@ function pick<T extends string>(value: unknown, allowed: readonly T[], fallback:
 export function resolveVisualizer(raw: Record<string, unknown>): VisualizerSettings {
   return {
     style: pick(raw['vizStyle'], VISUALIZER_STYLES, 'wave'),
-    color: pick(raw['vizColor'], VISUALIZER_COLORS, 'violet'),
+    color: isHexColor(raw['vizColor'])
+      ? raw['vizColor'].toLowerCase()
+      : pick(raw['vizColor'], VISUALIZER_COLORS, 'violet'),
     size: pick(raw['vizSize'], VISUALIZER_SIZES, 'landscape720'),
     lyrics: pick(raw['vizLyrics'], LYRICS_SOURCES, 'none'),
+    font: pick(raw['vizFont'], LYRICS_FONTS, 'sans'),
+    textColor: isHexColor(raw['vizTextColor'])
+      ? raw['vizTextColor'].toLowerCase()
+      : pick(raw['vizTextColor'], LYRICS_COLORS, 'white'),
+    textSize: pick(raw['vizTextSize'], LYRICS_SIZES, 'medium'),
   };
+}
+
+/**
+ * The colours actually used: the wave (brightened so it shows on the dark
+ * background) and the lyrics. `coverColor` is the cover's strongest colour.
+ */
+export function visualizerColors(
+  raw: Record<string, unknown>,
+  coverColor: string | null = null,
+): { wave: string; text: string } {
+  const { color, textColor } = resolveVisualizer(raw);
+  const wave = liftForDark(resolveColor(color, '#a78bfa', coverColor));
+  return { wave, text: resolveColor(textColor, '#ffffff', coverColor, wave) };
 }
 
 export interface VisualizerLayout {
@@ -160,9 +222,10 @@ export function visualizerLayout(
   h: number,
   hasCover: boolean,
   hasLyrics: boolean,
+  textSize: LyricsSize = 'medium',
 ): VisualizerLayout {
   const short = Math.min(w, h);
-  const fontSize = Math.round(short * 0.06);
+  const fontSize = Math.round(short * LYRICS_SIZE_FACTOR[textSize]);
   if (style === 'still') {
     const art = Math.round(short * (hasLyrics ? 0.6 : 0.8));
     const artTop = Math.round((h - art) / 2 - (hasLyrics ? h * 0.08 : 0));
@@ -194,10 +257,15 @@ export function lyricsAss(
   cues: readonly Cue[],
   options: Record<string, unknown>,
   hasCover: boolean,
+  coverColor: string | null = null,
 ): string {
-  const { style, size } = resolveVisualizer(options);
+  const { style, size, font, textSize } = resolveVisualizer(options);
   const [w, h] = SIZE_PX[size];
-  const layout = visualizerLayout(style, w, h, hasCover, true);
+  const layout = visualizerLayout(style, w, h, hasCover, true, textSize);
+  const { text: colour } = visualizerColors(options, coverColor);
+  const face = FONT_FAMILY[font];
+  // Light letters get a dark outline, dark letters a light one.
+  const edge = brightness(colour) > 0.5 ? '#101010' : '#f5f5f5';
   const margin = Math.round(w * 0.06);
   const outline = Math.max(2, Math.round(layout.fontSize / 14));
   const header = [
@@ -211,7 +279,7 @@ export function lyricsAss(
     '',
     '[V4+ Styles]',
     'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
-    `Style: Lyrics,DejaVu Sans,${layout.fontSize},&H00FFFFFF,&H00FFFFFF,&H00101010,&H80000000,1,0,0,0,100,100,0,0,1,${outline},1,5,${margin},${margin},0,1`,
+    `Style: Lyrics,${face.family},${layout.fontSize},${assColor(colour)},${assColor(colour)},${assColor(edge)},${assColor('#000000', 0x80)},${face.bold ? 1 : 0},0,0,0,100,100,0,0,1,${outline},1,5,${margin},${margin},0,1`,
     '',
     '[Events]',
     'Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text',
@@ -240,20 +308,22 @@ export interface VisualizerArgsRequest {
   duration?: number | null;
   /** ASS file with the lyrics (see lyricsAss), burnt in with libass. */
   lyrics?: string | null;
+  /** The cover's strongest colour (for the colour choice "cover"). */
+  coverColor?: string | null;
 }
 
 const OUT_MUXER: Record<string, string> = { mp4: 'mp4', mov: 'mov', mkv: 'matroska', webm: 'webm' };
 
 /** Builds the ffmpeg arguments (an argument list – never a shell string). */
 export function buildVisualizerArgs(req: VisualizerArgsRequest): string[] {
-  const { style, color, size } = resolveVisualizer(req.options);
+  const { style, size, textSize } = resolveVisualizer(req.options);
   const demuxer = DEMUXER[req.inputExt];
   const muxer = OUT_MUXER[req.outputExt];
   if (!demuxer || !muxer) {
     throw new Error(`visualizer: .${req.inputExt} → .${req.outputExt} not supported`);
   }
   const [w, h] = SIZE_PX[size];
-  const hex = COLOR_HEX[color];
+  const hex = ffmpegColor(visualizerColors(req.options, req.coverColor ?? null).wave);
   const hasLyrics = Boolean(req.lyrics);
   // A still picture needs only a few frames per second – much faster and smaller
   // (with lyrics a few more, so lines change on time).
@@ -269,7 +339,14 @@ export function buildVisualizerArgs(req: VisualizerArgsRequest): string[] {
   const filters: string[] = [];
   // Background: the cover blurred and darkened across the whole frame, the cover itself
   // sharp in the middle (above the waveform) – or a plain dark background.
-  const { art, artTop, bandH, bandY } = visualizerLayout(style, w, h, hasCover, hasLyrics);
+  const { art, artTop, bandH, bandY } = visualizerLayout(
+    style,
+    w,
+    h,
+    hasCover,
+    hasLyrics,
+    textSize,
+  );
   if (hasCover) {
     filters.push(
       `[1:v]split=2[c1][c2]`,

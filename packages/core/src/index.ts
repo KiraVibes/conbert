@@ -34,3 +34,4 @@ export * from './options/image-ai';
 export * from './help';
 export * from './presets';
 export * from './options/visualizer';
+export * from './options/visualizer-style';
