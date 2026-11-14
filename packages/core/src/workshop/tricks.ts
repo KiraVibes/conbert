@@ -40,6 +40,7 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'repair', group: 'tools' },
   { id: 'encode', group: 'tools' },
   { id: 'split', group: 'tools' },
+  { id: 'testfiles', group: 'tools' },
 ];
 
 export const WORKSHOP_GROUPS: readonly WorkshopGroup[] = [

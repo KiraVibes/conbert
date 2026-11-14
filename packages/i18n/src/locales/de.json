@@ -4095,6 +4095,11 @@
         "title": "Klingelton-Maker",
         "teaser": "Schneid deinen Lieblingsteil aus einem Song – mit sanftem Ein- und Ausblenden.",
         "how": "Du wählst einen Ausschnitt aus deinem Lied (höchstens 40 Sekunden, mehr nimmt das iPhone nicht). Conbert lässt den Anfang leise beginnen und das Ende sanft ausklingen, damit der Klingelton nicht hart abbricht. Auf Wunsch wird er so laut wie möglich gemacht, ohne zu verzerren. Am Ende wird er als MP3 (für die meisten Handys) oder M4R (für das iPhone) gespeichert. Alles passiert auf deinem Gerät."
+      },
+      "testfiles": {
+        "title": "Testdateien",
+        "teaser": "Erzeug Dateien in genau der Größe, die du brauchst – oder Testbild, Testton, Test-PDF und Testvideo.",
+        "how": "Manchmal braucht man einfach eine Datei zum Ausprobieren: Klappt der Upload bis 100 MB? Landet ein 2-GB-Film wirklich auf der NAS? Spielt der Fernseher Videos in 1080p ab? Conbert baut dir solche Dateien direkt auf deinem Gerät, nichts wird hochgeladen. Dateien mit fester Größe werden mit Nullen, Zufallsdaten oder Textzeilen gefüllt. Zufallsdaten lassen sich nicht komprimieren, so testest du echte Übertragungen, ohne dass ein ZIP oder der Server sie kleiner rechnet. Das Testvideo kodiert dein Browser selbst (WebCodecs): mit Farbbalken, laufender Uhr, Bildnummer und einem Piepton pro Sekunde. So siehst du sofort, ob Bild und Ton zusammenpassen."
       }
     },
     "identify": {
@@ -5511,6 +5516,65 @@
       "iphoneHint": "So kommt er aufs iPhone: Datei am Computer in den Finder (Mac) bzw. in iTunes (Windows) auf das verbundene iPhone ziehen. Ohne Computer: Datei in GarageBand öffnen und dort als Klingelton exportieren.",
       "androidHint": "So kommt er aufs Handy: Datei in den Ordner „Ringtones“ kopieren und in den Einstellungen unter „Töne“ auswählen.",
       "fileSuffix": "klingelton"
+    },
+    "testfiles": {
+      "kind": "Was für eine Datei?",
+      "kinds": {
+        "size": {
+          "title": "Feste Größe",
+          "help": "Eine Datei mit genau der gewünschten Größe – zum Testen von Upload-Grenzen, Speicherplatz und Übertragungen."
+        },
+        "image": {
+          "title": "Testbild",
+          "help": "Farbbalken, Grauverlauf, Gitter mit Kreis und roter Rand: Du siehst sofort, ob ein Bild verzerrt, beschnitten oder farblich verfälscht wird."
+        },
+        "audio": {
+          "title": "Testton",
+          "help": "Ein Ton zum Prüfen von Lautsprechern, Kopfhörern und Abspielgeräten (WAV)."
+        },
+        "pdf": {
+          "title": "Test-PDF",
+          "help": "Ein PDF mit großen Seitenzahlen auf jeder A4-Seite – praktisch für Drucker und PDF-Werkzeuge."
+        },
+        "video": {
+          "title": "Testvideo",
+          "help": "Farbbalken, laufende Uhr, Bildnummer und ein Piepton pro Sekunde. Dein Browser erzeugt es selbst."
+        }
+      },
+      "size": "Größe",
+      "unit": "Einheit",
+      "fill": "Inhalt",
+      "fillHelp": "Nullen: geht am schnellsten, lässt sich aber auf fast nichts zusammenpacken. Zufall: wie verschlüsselte Daten, wird beim Packen nicht kleiner – am ehrlichsten für Upload-Tests. Text: lesbare, nummerierte Zeilen, öffnet sich in jedem Editor.",
+      "fills": {
+        "zeros": "Nullen",
+        "random": "Zufallsdaten",
+        "text": "Textzeilen"
+      },
+      "ext": "Dateiendung",
+      "extHelp": "Nur der Name ändert sich, der Inhalt bleibt eine Testdatei. Nutze z. B. „zip“, wenn eine Seite nur bestimmte Endungen annimmt – öffnen lässt sich die Datei dann aber nicht als echtes ZIP.",
+      "width": "Breite",
+      "height": "Höhe",
+      "format": "Format",
+      "tone": "Ton",
+      "tones": {
+        "sine": "Dauerton 440 Hz (Kammerton A)",
+        "sweep": "Frequenz-Lauf 20 Hz bis 20 kHz",
+        "beeps": "Piepton jede Sekunde",
+        "stereo": "Links / rechts im Wechsel"
+      },
+      "seconds": "Länge",
+      "pages": "Seiten",
+      "resolution": "Auflösung",
+      "exact": "Genau {{bytes}} Bytes (1 MB = 1024 KB).",
+      "tooBig": "Bitte eine Größe zwischen 1 Byte und 4 GB eingeben.",
+      "make": "Erzeugen und speichern",
+      "making": "Video wird erzeugt … {{percent}} %",
+      "stop": "Abbrechen",
+      "done": "Fertig: {{name}} ({{size}}) wurde gespeichert.",
+      "failed": "Die Datei konnte nicht erzeugt werden. Vielleicht ist nicht genug Speicher frei – versuch es mit einer kleineren Größe.",
+      "videoFailed": "Dein Browser konnte das Video nicht erzeugen. Wahrscheinlich kann er dieses Format nicht kodieren – probier das andere Format (MP4/WebM) oder einen aktuellen Chrome, Edge oder Firefox.",
+      "pdfTitle": "Conbert Testseite",
+      "pagesWord": "Seiten"
     }
   },
   "feeds": {

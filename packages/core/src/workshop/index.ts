@@ -27,3 +27,4 @@ export * from './encoding';
 export * from './split-join';
 export * from './emoji-mosaic';
 export * from './ringtone';
+export * from './test-files';

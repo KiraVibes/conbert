@@ -4095,6 +4095,11 @@
         "title": "Ringtone maker",
         "teaser": "Cut your favourite part out of a song – with a soft start and end.",
         "how": "You pick a part of your song (at most 40 seconds – iPhones take no more). Conbert lets the start fade in and the end fade out, so the ringtone does not stop abruptly. If you like, it is made as loud as possible without distortion. Finally it is saved as MP3 (for most phones) or M4R (for iPhones). Everything happens on your device."
+      },
+      "testfiles": {
+        "title": "Test files",
+        "teaser": "Make files of exactly the size you need – or a test picture, test tone, test PDF and test video.",
+        "how": "Sometimes you just need a file to try something out: does the upload work up to 100 MB? Does a 2 GB movie really arrive on the NAS? Does the TV play 1080p videos? Conbert makes such files right on your device, nothing is uploaded. Files of a fixed size are filled with zeros, random data or lines of text. Random data can't be compressed, so you test real transfers without a ZIP or the server making them smaller. Your browser encodes the test video itself (WebCodecs): colour bars, a running clock, the frame number and one beep per second – so you see right away whether picture and sound stay in sync."
       }
     },
     "identify": {
@@ -5511,6 +5516,65 @@
       "iphoneHint": "Getting it onto the iPhone: on the computer, drag the file onto the connected iPhone in Finder (Mac) or iTunes (Windows). Without a computer: open the file in GarageBand and export it as a ringtone there.",
       "androidHint": "Getting it onto the phone: copy the file into the “Ringtones” folder and pick it in the settings under “Sounds”.",
       "fileSuffix": "ringtone"
+    },
+    "testfiles": {
+      "kind": "What kind of file?",
+      "kinds": {
+        "size": {
+          "title": "Exact size",
+          "help": "A file of exactly the size you want – to test upload limits, storage space and transfers."
+        },
+        "image": {
+          "title": "Test picture",
+          "help": "Colour bars, a grey ramp, a grid with a circle and a red border: you see at once whether a picture gets stretched, cropped or its colours changed."
+        },
+        "audio": {
+          "title": "Test tone",
+          "help": "A sound to check speakers, headphones and players (WAV)."
+        },
+        "pdf": {
+          "title": "Test PDF",
+          "help": "A PDF with big page numbers on every A4 page – handy for printers and PDF tools."
+        },
+        "video": {
+          "title": "Test video",
+          "help": "Colour bars, a running clock, the frame number and one beep per second. Your browser makes it itself."
+        }
+      },
+      "size": "Size",
+      "unit": "Unit",
+      "fill": "Content",
+      "fillHelp": "Zeros: fastest, but packs down to almost nothing. Random: like encrypted data, doesn't get smaller when packed – the most honest choice for upload tests. Text: readable numbered lines, opens in any editor.",
+      "fills": {
+        "zeros": "Zeros",
+        "random": "Random data",
+        "text": "Lines of text"
+      },
+      "ext": "File extension",
+      "extHelp": "Only the name changes, the content stays a test file. Use e.g. “zip” if a site only accepts certain extensions – it still won't open as a real ZIP.",
+      "width": "Width",
+      "height": "Height",
+      "format": "Format",
+      "tone": "Tone",
+      "tones": {
+        "sine": "Steady 440 Hz tone (concert A)",
+        "sweep": "Sweep from 20 Hz to 20 kHz",
+        "beeps": "A beep every second",
+        "stereo": "Alternating left / right"
+      },
+      "seconds": "Length",
+      "pages": "Pages",
+      "resolution": "Resolution",
+      "exact": "Exactly {{bytes}} bytes (1 MB = 1024 KB).",
+      "tooBig": "Please enter a size between 1 byte and 4 GB.",
+      "make": "Make and save",
+      "making": "Making the video … {{percent}} %",
+      "stop": "Cancel",
+      "done": "Done: {{name}} ({{size}}) was saved.",
+      "failed": "The file couldn't be made. Maybe there isn't enough free memory – try a smaller size.",
+      "videoFailed": "Your browser couldn't make the video. Most likely it can't encode this format – try the other format (MP4/WebM) or a current Chrome, Edge or Firefox.",
+      "pdfTitle": "Conbert test page",
+      "pagesWord": "pages"
     }
   },
   "feeds": {
