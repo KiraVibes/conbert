@@ -4397,6 +4397,16 @@
         "title": "Bild als Funk-Ton (SSTV)",
         "teaser": "Verwandle ein Bild in einen Ton, wie ihn Funkamateure und die ISS senden – und mach aus solchen Tönen wieder Bilder.",
         "how": "SSTV („Slow Scan Television“) überträgt Bilder als Ton: Jeder Bildpunkt wird zu einer Tonhöhe zwischen 1500 Hz (schwarz) und 2300 Hz (weiß), jede Zeile beginnt mit einem kurzen 1200-Hz-Piep, und eine kleine Melodie am Anfang (VIS-Code) verrät die Betriebsart. Funkamateure senden so Bilder um die Welt, die Raumstation ISS zu besonderen Anlässen auch. Spiel den erzeugten Ton ab und halte ein Handy mit einer SSTV-App (z. B. „Robot36“) daneben – es malt das Bild Zeile für Zeile. Umgekehrt liest Conbert solche Aufnahmen. Alles läuft in deinem Browser."
+      },
+      "paper": {
+        "title": "Papier-Backup",
+        "teaser": "Eine kleine Datei als ausdruckbare QR-Codes – Passwörter, Schlüssel, wichtige Notizen überleben so jeden Festplattencrash.",
+        "how": "Conbert packt die Datei, teilt sie in nummerierte Stücke und macht aus jedem Stück einen QR-Code. Die Codes landen als Raster in einer PDF zum Ausdrucken, mit Dateiname und Seitenzahl. Zum Wiederherstellen fotografierst oder scannst du die Seiten und lädst die Bilder (oder die Scan-PDF) hier hoch: Conbert sucht alle Codes, setzt die Stücke in der richtigen Reihenfolge zusammen und prüft mit einer Prüfsumme, dass die Datei wieder genau stimmt. Fehlen Codes, sagt es dir welche. Gedacht für kleine Dateien bis etwa 100 KB. Alles läuft in deinem Browser."
+      },
+      "datavideo": {
+        "title": "Daten im Video",
+        "teaser": "Verpacke eine beliebige Datei in ein Video aus schwarzen und weißen Kästchen – und hol sie wieder heraus.",
+        "how": "Jedes Bild des Videos trägt ein Stück der Datei: Jedes Kästchen ist ein Bit, weiß = 1, schwarz = 0. Die oberste Reihe ist ein Muster, an dem Conbert beim Auslesen erkennt, was hell und was dunkel ist. Jedes Bild hat eine Prüfsumme, und die ganze Datei auch – so merkt Conbert, wenn etwas fehlt oder kaputt ist. Kleine Kästchen passen viel hinein, große überstehen das erneute Komprimieren von Video-Plattformen eher. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6443,6 +6453,51 @@
       "noHeader": "Kein Anfangston gefunden – gelesen mit der gewählten Betriebsart.",
       "pictureAlt": "Empfangenes SSTV-Bild",
       "savePicture": "Bild speichern"
+    },
+    "paper": {
+      "tabs": {
+        "save": "Ausdrucken",
+        "restore": "Wiederherstellen"
+      },
+      "make": "PDF zum Ausdrucken erstellen",
+      "failed": "Die PDF ließ sich nicht erstellen.",
+      "tooBig": "Die Datei ist zu groß für ein Papier-Backup (mehr als 60 Seiten). Nimm eine kleinere Datei.",
+      "done": "Fertig: {{codes}} QR-Codes auf {{pages}} Seite(n). Drucke die PDF in normaler Größe (100 %, nicht „an Seite anpassen“).",
+      "sizeHint": "Pro Seite passen etwa 6 KB (gepackt). Am besten für Passwörter, Schlüssel, 2FA-Wiederherstellungscodes und kurze Texte.",
+      "pdfTitle": "Conbert Papier-Backup",
+      "pdfPage": "Seite {{n}} von {{of}}",
+      "pdfRestore": "Wiederherstellen: Conbert > Werkstatt > Papier-Backup",
+      "restoreIntro": "Lade Fotos oder Scans der Seiten hoch (auch mehrere oder eine Scan-PDF). Du kannst weitere Fotos nachreichen, bis alle Codes gefunden sind.",
+      "reading": "Suche QR-Codes in {{name}} …",
+      "restored": "Alle Codes gefunden – „{{name}}“ ist wiederhergestellt und unverändert.",
+      "download": "{{name}} herunterladen",
+      "missing": "{{found}} von {{total}} Codes gefunden. Es fehlen noch: {{list}}. Fotografiere diese Stellen noch einmal (gerade, scharf, gut beleuchtet) und lade die Fotos zusätzlich hoch.",
+      "none": "Auf den Bildern wurden keine Conbert-Codes gefunden.",
+      "broken": "Alle Codes sind da, aber die Prüfsumme stimmt nicht – die Codes stammen vielleicht von verschiedenen Backups.",
+      "reset": "Von vorn beginnen"
+    },
+    "datavideo": {
+      "tabs": {
+        "pack": "Verpacken",
+        "unpack": "Auspacken"
+      },
+      "block": "Kästchengröße",
+      "blocks": {
+        "8": "8 Pixel – viel Platz, für direktes Weitergeben",
+        "16": "16 Pixel – robuster, übersteht erneutes Komprimieren eher"
+      },
+      "length": "Das Video wird etwa {{seconds}} Sekunden lang.",
+      "tooBig": "Die Datei ist zu groß (höchstens 20 MB).",
+      "make": "Video erzeugen",
+      "cancel": "Abbrechen",
+      "failed": "Das Video ließ sich nicht erzeugen. Dein Browser kann vielleicht keine Videos kodieren.",
+      "reading": "Video wird gelesen …",
+      "readFailed": "Das Video ließ sich nicht lesen.",
+      "restored": "„{{name}}“ ist vollständig und unverändert wiederhergestellt.",
+      "download": "{{name}} herunterladen",
+      "missing": "{{found}} von {{total}} Stücken gefunden – das Video wurde wohl gekürzt oder zu stark komprimiert.",
+      "none": "In diesem Video steckt keine Conbert-Datei.",
+      "broken": "Alle Stücke sind da, aber die Prüfsumme stimmt nicht."
     }
   },
   "feeds": {

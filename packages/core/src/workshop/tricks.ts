@@ -62,6 +62,8 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'compare', group: 'xray' },
   { id: 'extractimages', group: 'tools' },
   { id: 'scanner', group: 'tools' },
+  { id: 'paper', group: 'tools' },
+  { id: 'datavideo', group: 'hide' },
 ];
 
 export const WORKSHOP_GROUPS: readonly WorkshopGroup[] = [

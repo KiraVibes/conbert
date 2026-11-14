@@ -1,4 +1,6 @@
 import * as Comlink from 'comlink';
+import jsQR from 'jsqr';
+import { PAPER_CELLS } from '@/features/workshop/carriers/paper';
 import {
   blobReader,
   audioCuts,
@@ -10,6 +12,8 @@ import {
   inspectProgram,
   luminance,
   readOfficeSecrets,
+  detectDocument,
+  warpPerspective,
   floatWav,
   sstvDecode,
   sstvEncode,
@@ -116,6 +120,68 @@ const api = {
   sstvReceive(samples: Float32Array, rate: number, fallback: SstvMode): SstvPicture | null {
     const picture = sstvDecode(samples, rate, fallback);
     return picture ? Comlink.transfer(picture, [picture.pixels.buffer]) : null;
+  },
+  /**
+   * All QR codes on a page photo or scan. jsQR finds one code per picture:
+   * the page is straightened (photos) and each cell of the paper-backup
+   * grid is read on its own; overlapping windows catch the rest.
+   */
+  async findQr(file: Blob): Promise<Uint8Array[]> {
+    const photo = await decode(file, 2400);
+    const found = new Map<string, Uint8Array>();
+    const look = (pic: Picture, x0: number, y0: number, w: number, h: number) => {
+      x0 = Math.max(0, Math.round(x0));
+      y0 = Math.max(0, Math.round(y0));
+      w = Math.min(Math.round(w), pic.width - x0);
+      h = Math.min(Math.round(h), pic.height - y0);
+      if (w < 40 || h < 40) return;
+      const crop = new Uint8ClampedArray(w * h * 4);
+      for (let y = 0; y < h; y++)
+        crop.set(
+          pic.pixels.subarray(((y0 + y) * pic.width + x0) * 4, ((y0 + y) * pic.width + x0 + w) * 4),
+          y * w * 4,
+        );
+      const code = jsQR(crop, w, h, { inversionAttempts: 'attemptBoth' });
+      if (code && code.binaryData.length > 0) {
+        const bytes = new Uint8Array(code.binaryData);
+        found.set(bytes.join(','), bytes);
+      }
+    };
+    // A photo of a sheet: pull the sheet straight first (A4 shape).
+    const quad = detectDocument(photo.pixels, photo.width, photo.height);
+    const pages: Picture[] = [photo];
+    if (quad) {
+      const w = 1400;
+      const h = Math.round(w * 1.4142);
+      pages.unshift({
+        pixels: warpPerspective(photo.pixels, photo.width, photo.height, quad, w, h),
+        width: w,
+        height: h,
+      });
+    }
+    for (const page of pages) {
+      for (const c of PAPER_CELLS) {
+        // A little extra around each cell – printers and photos are never exact.
+        const pad = 0.12;
+        look(
+          page,
+          (c.x - c.w * pad) * page.width,
+          (c.y - c.h * pad) * page.height,
+          c.w * (1 + 2 * pad) * page.width,
+          c.h * (1 + 2 * pad) * page.height,
+        );
+      }
+    }
+    // Both readings count (a sheet found by mistake must not hide the codes).
+    if (found.size > 0) return [...found.values()];
+    // Not a paper-backup page (or a very skewed photo): search in windows.
+    for (const part of [2, 3, 4, 5]) {
+      const size = Math.round((Math.min(photo.width, photo.height) / part) * 1.3);
+      const step = Math.max(16, Math.round(size / 4));
+      for (let y = 0; y < photo.height; y += step)
+        for (let x = 0; x < photo.width; x += step) look(photo, x, y, size, size);
+    }
+    return [...found.values()];
   },
   cuts(samples: Float32Array, rate: number): CutReport {
     return audioCuts(samples, rate);

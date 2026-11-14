@@ -4397,6 +4397,16 @@
         "title": "Picture as radio sound (SSTV)",
         "teaser": "Turn a picture into a sound like radio amateurs and the ISS send – and turn such sounds back into pictures.",
         "how": "SSTV (“slow scan television”) sends pictures as sound: every pixel becomes a pitch between 1500 Hz (black) and 2300 Hz (white), every line starts with a short 1200 Hz beep, and a little tune at the start (VIS code) tells the mode. Radio amateurs send pictures around the world like this, and the International Space Station does too on special occasions. Play the sound and hold a phone with an SSTV app (e.g. “Robot36”) next to it – it paints the picture line by line. The other way round, Conbert reads such recordings. Everything runs in your browser."
+      },
+      "paper": {
+        "title": "Paper backup",
+        "teaser": "A small file as printable QR codes – passwords, keys and important notes survive any disk crash this way.",
+        "how": "Conbert packs the file, splits it into numbered pieces and turns each piece into a QR code. The codes go into a PDF as a grid for printing, with file name and page number. To restore, take photos or scans of the pages and upload the pictures (or the scan PDF) here: Conbert finds all codes, puts the pieces together in the right order and checks with a checksum that the file is exactly right again. If codes are missing, it tells you which. Meant for small files up to about 100 KB. Everything runs in your browser."
+      },
+      "datavideo": {
+        "title": "Data in a video",
+        "teaser": "Pack any file into a video of black and white squares – and get it out again.",
+        "how": "Every frame of the video carries a piece of the file: each square is one bit, white = 1, black = 0. The top row is a pattern that tells Conbert what's light and what's dark when reading. Every frame has a checksum, and so does the whole file – so Conbert notices when something is missing or broken. Small squares hold a lot, big ones survive re-compression by video platforms better. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6443,6 +6453,51 @@
       "noHeader": "No starting tune found – read with the chosen mode.",
       "pictureAlt": "Received SSTV picture",
       "savePicture": "Save picture"
+    },
+    "paper": {
+      "tabs": {
+        "save": "Print",
+        "restore": "Restore"
+      },
+      "make": "Make PDF for printing",
+      "failed": "The PDF couldn't be made.",
+      "tooBig": "The file is too big for a paper backup (more than 60 pages). Use a smaller file.",
+      "done": "Done: {{codes}} QR codes on {{pages}} page(s). Print the PDF at normal size (100 %, not “fit to page”).",
+      "sizeHint": "About 6 KB (packed) fit on a page. Best for passwords, keys, 2FA recovery codes and short texts.",
+      "pdfTitle": "Conbert paper backup",
+      "pdfPage": "Page {{n}} of {{of}}",
+      "pdfRestore": "Restore: Conbert > Workshop > Paper backup",
+      "restoreIntro": "Upload photos or scans of the pages (several, or one scan PDF). You can add more photos until all codes are found.",
+      "reading": "Looking for QR codes in {{name}} …",
+      "restored": "All codes found – “{{name}}” is restored and unchanged.",
+      "download": "Download {{name}}",
+      "missing": "{{found}} of {{total}} codes found. Still missing: {{list}}. Take photos of those spots again (straight, sharp, well lit) and upload them as well.",
+      "none": "No Conbert codes were found in the pictures.",
+      "broken": "All codes are there, but the checksum doesn't match – the codes may come from different backups.",
+      "reset": "Start over"
+    },
+    "datavideo": {
+      "tabs": {
+        "pack": "Pack",
+        "unpack": "Unpack"
+      },
+      "block": "Square size",
+      "blocks": {
+        "8": "8 pixels – lots of room, for passing on directly",
+        "16": "16 pixels – sturdier, survives re-compression better"
+      },
+      "length": "The video will be about {{seconds}} seconds long.",
+      "tooBig": "The file is too big (20 MB at most).",
+      "make": "Make video",
+      "cancel": "Cancel",
+      "failed": "The video couldn't be made. Your browser may not be able to encode video.",
+      "reading": "Reading the video …",
+      "readFailed": "The video couldn't be read.",
+      "restored": "“{{name}}” is restored completely and unchanged.",
+      "download": "Download {{name}}",
+      "missing": "{{found}} of {{total}} pieces found – the video was probably shortened or compressed too much.",
+      "none": "There's no Conbert file in this video.",
+      "broken": "All pieces are there, but the checksum doesn't match."
     }
   },
   "feeds": {
