@@ -38,3 +38,5 @@ export * from './pdf-forensics';
 export * from './strings';
 export * from './program';
 export * from './danger';
+export * from './office-secrets';
+export * from './timeline';

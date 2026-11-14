@@ -15,7 +15,8 @@ import {
 import { cn } from '@/lib/utils';
 import { hex, saveBlob } from '../save-blob';
 import { HowItWorks, SingleFile } from '../SingleFile';
-import { useForensics } from './use-forensics';
+import { withForensics } from './forensics-worker';
+import { useFileJob } from './use-file-job';
 
 const SHOWN = 500;
 const LENGTHS = [4, 5, 8, 12];
@@ -27,8 +28,8 @@ export function StringsTool() {
   const [minLength, setMinLength] = useState(5);
   const [kind, setKind] = useState<StringKind | 'all'>('all');
   const [search, setSearch] = useState('');
-  const { result, failed, busy } = useForensics(file, String(minLength), (api, f) =>
-    api.strings(f, minLength),
+  const { result, failed, busy } = useFileJob(file, String(minLength), (f) =>
+    withForensics((api) => api.strings(f, minLength)),
   );
 
   const filtered = useMemo(() => {

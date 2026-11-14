@@ -3,13 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { Loader2Icon } from 'lucide-react';
 import { formatBytes } from '@/lib/format-bytes';
 import { HowItWorks, SingleFile } from '../SingleFile';
-import { useForensics } from './use-forensics';
+import { withForensics } from './forensics-worker';
+import { useFileJob } from './use-file-job';
 
 /** Programm-Inspektor: what a .exe / Linux / Mac program is, without running it. */
 export function ProgramTool() {
   const { t, i18n } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
-  const { result, failed, busy } = useForensics(file, 'program', (api, f) => api.program(f));
+  const { result, failed, busy } = useFileJob(file, 'program', (f) =>
+    withForensics((api) => api.program(f)),
+  );
 
   const yesNo = (v: boolean) => t(v ? 'workshop.program.yes' : 'workshop.program.no');
   const facts: [string, string][] = result

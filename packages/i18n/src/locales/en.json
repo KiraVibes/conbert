@@ -4352,6 +4352,16 @@
         "title": "Text finder",
         "teaser": "Readable text in any file – web addresses, e-mails, IP addresses, file paths and crypto addresses highlighted.",
         "how": "Programs, pictures and unknown files often contain readable text too: error messages, web addresses, paths from the creator's computer. Conbert looks for spots with several readable characters in a row – in simple form and in the two-byte form Windows programs like to use (like the tool “strings”). Special finds are marked: web addresses, e-mail addresses, IP addresses, file paths and crypto wallet addresses. Everything runs in your browser."
+      },
+      "docsecrets": {
+        "title": "What does your document give away?",
+        "teaser": "Author names, company, template path, comments, deleted text: what Word, Excel & co. secretly send along – and a clean copy.",
+        "how": "Office files (Word, Excel, PowerPoint, LibreOffice) are ZIP archives full of XML files. They hold much more than the visible text: who created and last edited the document, the company, how long it was worked on, the path to the template on the author's computer, comments, tracked changes including deleted text, hidden text, hidden sheets and slides, speaker notes and a preview picture of the first page. Conbert reads all of it and makes you a cleaned copy if you like. Everything runs in your browser."
+      },
+      "timeline": {
+        "title": "Timeline",
+        "teaser": "Every date and time in a file, in order – and hints where they don't fit together.",
+        "how": "Photos, videos, PDFs and Office files carry many times: when taken, created, changed, when the metadata was last touched, often even every editing step (XMP history). Plus the time the file was last changed on your device. Conbert reads all of them with ExifTool, puts them on a timeline and shows contradictions: changed before created, times in the future, a camera clock that wasn't set, editing with Photoshop & co. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6169,6 +6179,90 @@
       "more_other": "{{count}} more finds – refine the search or download the list.",
       "export_one": "Download 1 find as text",
       "export_other": "Download {{count}} finds as text"
+    },
+    "docsecrets": {
+      "failed": "The file couldn't be read. Conbert reads Word, Excel and PowerPoint files (.docx, .xlsx, .pptx and variants) and LibreOffice files (.odt, .ods, .odp) – not the old formats (.doc, .xls) and none protected by a password.",
+      "found": "This {{kind}} gives away quite a bit about itself – have a look below.",
+      "clean": "Good: this document carries hardly anything personal.",
+      "kinds": {
+        "word": "Word document",
+        "excel": "Excel document",
+        "powerpoint": "PowerPoint document",
+        "odf": "LibreOffice document"
+      },
+      "people": "People named",
+      "properties": "Document properties",
+      "paths": "Paths from the author's computer",
+      "changes": "Tracked changes ({{count}})",
+      "ins": "inserted",
+      "del": "deleted",
+      "comments": "Comments ({{count}})",
+      "hiddenText": "Hidden text",
+      "hiddenSheets": "Hidden sheets",
+      "hiddenSlides": "Hidden slides",
+      "notes": "Speaker notes",
+      "slide": "Slide {{n}}",
+      "more": "Also",
+      "thumbnail": "A preview picture of the first page – showing it as it looked at the last save.",
+      "sessions_one": "1 recorded editing session (tells how often the document was edited).",
+      "sessions_other": "{{count}} recorded editing sessions (tells how often the document was edited).",
+      "minutes_one": "{{count}} minute",
+      "minutes_other": "{{count}} minutes",
+      "prop": {
+        "creator": "Created by",
+        "lastModifiedBy": "Last changed by",
+        "created": "Created",
+        "modified": "Changed",
+        "lastPrinted": "Last printed",
+        "revision": "Number of saves",
+        "title": "Title",
+        "subject": "Subject",
+        "keywords": "Keywords",
+        "description": "Comment",
+        "application": "Program",
+        "company": "Company",
+        "manager": "Manager",
+        "template": "Template",
+        "totalTime": "Editing time",
+        "hyperlinkBase": "Link base",
+        "printedBy": "Printed by"
+      },
+      "cleanTitle": "Download a clean copy",
+      "cleanIntro": "Removes names (they become “Autor”), company, manager, template path, editing time, session numbers and the preview picture. The original stays unchanged.",
+      "options": {
+        "acceptChanges": "Accept all changes (deleted text is then really gone)",
+        "removeComments": "Delete comments",
+        "removeHidden": "Delete hidden text"
+      },
+      "onlyMeta": "For Excel, PowerPoint and LibreOffice Conbert removes the personal and document details. Please delete comments, hidden sheets and notes in the program itself.",
+      "cleanButton": "Download cleaned copy"
+    },
+    "timeline": {
+      "failed": "The times couldn't be read.",
+      "working": "Reading times …",
+      "none": "This file holds no times – only the one from the file system.",
+      "noZone": "(no time zone)",
+      "fileSystem": "File system (when the file was last changed on your device)",
+      "labels": {
+        "taken": "Taken / originally created",
+        "created": "Created",
+        "modified": "Changed",
+        "metadata": "Metadata changed",
+        "history": "Editing step",
+        "gps": "GPS time (from the satellite)",
+        "printed": "Printed",
+        "file": "File last changed",
+        "other": "Other time"
+      },
+      "warnings": {
+        "modifiedBeforeCreated": "The file was supposedly changed before it was created. That happens when times were changed afterwards.",
+        "future": "At least one time lies in the future – the device's clock was wrong or the time was changed.",
+        "clockNotSet": "A time is very old (before 1995 or exactly 1 Jan 2000 / 1 Jan 1970) – usually the camera's clock wasn't set.",
+        "editedWith": "The file was saved with a photo editor: {{software}}.",
+        "fileOlder": "According to the file system the file is older than the content it shows. The file system time was probably set afterwards.",
+        "editedLater": "The file was changed again more than a day after it was taken.",
+        "zones": "The times name different time zones ({{zones}}) – e.g. after a trip or editing in another country."
+      }
     }
   },
   "feeds": {

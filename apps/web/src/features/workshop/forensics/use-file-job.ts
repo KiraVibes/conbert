@@ -1,16 +1,13 @@
 import { useEffect, useState } from 'react';
-import type * as Comlink from 'comlink';
-import type { ForensicsWorkerApi } from '@/workers/forensics.worker';
-import { withForensics } from './forensics-worker';
 
 /**
  * Runs one forensic job for the chosen file (again when `key` changes) and
  * keeps its result with the file it belongs to.
  */
-export function useForensics<T>(
+export function useFileJob<T>(
   file: File | null,
   key: string,
-  job: (api: Comlink.Remote<ForensicsWorkerApi>, file: File) => Promise<T>,
+  job: (file: File) => Promise<T>,
 ): { result: T | null; failed: boolean; busy: boolean } {
   const [state, setState] = useState<{ id: string; result?: T; failed?: boolean } | null>(null);
   const id = file ? `${file.name}|${file.size}|${file.lastModified}|${key}` : '';
@@ -18,7 +15,7 @@ export function useForensics<T>(
   useEffect(() => {
     if (!file) return;
     let active = true;
-    withForensics((api) => job(api, file))
+    job(file)
       .then((result) => {
         if (active) setState({ id, result });
       })

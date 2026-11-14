@@ -14,6 +14,8 @@ import {
   HistoryIcon,
   CpuIcon,
   TextSearchIcon,
+  FileUserIcon,
+  CalendarClockIcon,
   VenetianMaskIcon,
   ArrowLeftIcon,
   AudioLinesIcon,
@@ -75,6 +77,8 @@ import { PdfVersionsTool } from './forensics/PdfVersionsTool';
 import { DangerTool } from './forensics/DangerTool';
 import { ProgramTool } from './forensics/ProgramTool';
 import { StringsTool } from './forensics/StringsTool';
+import { DocSecretsTool } from './forensics/DocSecretsTool';
+import { TimelineTool } from './forensics/TimelineTool';
 import { RedactCheckTool } from './forensics/RedactCheckTool';
 import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
@@ -96,6 +100,8 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   danger: DangerTool,
   program: ProgramTool,
   strings: StringsTool,
+  docsecrets: DocSecretsTool,
+  timeline: TimelineTool,
   thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
@@ -140,6 +146,8 @@ const ICONS: Record<string, LucideIcon> = {
   danger: ShieldAlertIcon,
   program: CpuIcon,
   strings: TextSearchIcon,
+  docsecrets: FileUserIcon,
+  timeline: CalendarClockIcon,
   thumbprank: VenetianMaskIcon,
   treasure: MapIcon,
   ciphers: ScrollTextIcon,

@@ -5,7 +5,8 @@ import type { DangerLevel } from '@conbert/core';
 import { detectFileType } from '@/lib/detect-type';
 import { cn } from '@/lib/utils';
 import { HowItWorks, SingleFile } from '../SingleFile';
-import { useForensics } from './use-forensics';
+import { withForensics } from './forensics-worker';
+import { useFileJob } from './use-file-job';
 
 const LOOK: Record<DangerLevel, { icon: typeof ShieldCheckIcon; tone: string }> = {
   safe: { icon: ShieldCheckIcon, tone: 'border-emerald-500/40 bg-emerald-500/10' },
@@ -17,9 +18,9 @@ const LOOK: Record<DangerLevel, { icon: typeof ShieldCheckIcon; tone: string }> 
 export function DangerTool() {
   const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
-  const { result, failed, busy } = useForensics(file, 'danger', async (api, f) => {
+  const { result, failed, busy } = useFileJob(file, 'danger', async (f) => {
     const type = await detectFileType(f);
-    return api.danger(f, f.name, type.ext);
+    return withForensics((api) => api.danger(f, f.name, type.ext));
   });
 
   const Look = result ? LOOK[result.level] : null;

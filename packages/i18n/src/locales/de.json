@@ -4352,6 +4352,16 @@
         "title": "Text-Finder",
         "teaser": "Lesbarer Text in jeder Datei – Webadressen, E-Mails, IP-Adressen, Dateipfade und Krypto-Adressen hervorgehoben.",
         "how": "Auch Programme, Bilder und unbekannte Dateien enthalten oft lesbaren Text: Fehlermeldungen, Webadressen, Pfade vom Rechner des Erstellers. Conbert sucht nach Stellen mit mehreren lesbaren Zeichen hintereinander – in einfacher Form und in der Zwei-Byte-Form, die Windows-Programme gern nutzen (wie das Werkzeug „strings“). Besondere Fundstücke werden markiert: Webadressen, E-Mail-Adressen, IP-Adressen, Dateipfade und Krypto-Wallet-Adressen. Alles läuft in deinem Browser."
+      },
+      "docsecrets": {
+        "title": "Was verrät dein Dokument?",
+        "teaser": "Autorennamen, Firma, Vorlagenpfad, Kommentare, gelöschter Text: Was Word, Excel & Co. heimlich mitschicken – und eine saubere Kopie.",
+        "how": "Office-Dateien (Word, Excel, PowerPoint, LibreOffice) sind ZIP-Archive voller XML-Dateien. Darin steht viel mehr als der sichtbare Text: wer das Dokument erstellt und zuletzt bearbeitet hat, die Firma, wie lange daran gearbeitet wurde, der Pfad zur Vorlage auf dem Rechner des Autors, Kommentare, nachverfolgte Änderungen samt gelöschtem Text, versteckter Text, ausgeblendete Tabellenblätter und Folien, Sprechernotizen und ein Vorschaubild der ersten Seite. Conbert liest das alles aus und macht dir auf Wunsch eine bereinigte Kopie. Alles läuft in deinem Browser."
+      },
+      "timeline": {
+        "title": "Zeitleiste",
+        "teaser": "Alle Datums- und Zeitangaben einer Datei der Reihe nach – und Hinweise, wo sie nicht zusammenpassen.",
+        "how": "Fotos, Videos, PDFs und Office-Dateien tragen viele Zeitangaben in sich: wann aufgenommen, erstellt, geändert, wann die Metadaten zuletzt angefasst wurden, oft sogar jeden Bearbeitungsschritt (XMP-Verlauf). Dazu kommt die Zeit, zu der die Datei auf deinem Gerät zuletzt geändert wurde. Conbert liest alle Angaben mit ExifTool, ordnet sie auf einer Zeitleiste und zeigt Widersprüche: geändert vor dem Erstellen, Zeiten in der Zukunft, eine nicht gestellte Kamera-Uhr, Bearbeitung mit Photoshop & Co. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6169,6 +6179,90 @@
       "more_other": "{{count}} weitere Funde – verfeinere die Suche oder lade die Liste herunter.",
       "export_one": "1 Fund als Text herunterladen",
       "export_other": "{{count}} Funde als Text herunterladen"
+    },
+    "docsecrets": {
+      "failed": "Die Datei ließ sich nicht lesen. Conbert kann Word-, Excel- und PowerPoint-Dateien (.docx, .xlsx, .pptx und Varianten) und LibreOffice-Dateien (.odt, .ods, .odp) lesen – nicht die alten Formate (.doc, .xls) und keine mit Passwort geschützten Dateien.",
+      "found": "Dieses {{kind}} verrät einiges über sich – schau es dir unten an.",
+      "clean": "Gut: Dieses Dokument trägt kaum etwas Persönliches in sich.",
+      "kinds": {
+        "word": "Word-Dokument",
+        "excel": "Excel-Dokument",
+        "powerpoint": "PowerPoint-Dokument",
+        "odf": "LibreOffice-Dokument"
+      },
+      "people": "Genannte Personen",
+      "properties": "Dokument-Eigenschaften",
+      "paths": "Pfade vom Rechner des Autors",
+      "changes": "Nachverfolgte Änderungen ({{count}})",
+      "ins": "eingefügt",
+      "del": "gelöscht",
+      "comments": "Kommentare ({{count}})",
+      "hiddenText": "Versteckter Text",
+      "hiddenSheets": "Ausgeblendete Tabellenblätter",
+      "hiddenSlides": "Ausgeblendete Folien",
+      "notes": "Sprechernotizen",
+      "slide": "Folie {{n}}",
+      "more": "Außerdem",
+      "thumbnail": "Ein Vorschaubild der ersten Seite – zeigt sie so, wie sie beim letzten Speichern aussah.",
+      "sessions_one": "1 gespeicherte Bearbeitungssitzung (verrät, wie oft das Dokument bearbeitet wurde).",
+      "sessions_other": "{{count}} gespeicherte Bearbeitungssitzungen (verrät, wie oft das Dokument bearbeitet wurde).",
+      "minutes_one": "{{count}} Minute",
+      "minutes_other": "{{count}} Minuten",
+      "prop": {
+        "creator": "Erstellt von",
+        "lastModifiedBy": "Zuletzt geändert von",
+        "created": "Erstellt am",
+        "modified": "Geändert am",
+        "lastPrinted": "Zuletzt gedruckt",
+        "revision": "Anzahl Speicherungen",
+        "title": "Titel",
+        "subject": "Thema",
+        "keywords": "Stichwörter",
+        "description": "Kommentar",
+        "application": "Programm",
+        "company": "Firma",
+        "manager": "Vorgesetzte(r)",
+        "template": "Vorlage",
+        "totalTime": "Bearbeitungszeit",
+        "hyperlinkBase": "Link-Basis",
+        "printedBy": "Gedruckt von"
+      },
+      "cleanTitle": "Saubere Kopie herunterladen",
+      "cleanIntro": "Entfernt Namen (werden zu „Autor“), Firma, Vorgesetzte, Vorlagenpfad, Bearbeitungszeit, Sitzungsnummern und das Vorschaubild. Das Original bleibt unverändert.",
+      "options": {
+        "acceptChanges": "Alle Änderungen annehmen (gelöschter Text ist danach wirklich weg)",
+        "removeComments": "Kommentare löschen",
+        "removeHidden": "Versteckten Text löschen"
+      },
+      "onlyMeta": "Bei Excel, PowerPoint und LibreOffice entfernt Conbert die Personen- und Dokumentangaben. Kommentare, ausgeblendete Blätter und Notizen lösch bitte im Programm selbst.",
+      "cleanButton": "Bereinigte Kopie herunterladen"
+    },
+    "timeline": {
+      "failed": "Die Zeitangaben ließen sich nicht lesen.",
+      "working": "Zeitangaben werden gelesen …",
+      "none": "In dieser Datei stehen keine Zeitangaben – nur die Zeit vom Dateisystem.",
+      "noZone": "(ohne Zeitzone)",
+      "fileSystem": "Dateisystem (wann die Datei auf deinem Gerät zuletzt geändert wurde)",
+      "labels": {
+        "taken": "Aufgenommen / ursprünglich erstellt",
+        "created": "Erstellt",
+        "modified": "Geändert",
+        "metadata": "Metadaten geändert",
+        "history": "Bearbeitungsschritt",
+        "gps": "GPS-Zeit (vom Satelliten)",
+        "printed": "Gedruckt",
+        "file": "Datei zuletzt geändert",
+        "other": "Weitere Zeitangabe"
+      },
+      "warnings": {
+        "modifiedBeforeCreated": "Die Datei wurde angeblich geändert, bevor sie erstellt wurde. Das passiert, wenn Zeitangaben nachträglich verstellt wurden.",
+        "future": "Mindestens eine Zeitangabe liegt in der Zukunft – die Uhr des Geräts war falsch gestellt oder die Angabe wurde verändert.",
+        "clockNotSet": "Eine Zeitangabe ist sehr alt (vor 1995 oder genau 1.1.2000 / 1.1.1970) – meist war die Uhr der Kamera nicht gestellt.",
+        "editedWith": "Die Datei wurde mit einem Bildbearbeitungsprogramm gespeichert: {{software}}.",
+        "fileOlder": "Laut Dateisystem ist die Datei älter als der Inhalt, den sie zeigt. Die Zeit im Dateisystem wurde wahrscheinlich nachträglich gesetzt.",
+        "editedLater": "Die Datei wurde mehr als einen Tag nach der Aufnahme noch einmal geändert.",
+        "zones": "Die Zeitangaben nennen verschiedene Zeitzonen ({{zones}}) – z. B. nach einer Reise oder einer Bearbeitung in einem anderen Land."
+      }
     }
   },
   "feeds": {

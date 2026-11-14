@@ -1,11 +1,15 @@
 import * as Comlink from 'comlink';
 import {
   blobReader,
+  cleanOffice,
   dangerCheck,
   findStrings,
   inspectProgram,
+  readOfficeSecrets,
   recoverCroppedPng,
+  type CleanOptions,
   type CropRecovery,
+  type OfficeSecrets,
   type DangerReport,
   type ProgramInfo,
   type StringsResult,
@@ -35,6 +39,13 @@ const api = {
   },
   async program(file: Blob): Promise<ProgramInfo | null> {
     return inspectProgram(await head(file));
+  },
+  officeSecrets(file: Blob): Promise<OfficeSecrets> {
+    return readOfficeSecrets(blobReader(file));
+  },
+  async cleanOffice(file: Blob, options: CleanOptions): Promise<Uint8Array> {
+    const bytes = await cleanOffice(blobReader(file), options);
+    return Comlink.transfer(bytes, [bytes.buffer]);
   },
   async strings(file: Blob, minLength: number): Promise<StringsResult & { partial: boolean }> {
     return { ...findStrings(await head(file), { minLength }), partial: file.size > READ_LIMIT };
