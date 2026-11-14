@@ -33,3 +33,4 @@ export * from './models';
 export * from './options/image-ai';
 export * from './help';
 export * from './presets';
+export * from './options/visualizer';

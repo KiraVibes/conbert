@@ -33,6 +33,7 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'pixelart', group: 'fun' },
   { id: 'emojimosaic', group: 'fun' },
   { id: 'ringtone', group: 'fun' },
+  { id: 'audiovideo', group: 'fun' },
   { id: 'glitch', group: 'fun' },
   { id: 'deepfry', group: 'fun' },
   { id: 'qr', group: 'fun' },

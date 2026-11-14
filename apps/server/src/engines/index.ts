@@ -1,6 +1,7 @@
 import type { Engine } from '@conbert/core';
 import { ffmpegAudioEngine, ffmpegVideoEngine } from './ffmpeg';
 import { archivesEngine } from './archives';
+import { audioVideoEngine } from './audio-video';
 import { assimpEngine } from './assimp';
 import { blenderEngine } from './blender';
 import { calibreEngine } from './calibre';
@@ -31,6 +32,7 @@ export const serverEngines: readonly Engine[] = [
   imagemagickEngine,
   ffmpegAudioEngine,
   ffmpegVideoEngine,
+  audioVideoEngine,
   pandocEngine,
   vtracerEngine,
   gbaVideoEngine,

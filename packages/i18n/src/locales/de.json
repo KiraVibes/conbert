@@ -170,6 +170,9 @@
     },
     "svgo": {
       "description": "Macht SVG-Grafiken kleiner: entfernt Unnötiges (Kommentare, Editor-Notizen, doppelte Angaben) und kürzt Zahlen. Die Grafik sieht danach gleich aus."
+    },
+    "audioVideo": {
+      "description": "Macht aus Musik, Podcasts oder Sprachnachrichten ein Video mit bewegter Wellenform und Cover – zum Hochladen bei YouTube, Instagram & Co. (auf deinem Server)."
     }
   },
   "options": {
@@ -708,6 +711,47 @@
     "svgKeepEditorData": {
       "label": "Editor-Daten behalten",
       "help": "Inkscape, Illustrator & Co. speichern Ebenen-Namen, Notizen und eigene Angaben in der SVG. Die braucht nur das Zeichenprogramm. An = sie bleiben drin (zum Weiterbearbeiten), aus = sie fliegen raus (kleiner)."
+    },
+    "vizStyle": {
+      "label": "Darstellung",
+      "help": "Was im Video zu sehen ist, während der Ton läuft.",
+      "choices": {
+        "wave": "Wellenform",
+        "bars": "Frequenz-Säulen",
+        "spectrum": "Spektrum (Farbverlauf)",
+        "still": "Nur das Bild"
+      },
+      "choiceHelp": {
+        "wave": "Eine Welle, die mit der Lautstärke ausschlägt – passt zu Sprache und Musik.",
+        "bars": "Säulen für tiefe bis hohe Töne, wie bei einer Stereoanlage.",
+        "spectrum": "Ein bunter, nach links laufender Teppich: hell = laut, oben = hohe Töne.",
+        "still": "Nur Cover bzw. Hintergrund, ohne Bewegung. Am schnellsten und kleinsten – gut für lange Podcasts."
+      }
+    },
+    "vizCover": {
+      "label": "Cover-Bild",
+      "help": "Optional: ein Bild (JPG, PNG, WebP), z. B. das Album-Cover oder ein Foto. Es erscheint scharf in der Mitte und verschwommen als Hintergrund. Ohne Bild gibt es einen dunklen Hintergrund."
+    },
+    "vizSize": {
+      "label": "Format",
+      "help": "Die Größe des Videos. Querformat für YouTube, quadratisch für Instagram-Beiträge, Hochformat für Reels, Stories und TikTok.",
+      "choices": {
+        "landscape720": "Querformat 1280 × 720 (HD)",
+        "landscape1080": "Querformat 1920 × 1080 (Full HD)",
+        "square": "Quadratisch 1080 × 1080",
+        "portrait": "Hochformat 1080 × 1920"
+      }
+    },
+    "vizColor": {
+      "label": "Farbe",
+      "help": "Die Farbe von Welle bzw. Säulen. Das Spektrum hat immer seinen eigenen Farbverlauf.",
+      "choices": {
+        "violet": "Violett",
+        "white": "Weiß",
+        "cyan": "Türkis",
+        "orange": "Orange",
+        "green": "Grün"
+      }
     }
   },
   "engineStatus": {
@@ -2270,6 +2314,11 @@
       "what": "Dein Kontaktbuch ist voll.",
       "cause": "Es fasst höchstens 500 Kontakte.",
       "action": "Lösche Kontakte, die du nicht mehr brauchst."
+    },
+    "coverInvalid": {
+      "what": "Das gewählte Cover ist kein Bild, das Conbert lesen kann.",
+      "cause": "Fürs Cover gehen nur JPG, PNG, WebP und BMP.",
+      "action": "Wandle das Bild zuerst in JPG oder PNG um und wähl es dann noch einmal."
     }
   },
   "stages": {
@@ -4110,6 +4159,11 @@
         "title": "Bilder herausholen",
         "teaser": "Hol alle Fotos und Grafiken aus Word, PowerPoint, PDF, EPUB & Co. – in Originalqualität.",
         "how": "Viele Dokumente sind in Wahrheit ZIP-Archive: Word (DOCX), PowerPoint (PPTX), Excel (XLSX), LibreOffice (ODT/ODP), E-Books (EPUB), Comics (CBZ) und Apple Pages/Keynote/Numbers. Die Bilder liegen darin als ganz normale Dateien, z. B. unter „word/media/image1.png“. Conbert packt sie einfach aus – ohne neu zu speichern, also in voller Qualität. Ein PDF speichert jedes Bild als eigenes „Objekt“: JPEG-Fotos liegen dort unverändert und kommen genauso heraus. Andere Bilder sind als gepackte Rohpixel gespeichert; Conbert macht daraus PNG-Dateien. Ein paar Spezialformate (z. B. Fax-Kompression bei eingescannten Seiten) kann Conbert nicht umwandeln – die werden gezählt, aber übersprungen. Alles passiert auf deinem Gerät."
+      },
+      "audiovideo": {
+        "title": "Audio zu Video",
+        "teaser": "Mach aus einem Lied oder Podcast ein Video mit Wellenform und Cover – für YouTube, Instagram & TikTok.",
+        "how": "Viele Plattformen nehmen nur Videos an, keine reinen Tondateien. Conbert schickt deine Tondatei an deinen eigenen Server, und ffmpeg baut daraus ein Video: Jedes Bild zeigt, wie der Ton gerade aussieht – als Welle (Lautstärke im Zeitverlauf), als Säulen (wie stark tiefe und hohe Töne gerade sind) oder als Spektrum (die Töne als Farbteppich). Das Cover wird scharf in die Mitte und verschwommen in den Hintergrund gelegt. Der Ton bleibt in guter Qualität (AAC bzw. Opus). Tipp: „Nur das Bild“ ist am schnellsten – bei einer Stunde Podcast dauert eine bewegte Welle deutlich länger."
       }
     },
     "identify": {
@@ -5645,6 +5699,21 @@
       "previews": "Vorschaubilder, die das Programm selbst angelegt hat (z. B. für den Datei-Explorer), sind zu Beginn abgewählt.",
       "pdfHint": "Bilder aus PDFs kommen so heraus, wie sie gespeichert sind – zugeschnittene oder gedrehte Bilder erscheinen daher manchmal ganz bzw. ungedreht. Durchsichtige Bereiche fehlen (die Maske ist ein eigenes Objekt).",
       "pdfPrefix": "bild"
+    },
+    "audiovideo": {
+      "sound": "Tondatei",
+      "cover": "Cover-Bild (optional)",
+      "removeCover": "Cover entfernen",
+      "container": "Video-Format",
+      "make": "Video erzeugen",
+      "making": "Video wird erzeugt … {{percent}} %",
+      "uploading": "Wird hochgeladen … {{percent}} %",
+      "stop": "Abbrechen",
+      "save": "Video speichern",
+      "needsServer": "Dafür braucht es den Server – er ist gerade nicht erreichbar oder ffmpeg fehlt dort.",
+      "notSound": "Das ist keine Tondatei, die Conbert kennt. Es gehen MP3, WAV, FLAC, OGG, Opus, M4A, AAC, AIFF und WMA.",
+      "failed": "Das Video konnte nicht erzeugt werden.",
+      "done": "Fertig: {{size}}"
     }
   },
   "feeds": {

@@ -25,6 +25,7 @@ export const ENGINE_ERROR_KEYS = [
   'errors.formatUnavailable',
   'errors.noMatchingStream',
   'errors.allSilent',
+  'errors.coverInvalid',
 ] as const;
 
 export function isAbortError(error: unknown): boolean {

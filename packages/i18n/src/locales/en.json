@@ -170,6 +170,9 @@
     },
     "svgo": {
       "description": "Makes SVG graphics smaller: removes what is not needed (comments, editor notes, repeated values) and shortens numbers. The graphic looks the same afterwards."
+    },
+    "audioVideo": {
+      "description": "Turns music, podcasts or voice messages into a video with a moving waveform and cover – for uploading to YouTube, Instagram & co. (on your server)."
     }
   },
   "options": {
@@ -708,6 +711,47 @@
     "svgKeepEditorData": {
       "label": "Keep editor data",
       "help": "Inkscape, Illustrator & co. store layer names, notes and their own details in the SVG. Only the drawing program needs them. On = they stay (to keep editing), off = they are removed (smaller)."
+    },
+    "vizStyle": {
+      "label": "Look",
+      "help": "What the video shows while the sound plays.",
+      "choices": {
+        "wave": "Waveform",
+        "bars": "Frequency bars",
+        "spectrum": "Spectrum (colour gradient)",
+        "still": "Picture only"
+      },
+      "choiceHelp": {
+        "wave": "A wave that moves with the volume – suits speech and music.",
+        "bars": "Bars from low to high notes, like on a stereo.",
+        "spectrum": "A colourful carpet moving left: bright = loud, top = high notes.",
+        "still": "Only the cover or background, nothing moves. Fastest and smallest – good for long podcasts."
+      }
+    },
+    "vizCover": {
+      "label": "Cover picture",
+      "help": "Optional: a picture (JPG, PNG, WebP), e.g. the album cover or a photo. It shows sharp in the middle and blurred as the background. Without one you get a dark background."
+    },
+    "vizSize": {
+      "label": "Format",
+      "help": "The size of the video. Landscape for YouTube, square for Instagram posts, portrait for Reels, Stories and TikTok.",
+      "choices": {
+        "landscape720": "Landscape 1280 × 720 (HD)",
+        "landscape1080": "Landscape 1920 × 1080 (Full HD)",
+        "square": "Square 1080 × 1080",
+        "portrait": "Portrait 1080 × 1920"
+      }
+    },
+    "vizColor": {
+      "label": "Colour",
+      "help": "The colour of the wave or bars. The spectrum always has its own colour gradient.",
+      "choices": {
+        "violet": "Violet",
+        "white": "White",
+        "cyan": "Turquoise",
+        "orange": "Orange",
+        "green": "Green"
+      }
     }
   },
   "engineStatus": {
@@ -2270,6 +2314,11 @@
       "what": "Your contact book is full.",
       "cause": "It holds at most 500 contacts.",
       "action": "Delete contacts you no longer need."
+    },
+    "coverInvalid": {
+      "what": "The chosen cover isn't a picture Conbert can read.",
+      "cause": "Only JPG, PNG, WebP and BMP work as a cover.",
+      "action": "Convert the picture to JPG or PNG first, then choose it again."
     }
   },
   "stages": {
@@ -4110,6 +4159,11 @@
         "title": "Get pictures out",
         "teaser": "Pull every photo and graphic out of Word, PowerPoint, PDF, EPUB & co. – in original quality.",
         "how": "Many documents are really ZIP archives: Word (DOCX), PowerPoint (PPTX), Excel (XLSX), LibreOffice (ODT/ODP), e-books (EPUB), comics (CBZ) and Apple Pages/Keynote/Numbers. The pictures sit inside as normal files, e.g. under “word/media/image1.png”. Conbert simply unpacks them – without saving them again, so in full quality. A PDF keeps every picture as an “object” of its own: JPEG photos are stored unchanged and come out exactly like that. Other pictures are stored as packed raw pixels; Conbert turns them into PNG files. A few special formats (e.g. fax compression in scanned pages) can't be converted – they are counted but skipped. Everything happens on your device."
+      },
+      "audiovideo": {
+        "title": "Audio to video",
+        "teaser": "Turn a song or podcast into a video with a waveform and cover – for YouTube, Instagram & TikTok.",
+        "how": "Many platforms only take videos, not plain sound files. Conbert sends your sound file to your own server, and ffmpeg builds a video from it: every frame shows what the sound looks like right now – as a wave (volume over time), as bars (how strong low and high notes are) or as a spectrum (the notes as a colour carpet). The cover goes sharp into the middle and blurred into the background. The sound stays in good quality (AAC or Opus). Tip: “Picture only” is fastest – for an hour of podcast a moving wave takes a lot longer."
       }
     },
     "identify": {
@@ -5645,6 +5699,21 @@
       "previews": "Preview pictures the app made itself (e.g. for the file explorer) start unselected.",
       "pdfHint": "Pictures come out of PDFs the way they are stored – cropped or turned pictures may therefore appear whole or unturned. Transparent areas are missing (the mask is an object of its own).",
       "pdfPrefix": "image"
+    },
+    "audiovideo": {
+      "sound": "Sound file",
+      "cover": "Cover picture (optional)",
+      "removeCover": "Remove cover",
+      "container": "Video format",
+      "make": "Make video",
+      "making": "Making the video … {{percent}} %",
+      "uploading": "Uploading … {{percent}} %",
+      "stop": "Cancel",
+      "save": "Save video",
+      "needsServer": "This needs the server – it can't be reached right now or ffmpeg is missing there.",
+      "notSound": "This isn't a sound file Conbert knows. MP3, WAV, FLAC, OGG, Opus, M4A, AAC, AIFF and WMA work.",
+      "failed": "The video couldn't be made.",
+      "done": "Done: {{size}}"
     }
   },
   "feeds": {
