@@ -32,3 +32,5 @@ export * from './compare';
 export * from './extract-images';
 export * from './scanner';
 export * from './exif-thumb';
+export * from './cropped-png';
+export * from './inflate-tail';

@@ -4171,7 +4171,7 @@
       "detective": {
         "title": "Detektiv-Scan",
         "teaser": "Durchsucht jede Datei nach Verstecktem – und holt es heraus. Elementar, mein lieber Watson!",
-        "how": "Der Scan liest die ganze Datei und sucht an jeder Stelle nach den Erkennungszeichen bekannter Formate – wie das Werkzeug „binwalk“. Steht mitten in einem Bild plötzlich „PK“ oder „%PDF“, steckt dort wahrscheinlich eine weitere Datei. Außerdem prüft er, ob hinter dem eigentlichen Dateiende noch Daten hängen, liest Text-Notizen in Bildern und findet unsichtbare Zeichen in Texten. Alles Gefundene kannst du einzeln herunterladen; Archive lassen sich direkt entpacken."
+        "how": "Der Scan liest die ganze Datei und sucht an jeder Stelle nach den Erkennungszeichen bekannter Formate – wie das Werkzeug „binwalk“. Steht mitten in einem Bild plötzlich „PK“ oder „%PDF“, steckt dort wahrscheinlich eine weitere Datei. Außerdem prüft er, ob hinter dem eigentlichen Dateiende noch Daten hängen, liest Text-Notizen in Bildern und findet unsichtbare Zeichen in Texten. Alles Gefundene kannst du einzeln oder alles auf einmal als ZIP herunterladen; Archive lassen sich direkt entpacken. Das klappt auch mit Abbildern von Speicherkarten oder USB-Sticks (.img, .dd): So kommst du an Fotos und Dokumente, die darin noch stecken („Datei-Carving“)."
       },
       "vault": {
         "title": "Verschlüsseln für …",
@@ -4322,6 +4322,11 @@
         "title": "Vorschau-Streich",
         "teaser": "Ein Foto, das in der kleinen Vorschau ganz anders aussieht als beim Öffnen. Die Katze wird zur Gurke!",
         "how": "JPEG-Fotos können ein kleines Vorschaubild in sich tragen (in den EXIF-Daten). Manche Datei-Explorer und Bildbetrachter zeigen in der Übersicht nur dieses kleine Bild, statt das große Foto zu lesen – das geht schneller. Conbert speichert dein echtes Bild und legt als Vorschau ein ganz anderes hinein. Wer die Datei in so einem Programm sieht und dann öffnet, staunt. Klappt z. B. im Windows-Explorer bei kleinen und mittleren Symbolen und in vielen Kamera- und Galerie-Apps. Messenger und soziale Netzwerke löschen die Vorschau meist beim Hochladen – dort klappt der Streich nicht. Mit dem „Vorschau-Prüfer“ kann man den Streich entlarven. Alles läuft in deinem Browser."
+      },
+      "cropcheck": {
+        "title": "Abgeschnitten?",
+        "teaser": "Steckt im zugeschnittenen Screenshot noch der Rest des Originals? Conbert holt ihn zurück.",
+        "how": "Manche Werkzeuge zum Zuschneiden – ältere Versionen des Windows-Snipping-Tools und von Google-Pixel-Markup („aCropalypse“, 2023) – haben das kleinere Bild einfach über die alte Datei geschrieben, ohne sie zu kürzen. Hinter dem Ende des neuen Bildes liegt dann noch der Rest des alten. Conbert sucht dort nach den gepackten Bilddaten, findet die Stelle, an der sie sich wieder lesen lassen, errät die alte Bildbreite und baut den unteren Teil des Originals wieder auf. Bytes, die beim Zuschneiden überschrieben wurden, rät Conbert (meist ist es Hintergrund). Das zeigt, warum man Bilder vor dem Teilen am besten neu speichert. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -4741,7 +4746,13 @@
       "trickHint": "Öffne die Datei dort noch einmal, um die Nachricht zu lesen.",
       "lsbHint": "Das ist ein Hinweis, kein Beweis: Stark verrauschte Fotos können ähnlich aussehen. Eine Conbert-Nachricht ist es nicht – die hätte der Scan direkt erkannt. Unter „Steganografie“ kannst du die untersten Bits als Bild ansehen.",
       "entriesPassword": "Passwort zum Entschlüsseln eingeben:",
-      "needsPassword": "Bitte gib erst das Passwort ein, um diese Datei herunterzuladen."
+      "needsPassword": "Bitte gib erst das Passwort ein, um diese Datei herunterzuladen.",
+      "saveAll_one": "Den Fund als ZIP herunterladen",
+      "saveAll_other": "Alle {{count}} Funde als ZIP herunterladen",
+      "saveAllNone": "Keiner der Funde ließ sich herausholen.",
+      "saveAllSkipped_one": "1 Fund wurde ausgelassen (z. B. ein Programm, das Conbert nicht herausgibt).",
+      "saveAllSkipped_other": "{{count}} Funde wurden ausgelassen (z. B. Programme, die Conbert nicht herausgibt).",
+      "saveAllFailed": "Die ZIP-Datei konnte nicht erstellt werden."
     },
     "errors": {
       "encrypted": "Diese Datei ist mit einem Passwort verschlüsselt. Lade das ganze Archiv herunter und öffne es mit 7-Zip oder WinRAR.",
@@ -5954,6 +5965,20 @@
         "cropped": "Das Vorschaubild hat ein anderes Seitenverhältnis als das Bild. Meist wurde das Bild nachträglich zugeschnitten – die Vorschau zeigt dann mehr vom Original. Manche Kameras setzen aber auch nur schwarze Ränder.",
         "different": "Vorschau und Bild zeigen etwas anderes ({{percent}} % weichen ab)! Das Bild wurde nachträglich verändert, ohne die Vorschau anzupassen – oder es ist ein Vorschau-Streich."
       }
+    },
+    "cropcheck": {
+      "working": "Suche nach Resten des Originals …",
+      "failed": "Die Datei ließ sich nicht prüfen.",
+      "restAlt": "Wiederhergestellter unterer Teil des Originalbildes",
+      "magenta": "Ein Teil der Daten wurde beim Zuschneiden überschrieben. Conbert setzt dort die häufigste Farbe ein – bei Hintergründen stimmt das fast immer, bei Text und Bildern nicht unbedingt.",
+      "download": "Wiederhergestellten Teil herunterladen",
+      "verdict": {
+        "not-png": "Das ist kein PNG-Bild. Der Fehler betraf zugeschnittene Screenshots im PNG-Format.",
+        "clean": "Alles in Ordnung: Hinter dem Bildende steht nichts mehr. Hier steckt kein Rest eines älteren Bildes.",
+        "trailer-only": "Hinter dem Bildende stehen noch {{bytes}} Bytes – aber daraus ließ sich kein Bild aufbauen. Schau mit dem Detektiv-Scan nach, was es ist.",
+        "recovered": "Gefunden! Hinter dem Bildende steckte der Rest des ursprünglichen Bildes. Conbert hat {{height}} Zeilen mit {{width}} Pixeln Breite wiederhergestellt – das ist der untere Teil des Originals."
+      },
+      "showLost": "Geratene Stellen pink zeigen ({{percent}} % des Bildes)"
     }
   },
   "feeds": {

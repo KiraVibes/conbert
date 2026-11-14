@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { hex } from '../save-blob';
 import { carvePart, extractEntry, runScan, unlockEntry } from '../workshop-worker';
 import { partName, saveResult } from './save-part';
+import { SaveAllParts } from './SaveAllParts';
 
 function findingText(t: TFunction, f: Finding, language: string): string {
   const values: Record<string, string | number> = { ...f.values };
@@ -278,6 +279,8 @@ export function DetectivePanel({
           </p>
         </div>
       </div>
+
+      <SaveAllParts file={file} findings={findings} />
 
       {hidden.length > 0 && (
         <ul className="space-y-3">

@@ -4171,7 +4171,7 @@
       "detective": {
         "title": "Detective scan",
         "teaser": "Searches any file for hidden things – and gets them out. Elementary, my dear Watson!",
-        "how": "The scan reads the whole file and looks for the marks of known formats at every single position – like the tool “binwalk”. If “PK” or “%PDF” suddenly shows up in the middle of a picture, another file probably sits there. It also checks whether data hangs behind the actual end of the file, reads text notes in pictures and finds invisible characters in texts. You can download everything it finds; archives can be unpacked right away."
+        "how": "The scan reads the whole file and looks at every spot for the signs of known formats – like the tool “binwalk”. If “PK” or “%PDF” suddenly shows up in the middle of a picture, there's probably another file in it. It also checks whether data hangs behind the real end of the file, reads text notes in pictures and finds invisible characters in texts. You can download everything found one by one or all at once as a ZIP; archives can be unpacked right away. This also works with images of memory cards or USB sticks (.img, .dd): that's how you get at photos and documents still inside (“file carving”)."
       },
       "vault": {
         "title": "Encrypt for …",
@@ -4322,6 +4322,11 @@
         "title": "Preview prank",
         "teaser": "A photo that looks completely different in the small preview than when you open it. The cat turns into a cucumber!",
         "how": "JPEG photos can carry a small preview picture (in the EXIF data). Some file explorers and image viewers show only this small picture in their overview instead of reading the big photo – it's faster. Conbert saves your real picture and puts a completely different one in as its preview. Whoever sees the file in such a program and then opens it is amazed. Works e.g. in Windows Explorer with small and medium icons and in many camera and gallery apps. Messengers and social networks usually delete the preview when uploading – the prank doesn't work there. The “Preview checker” unmasks the prank. Everything runs in your browser."
+      },
+      "cropcheck": {
+        "title": "Cropped?",
+        "teaser": "Does a cropped screenshot still hold the rest of the original? Conbert brings it back.",
+        "how": "Some cropping tools – older versions of the Windows Snipping Tool and Google Pixel Markup (“aCropalypse”, 2023) – simply wrote the smaller picture over the old file without making it shorter. Behind the new picture's end, the rest of the old one is still there. Conbert looks there for the packed picture data, finds the spot where it can be read again, guesses the old picture's width and rebuilds the lower part of the original. Bytes that were overwritten when cropping are guessed (usually they're background). This shows why it's best to save pictures again before sharing them. Everything runs in your browser."
       }
     },
     "identify": {
@@ -4741,7 +4746,13 @@
       "trickHint": "Open the file there again to read the message.",
       "lsbHint": "This is a hint, not proof: very noisy photos can look similar. It isn't a Conbert message – the scan would have recognised that directly. Under “Steganography” you can view the lowest bits as a picture.",
       "entriesPassword": "Enter the password to decrypt:",
-      "needsPassword": "Please enter the password first to download this file."
+      "needsPassword": "Please enter the password first to download this file.",
+      "saveAll_one": "Download the find as a ZIP",
+      "saveAll_other": "Download all {{count}} finds as a ZIP",
+      "saveAllNone": "None of the finds could be taken out.",
+      "saveAllSkipped_one": "1 find was left out (e.g. a program Conbert doesn't hand out).",
+      "saveAllSkipped_other": "{{count}} finds were left out (e.g. programs Conbert doesn't hand out).",
+      "saveAllFailed": "The ZIP file couldn't be made."
     },
     "errors": {
       "encrypted": "This file is encrypted with a password. Download the whole archive and open it with 7-Zip or WinRAR.",
@@ -5954,6 +5965,20 @@
         "cropped": "The preview has a different side ratio than the picture. Usually the picture was cropped afterwards – the preview then shows more of the original. Some cameras just add black borders, though.",
         "different": "Preview and picture show something different ({{percent}} % differ)! The picture was changed afterwards without updating the preview – or it's a preview prank."
       }
+    },
+    "cropcheck": {
+      "working": "Looking for what's left of the original …",
+      "failed": "The file couldn't be checked.",
+      "restAlt": "Recovered lower part of the original picture",
+      "magenta": "Part of the data was overwritten when cropping. Conbert fills in the most common colour there – for backgrounds that's almost always right, for text and pictures not necessarily.",
+      "download": "Download the recovered part",
+      "verdict": {
+        "not-png": "This isn't a PNG picture. The flaw affected cropped screenshots in PNG format.",
+        "clean": "All fine: nothing follows the picture's end. There's no rest of an older picture here.",
+        "trailer-only": "{{bytes}} bytes follow the picture's end – but no picture could be rebuilt from them. Use the detective scan to see what it is.",
+        "recovered": "Found! The rest of the original picture was hiding behind the picture's end. Conbert recovered {{height}} rows of {{width}} pixels – that's the lower part of the original."
+      },
+      "showLost": "Show guessed spots in pink ({{percent}} % of the picture)"
     }
   },
   "feeds": {
