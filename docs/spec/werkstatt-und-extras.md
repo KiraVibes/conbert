@@ -29,13 +29,30 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 | **Datei-Entropie** | Grafik, wie „zufällig“ die Datei ist – erklärt, warum komprimierte/verschlüsselte Daten nicht weiter schrumpfen. |
 | **Vergleichen** (ergänzt 2026-11-14) | Zwei Dateien: erst Byte für Byte (identisch? erste Abweichung, Anzahl), dann je nach Art: Texte als Zeilen-Diff (Myers, gleiche Abschnitte eingeklappt, bis 10 MB), Bilder mit Schieberegler, Unterschiedsmaske mit Toleranz und Nebeneinander (andere Größe → B wird skaliert, mit Hinweis), sonst Liste der abweichenden Stellen mit Hex-Ausschnitt. Alles im Browser. |
 
+**Datei-Forensik** (ergänzt 2026-11-14 auf Wunsch des Nutzers; der Fälschungs-Detektor ist hierher umgezogen)
+| Trick | Beschreibung |
+|---|---|
+| **Vorschau-Prüfer** | Holt das EXIF-Vorschaubild (IFD1) aus einem JPEG und vergleicht es mit dem Bild (gleich / anderes Seitenverhältnis = zugeschnitten / anderer Inhalt = bearbeitet oder Vorschau-Streich). |
+| **Abgeschnitten? (aCropalypse)** | Sucht hinter dem PNG-Ende nach dem Rest des Originals (CVE-2023-21036/28303): eigener DEFLATE-Decoder, der mitten im Datenstrom startet (verlorene Rückverweise markiert), Bildbreite aus den Filter-Bytes (RGB/RGBA über gleichbleibenden Alpha-Kanal), verlorene Bytes geraten (häufigster Wert je Filter und Kanal), wahlweise pink markiert. |
+| **Schwärzung echt?** | Zeichnet jede PDF-Seite (pdf.js) und prüft jede Textzeile: einfarbige Fläche über vorhandenem Text = nur überdeckt (dunkel, weiß/unsichtbar, farbig). Bis 300 Seiten. |
+| **Frühere Fassungen** | Teilt inkrementell gespeicherte PDFs an jedem `%%EOF` (der erste Teil linearisierter PDFs zählt nicht), zeigt Seiten, geänderte Seiten (Textvergleich) und lädt jede Fassung einzeln herunter. |
+| **Gefahren-Check** | Ampel für „Kann ich das öffnen?“: Programme (auch getarnt, Doppel-Endung, RTLO-Zeichen, Leerzeichen-Trick), Skripte, Verknüpfungen mit Befehl, Office-Makros (OOXML und alt), externe Vorlagen, DDE, OLE-Objekte, PDF-JavaScript/Launch/Auto-Aktionen/Anhänge/Formularversand, Archive mit Pfad-Tricks, Programmen, Zip-Bomben, Verschlüsselung, Verschachtelung, Laufwerks-Abbilder, Phishing-Seiten (Passwortfeld), SVG mit Skript. Kein Virenscanner – das steht auch dabei. |
+| **Programm-Inspektor** | PE/ELF/Mach-O: Art, Prozessor, Fenster/Konsole, Erstellungszeit, Signatur vorhanden, .NET, Packer (Abschnittsnamen, Entropie), Bibliotheken und Funktionen, daraus Fähigkeiten in Klartext (Tastatur, Injektion, Internet …). Nur lesen, nie ausführen. |
+| **Text-Finder** | Wie `strings`: ASCII und UTF-16LE ab wählbarer Länge, markiert Webadressen, E-Mails, IPs, Pfade, Krypto-Adressen; Filter, Suche, Export als Text. |
+| **Zeitleiste** | Alle Zeitangaben (ExifTool, auch XMP-Verlauf) plus Dateisystem-Zeit in Reihenfolge, Hinweise: geändert vor erstellt, Zukunft, Kamera-Uhr nicht gestellt, Bildbearbeitung, Datei älter als Inhalt, später bearbeitet, mehrere Zeitzonen. |
+| **JPG-Herkunft** | Quantisierungstabellen (Standard-libjpeg vs. eigene, geschätzte Qualität), EXIF-Hersteller/Software, Photoshop-/Adobe-Blöcke, progressiv, Farbunterabtastung, typische Messenger-Größen → Kamera / Bearbeitung / Messenger / Programm. |
+| **Kopierte Bereiche** | Copy-Move-Erkennung: Fingerabdruck je 8×8-Block (16 Mittelwerte, gerundet), gemeinsame Verschiebungen → Quelle blau, Kopie rot; flache Blöcke ausgelassen. |
+| **Forensik-Lupe** | Rauschen (Bild minus Median), Kanten (Sobel), Helligkeitsband (schmaler Bereich gedehnt) mit Reglern. |
+| **Schnitt-Detektor** | Aufnahmen: Hintergrundrauschen (leisestes Zehntel über je 2 s links/rechts), Klicks (Knick in der Wellenform), Netzbrummen 50/60 Hz (Goertzel) – Diagramm, Liste, Sprung im Player. |
+
 **Schutz, Prüfen & Reparieren** (ergänzt 2026-10-30 auf Wunsch des Nutzers)
 | Trick | Beschreibung |
 |---|---|
 | **Schlüssel-Tresor** | Jedes Konto kann ein Schlüsselpaar (age, X25519) anlegen. Der private Schlüssel entsteht im Browser und wird dort mit einem eigenen Tresor-Passwort verschlüsselt, bevor er auf dem Server landet. Dateien verschlüsselt man für sich selbst, für andere Nutzer der Instanz (nur wenn diese ihren öffentlichen Schlüssel freigegeben haben) oder für einen eingefügten age-Schlüssel. **Kontaktbuch** (pro Nutzer, Tabelle `age_contacts`): öffentliche Schlüssel mit Name und Notiz speichern (Tab „Kontakte“ im Werkzeug und Einstellungen → Kontaktbuch), beim Verschlüsseln per Häkchen wählen; eingefügte unbekannte Schlüssel lassen sich direkt „als Kontakt speichern“; der eigene öffentliche Schlüssel steht dort zum Kopieren. Ergebnis: `.age`-Dateien, die auch das `age`-Programm öffnet. Workflow-Schritt „Für Empfänger verschlüsseln“ (Parameter `self`, `userIds`, `contactIds`, `recipients`; Kontakte werden beim Lauf aus dem Kontaktbuch des Workflow-Besitzers gelesen, gelöschte entfallen). |
 | **Privatsphäre-Check** | „Was verrät meine Datei?“: GPS, Seriennummern, Software, Autor, Kommentare/Änderungsverlauf in Office-Dateien, PDF-Metadaten, ein EXIF-Vorschaubild, das noch Weggeschnittenes zeigt – mit „Alles entfernen“. |
 | **Datei-Reparatur** | Prüfsummen in PNG neu berechnen, abgeschnittene PNG/JPEG wieder öffnbar machen, falsche Endung korrigieren, angehängte Daten abschneiden – jeweils mit Erklärung, was kaputt war. |
-| **Fälschungs-Detektor (ELA)** | Fehlerlevel-Analyse für JPEGs: zeigt Bereiche, die anders komprimiert sind als der Rest (Hinweis auf Bearbeitung). Ehrlich erklärt: ein Hinweis, kein Beweis. |
+| **Fälschungs-Detektor (ELA)** (jetzt unter Datei-Forensik) | Fehlerlevel-Analyse für JPEGs: zeigt Bereiche, die anders komprimiert sind als der Rest (Hinweis auf Bearbeitung). Ehrlich erklärt: ein Hinweis, kein Beweis. |
+| **Was verrät dein Dokument?** (ergänzt 2026-11-14) | Word/Excel/PowerPoint/LibreOffice: Personen, Firma, Vorlagenpfad, Bearbeitungszeit, nachverfolgte Änderungen samt gelöschtem Text, Kommentare, versteckter Text, ausgeblendete Blätter/Folien, Sprechernotizen, Vorschaubild, rsid-Sitzungen. Saubere Kopie: Namen → „Autor“, Eigenschaften und Vorschaubild weg, bei Word wahlweise Änderungen annehmen, Kommentare und versteckten Text löschen (mit LibreOffice geprüft). |
 | **Schatzkarte & Geheimschrift** | Ein Geheimnis in N Teile zerlegen, von denen K zum Wiederherstellen reichen (Shamir). Dazu Caesar/ROT13, Vigenère, Atbash, Morse (auch als Ton) und Braille – mit „So knackt man das“, weil das keine echte Verschlüsselung ist. |
 
 **Ergänzungen bestehender Tricks:** Der Detektiv-Scan holt Funde heraus (Teile der Datei, einzelne Dateien aus versteckten ZIPs); „Archiv im Bild“ kann versteckte ZIPs mit Passwort (AES-256) schützen und schreibt die ZIP-Positionen so um, dass auch Windows-Explorer/macOS das Archiv öffnen. Die Grenzen unten gelten für alle Verstecken-Tricks: keine ausführbaren Dateien oder Skripte verstecken.
@@ -46,6 +63,9 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 - **Glitch-Art**: gezielte Byte-Manipulation („Datamoshing“) für Bilder und Videos, mit Erklärung.
 - **GIF rückwärts / Bumerang**, Video als Sprite-Sheet oder Kontaktbogen, Bild-Collage.
 - **Audio zu Video** (ergänzt 2026-11-14): Tondatei + optionales Cover + optionaler Liedtext (LRC/SRT/VTT/ASS oder automatisch per Whisper) → MP4/WebM mit Wellenform, Frequenz-Säulen, Spektrum oder nur Bild (Engine `audio-video`, nur Server; auch über „Umwandeln“ und in Workflows).
+- **Vorschau-Streich** (ergänzt 2026-11-14): JPEG, dessen EXIF-Vorschaubild ein anderes Bild zeigt (Explorer-Symbole, Galerie-Apps); Vorschau auf das Seitenverhältnis zugeschnitten. Harmlos (nur Bilder), der Vorschau-Prüfer entlarvt ihn.
+- **Datei anhören**, **Morse-Code** (Text ↔ Zeichen, Ton/WAV, Lichtblinken, Aufnahme/Mikrofon → Text) und **SSTV** (Martin M1, Robot 36 mit VIS-Kopf; Senden als WAV für SSTV-Apps, Empfangen aus Aufnahmen über Hilbert-Frequenzschätzung) (ergänzt 2026-11-14).
+- **Sticker-Macher** (ergänzt 2026-11-14): freistellen (einfarbiger Hintergrund im Browser, sonst KI auf dem Server), Rand, 512 × 512, WebP < 100 KB und PNG.
 - **Audio rückwärts**, Tonhöhe/Tempo ändern („Chipmunk“), Klingelton-Maker (Ausschnitt + Fade + M4R/MP3).
 - **Icon- & Favicon-Generator**: ein Bild → ICO, ICNS, alle Favicon-Größen + `manifest.json`.
 - **QR-Codes** erstellen (Text, WLAN-Zugang, Kontakt) mit Logo in der Mitte, und QR/Barcodes aus Bildern lesen.
@@ -57,6 +77,9 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 - **Text-Werkzeuge**: Zeichenkodierung erkennen und umwandeln (z. B. kaputte Umlaute „FÃ¼r“ → „Für“ reparieren), Zeilenenden CRLF ↔ LF.
 - **Bilder herausholen** (ergänzt 2026-11-14): alle Bilder aus ZIP-basierten Dokumenten (DOCX/PPTX/XLSX, ODT/ODP/ODS, EPUB, CBZ, Pages/Keynote/Numbers, ZIP) unverändert auspacken; aus PDFs JPEG/JPEG 2000 unverändert, Flate-Rohpixel (Grau/RGB/CMYK, 8 Bit, auch mit PNG-Prädiktor) als PNG. Masken, Paletten-/Sonderfarbräume, CCITT/JBIG2 werden übersprungen und gezählt; Vorschaubilder der App sind abgewählt; Auswahl als ZIP. Im Browser.
 - **Dokument-Scanner** (ergänzt 2026-11-14): Fotos (auch direkt mit der Handy-Kamera) → Blatt automatisch finden (Otsu-Schwelle, größte helle Fläche, äußerste Punkte), vier Ecken von Hand/per Tastatur verschiebbar, Perspektive gerade ziehen (Homografie, bilinear), Darstellung Farbe/Graustufen/Schwarzweiß (lokale Schwelle gegen Schatten)/Original, drehen, sortieren; als PDF (A4, wenn das Format passt) oder Bilder (ZIP), optional mit Texterkennung über den Server. Rechenarbeit in einem eigenen Web Worker.
+- **Papier-Backup** (ergänzt 2026-11-14): Datei gepackt in nummerierte Stücke (Kopf mit Datei-ID, CRC32 des Ganzen) als QR-Raster 4 × 5 pro A4-Seite; Wiederherstellen aus Fotos/Scans/Scan-PDF (Blatt gerade ziehen, Zellen einzeln mit jsQR, Fenster als Rückfall), fehlende Codes werden benannt.
+- **Daten im Video** (ergänzt 2026-11-14): ein Stück pro Bild als Schwarz-Weiß-Blöcke (8 oder 16 px) mit Sync-Zeile und CRC pro Bild, kodiert über WebCodecs; Auslesen erkennt die Blockgröße.
+- **Kontaktabzug / Spritesheet**, **Comic-Macher** (CBZ mit ComicInfo.xml, EPUB 3 in festem Layout) und **Stapel-Umbenennen** (Muster mit EXIF-Datum/Kamera, Ergebnis als ZIP) (ergänzt 2026-11-14).
 - **Testdateien** (ergänzt 2026-11-14): Dateien in exakter Größe (Nullen, Zufallsdaten, Textzeilen; bis 4 GB, frei wählbare Endung), Testbild (Farbbalken, Grauverlauf, Gitter mit Kreis, roter Rand; PNG/JPG/WebP), Testton (440 Hz, Frequenz-Lauf, Piepton pro Sekunde, links/rechts; WAV), Test-PDF mit nummerierten A4-Seiten, Testvideo (Farbbalken, Uhr, Bildnummer, Piepton; MP4/WebM über WebCodecs). Alles im Browser.
 
 **Grenzen der Werkstatt:** Keine Tricks, die ausführbaren Code tarnen (EXE in Bild, Doppel-Endungen wie `bild.jpg.exe`, Makros), keine Werkzeuge zum Umgehen von Virenscannern oder Upload-Filtern Dritter. Beim Verstecken in Archiven nur Archivformate.
@@ -83,7 +106,7 @@ Diese Funktionen gehören zum Funktionsumfang, werden aber erst nach den Kernpha
 **Sammlungen aufräumen**
 - **Swipen** (umgesetzt 2026-10-30): Downloads wie bei Tinder sortieren – löschen, behalten, Favorit, Premium; Details in `speicherorte.md` 10.5.
 - **Ähnliche Bilder finden** (Perceptual Hash), nicht nur exakte Duplikate – mit Vergleichsansicht und Auswahl, welche behalten werden.
-- **Massen-Umbenennung** mit Muster und Live-Vorschau.
+- **Massen-Umbenennung** mit Muster und Live-Vorschau (umgesetzt 2026-11-14 als Werkstatt → Stapel-Umbenennen).
 
 **Automatisierung**
 - **Überwachte Ordner** (Hot-Folders) auf lokalen Mounts und Speicherzielen, verknüpft mit einem Workflow.
