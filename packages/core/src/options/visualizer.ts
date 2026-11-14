@@ -13,6 +13,7 @@ import {
   ffmpegColor,
   isHexColor,
   liftForDark,
+  lyricsChoiceFont,
   resolveColor,
   type LyricsFont,
   type LyricsSize,
@@ -126,7 +127,11 @@ export const VISUALIZER_OPTIONS: EngineOption[] = [
     advanced: true,
     type: 'select',
     default: 'sans',
-    choices: LYRICS_FONTS.map((value) => ({ value, labelKey: `options.vizFont.choices.${value}` })),
+    choices: LYRICS_FONTS.map((value) => ({
+      value,
+      labelKey: `options.vizFont.choices.${value}`,
+      font: lyricsChoiceFont(value),
+    })),
   },
   {
     key: 'vizTextColor',

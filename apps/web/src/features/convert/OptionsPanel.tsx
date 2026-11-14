@@ -15,6 +15,7 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { HelpTip } from '@/components/HelpTip';
 import { useSettings } from '@/features/settings/settings-store';
+import { choiceFontStyle, useChoiceFonts } from '@/lib/choice-font';
 
 interface OptionsPanelProps {
   idPrefix: string;
@@ -94,6 +95,7 @@ function OptionControl({
   onChange: (value: unknown) => void;
 }) {
   const { t } = useTranslation();
+  useChoiceFonts(option.choices?.map((c) => c.font) ?? []);
   switch (option.type) {
     case 'number':
       return (
@@ -127,7 +129,9 @@ function OptionControl({
             {(option.choices ?? []).map((choice) => (
               <SelectItem key={choice.value} value={choice.value}>
                 <span className="flex flex-col items-start">
-                  <span>{t(choice.labelKey)}</span>
+                  <span style={choice.font ? choiceFontStyle(choice.font) : undefined}>
+                    {t(choice.labelKey)}
+                  </span>
                   {choice.helpKey && (
                     <span className="text-xs text-muted-foreground">{t(choice.helpKey)}</span>
                   )}

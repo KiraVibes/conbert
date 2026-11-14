@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lyricsAss, visualizerColors } from './visualizer';
+import { VISUALIZER_OPTIONS, lyricsAss, visualizerColors } from './visualizer';
 import { assColor, brightness, coverPalette, liftForDark, resolveColor } from './visualizer-style';
 
 /** A small picture: mostly dark blue, some strong orange, a bit of white. */
@@ -62,5 +62,17 @@ describe('visualizer colours', () => {
       ).split(',')[2],
     );
     expect(big).toBeGreaterThan(normal);
+  });
+});
+
+describe('font choices', () => {
+  it('show each font in its own look, loaded from the server', () => {
+    const fonts = VISUALIZER_OPTIONS.find((o) => o.key === 'vizFont')?.choices ?? [];
+    expect(fonts.length).toBe(8);
+    for (const c of fonts) {
+      expect(c.font?.url).toBe(`/api/fonts/lyrics/${c.value}`);
+      expect(c.font?.fallback).toBeTruthy();
+    }
+    expect(new Set(fonts.map((c) => c.font?.name)).size).toBe(8);
   });
 });

@@ -1,3 +1,5 @@
+import type { ChoiceFont } from '../engine';
+
 /**
  * Colours and fonts for audio → video: named colours, own colours (#rrggbb),
  * colours taken from the cover, and the fonts the server has for lyrics.
@@ -73,6 +75,17 @@ export const FONT_FAMILY: Record<LyricsFont, { family: string; bold: boolean; cs
   typewriter: { family: 'DejaVu Sans Mono', bold: false, css: '"DejaVu Sans Mono", monospace' },
   script: { family: 'Z003', bold: false, css: '"Monotype Corsiva", "Z003", cursive' },
 };
+
+/** How a font choice shows itself: the server's font file, a device font as fallback. */
+export function lyricsChoiceFont(font: LyricsFont): ChoiceFont {
+  const f = FONT_FAMILY[font];
+  return {
+    name: `Conbert Lyrics ${font}`,
+    fallback: f.css,
+    url: `/api/fonts/lyrics/${font}`,
+    bold: f.bold,
+  };
+}
 
 export const LYRICS_SIZES = ['small', 'medium', 'large'] as const;
 export type LyricsSize = (typeof LYRICS_SIZES)[number];

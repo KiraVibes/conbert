@@ -33,6 +33,14 @@ export const engineOptionSchema = z.object({
         value: z.string(),
         labelKey: z.string().min(1),
         helpKey: z.string().min(1).optional(),
+        font: z
+          .object({
+            name: z.string().min(1),
+            fallback: z.string(),
+            url: z.string().optional(),
+            bold: z.boolean().optional(),
+          })
+          .optional(),
       }),
     )
     .optional(),

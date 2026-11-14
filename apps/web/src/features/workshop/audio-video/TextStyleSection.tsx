@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import {
-  FONT_FAMILY,
+  lyricsChoiceFont,
   LYRICS_COLORS,
   LYRICS_FONTS,
   LYRICS_SIZES,
@@ -17,7 +17,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ColorPicker } from './ColorPicker';
-import { lyricsFontCss, swatchHex, useLyricsFonts } from './lyrics';
+import { choiceFontStyle, useChoiceFonts } from '@/lib/choice-font';
+import { swatchHex } from './lyrics';
+
+const FONTS = LYRICS_FONTS.map(lyricsChoiceFont);
 
 export interface TextStyle {
   font: LyricsFont;
@@ -39,7 +42,7 @@ export function TextStyleSection({
   coverColors: readonly string[];
 }) {
   const { t } = useTranslation();
-  useLyricsFonts();
+  useChoiceFonts(FONTS);
   const colour =
     value.color === 'wave' ? waveColor : (swatchHex(value.color) ?? coverColors[0] ?? '#ffffff');
   const light =
@@ -48,7 +51,6 @@ export function TextStyleSection({
       parseInt(colour.slice(5, 7), 16) * 0.11 >
     128;
   const edge = light ? '#101010' : '#f5f5f5';
-  const face = FONT_FAMILY[value.font];
   return (
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -67,13 +69,7 @@ export function TextStyleSection({
             <SelectContent>
               {LYRICS_FONTS.map((f) => (
                 <SelectItem key={f} value={f}>
-                  <span
-                    className="text-base"
-                    style={{
-                      fontFamily: lyricsFontCss(f),
-                      fontWeight: FONT_FAMILY[f].bold ? 700 : 400,
-                    }}
-                  >
+                  <span className="text-base" style={choiceFontStyle(lyricsChoiceFont(f))}>
                     {t(`options.vizFont.choices.${f}`)}
                   </span>
                 </SelectItem>
@@ -119,8 +115,7 @@ export function TextStyleSection({
       >
         <span
           style={{
-            fontFamily: lyricsFontCss(value.font),
-            fontWeight: face.bold ? 700 : 400,
+            ...choiceFontStyle(lyricsChoiceFont(value.font)),
             fontSize:
               value.size === 'small' ? '1.1rem' : value.size === 'large' ? '1.9rem' : '1.5rem',
             color: colour,

@@ -43,10 +43,24 @@ export interface FormatSupport {
   canWrite: boolean;
 }
 
+/**
+ * A font to show a choice's label in (e.g. a font picker). `name` is the
+ * family registered from `url`; `fallback` is a CSS font stack used until it
+ * loads or when it is missing.
+ */
+export interface ChoiceFont {
+  name: string;
+  fallback: string;
+  url?: string;
+  bold?: boolean;
+}
+
 export interface EngineOptionChoice {
   value: string;
   labelKey: string;
   helpKey?: string;
+  /** Show the label in this font – a preview of the choice itself. */
+  font?: ChoiceFont;
 }
 
 export interface EngineOption {

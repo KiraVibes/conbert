@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
   COLOR_HEX,
-  FONT_FAMILY,
   LYRICS_FILE_TYPES,
-  LYRICS_FONTS,
   isHexColor,
   coverPalette,
-  type LyricsFont,
   type LyricsSource,
   type WhisperLanguage,
 } from '@conbert/core';
@@ -58,32 +55,4 @@ export function useCoverPalette(cover: File | null): string[] {
 export function swatchHex(value: string): string | null {
   if (isHexColor(value)) return value;
   return value in COLOR_HEX ? COLOR_HEX[value as keyof typeof COLOR_HEX] : null;
-}
-
-const fontName = (font: LyricsFont) => `Conbert Lyrics ${font}`;
-
-/** CSS font stack: the server's own font first, a similar device font after. */
-export function lyricsFontCss(font: LyricsFont): string {
-  return `"${fontName(font)}", ${FONT_FAMILY[font].css}`;
-}
-
-let fontsRequested = false;
-
-/**
- * Loads the server's lyrics fonts (the ones the video uses), so the font list
- * and the preview show the real look. Once per page; a font the server lacks
- * just stays on the device's fallback.
- */
-export function useLyricsFonts(): void {
-  useEffect(() => {
-    if (fontsRequested || typeof FontFace === 'undefined') return;
-    fontsRequested = true;
-    for (const font of LYRICS_FONTS) {
-      const face = new FontFace(fontName(font), `url(/api/fonts/lyrics/${font})`, {
-        display: 'swap',
-      });
-      document.fonts.add(face);
-      face.load().catch(() => document.fonts.delete(face));
-    }
-  }, []);
 }
