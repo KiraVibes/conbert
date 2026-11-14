@@ -4407,6 +4407,26 @@
         "title": "Data in a video",
         "teaser": "Pack any file into a video of black and white squares – and get it out again.",
         "how": "Every frame of the video carries a piece of the file: each square is one bit, white = 1, black = 0. The top row is a pattern that tells Conbert what's light and what's dark when reading. Every frame has a checksum, and so does the whole file – so Conbert notices when something is missing or broken. Small squares hold a lot, big ones survive re-compression by video platforms better. Everything runs in your browser."
+      },
+      "sticker": {
+        "title": "Sticker maker",
+        "teaser": "A picture as a WhatsApp or Telegram sticker: cut out, with a white edge, exactly 512 × 512.",
+        "how": "Stickers are pictures with a see-through background, exactly 512 × 512 pixels, for WhatsApp as WebP under 100 KB. Conbert removes the background – plain backgrounds on its own, photos with your server's AI if you like –, cuts the subject tightly, puts it in the middle of the sticker and draws an edge around it, like real stickers. Everything runs in your browser, only the AI cut-out on your server."
+      },
+      "contactsheet": {
+        "title": "Contact sheet",
+        "teaser": "A video as a single picture: evenly spread scenes with times – or as a sprite sheet for games.",
+        "how": "Conbert takes pictures at even intervals from the video and lays them out in a grid. The contact sheet shows name and size at the top and the time on each picture – handy to get an overview of a video without watching it. The sprite sheet is a plain grid without labels, as games and animations need it. Everything runs in your browser."
+      },
+      "comic": {
+        "title": "Comic maker",
+        "teaser": "A folder of pictures becomes a comic (CBZ) or e-book (EPUB) – for comic readers, Kobo, Kindle apps & co.",
+        "how": "Comic readers read CBZ files: a ZIP with numbered pictures. Conbert sorts your pictures the way people count (“page 2” before “page 10”), numbers them and adds a small description. As EPUB, every picture becomes a page of its own in a fixed layout – so it can be paged through on e-book readers. The pictures aren't compressed again. Everything runs in your browser."
+      },
+      "rename": {
+        "title": "Batch rename",
+        "teaser": "Rename many files at once – e.g. “2024-07-14_Pixel-8_01.jpg” with the date taken and camera from the EXIF data.",
+        "how": "Enter a pattern, e.g. {datum}_{nr}. Conbert fills in the details for every file: date and time taken and the camera from the EXIF data (for photos), otherwise the file's date, plus a running number. Duplicate names get “-2”, “-3”. Since a browser may not rename files on your device, you get the renamed files as a ZIP. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6498,6 +6518,90 @@
       "missing": "{{found}} of {{total}} pieces found – the video was probably shortened or compressed too much.",
       "none": "There's no Conbert file in this video.",
       "broken": "All pieces are there, but the checksum doesn't match."
+    },
+    "sticker": {
+      "background": "Background",
+      "backgrounds": {
+        "keep": "Keep (already see-through)",
+        "flat": "Remove a plain background",
+        "ai": "Cut out with AI (server)"
+      },
+      "backgroundHints": {
+        "keep": "For pictures that already have a see-through background (PNG, WebP).",
+        "flat": "Removes the colour at the picture's edge and everything connected to it – good for logos, graphics and photos in front of a smooth wall.",
+        "ai": "The AI on your server recognises the subject – even with a busy background. The picture is sent to your server for this."
+      },
+      "edge": "Edge width: {{value}} pixels",
+      "edgeLabel": "Edge width",
+      "edgeColor": "Edge colour",
+      "colors": {
+        "white": "White",
+        "black": "Black"
+      },
+      "make": "Make sticker",
+      "failed": "The sticker couldn't be made.",
+      "previewAlt": "Sticker preview",
+      "webp": "WebP for WhatsApp ({{kb}} KB)",
+      "png": "PNG for Telegram & co.",
+      "howToUse": "WhatsApp: add stickers via sticker apps (e.g. “Sticker Maker”). Telegram: send the PNG to the @Stickers bot."
+    },
+    "contactsheet": {
+      "grid": "Grid",
+      "gridValue": "{{n}} × {{n}} ({{count}} pictures)",
+      "kind": "Kind",
+      "kinds": {
+        "sheet": "Contact sheet",
+        "sprite": "Sprite sheet"
+      },
+      "kindHints": {
+        "sheet": "With file name, size and the time on each picture (JPG).",
+        "sprite": "Plain grid without border or labels, pictures 256 pixels wide (PNG)."
+      },
+      "make": "Make picture",
+      "failed": "The video couldn't be read. Your browser may not open this video format – convert it to MP4 first.",
+      "previewAlt": "Contact sheet preview",
+      "download": "Download"
+    },
+    "comic": {
+      "title": "Title",
+      "defaultTitle": "My comic",
+      "count_one": "1 page",
+      "count_other": "{{count}} pages",
+      "skipped_one": "1 file was skipped (only JPG, PNG, WebP and GIF).",
+      "skipped_other": "{{count}} files were skipped (only JPG, PNG, WebP and GIF).",
+      "remove": "Remove {{name}}",
+      "cbz": "Download as comic (CBZ)",
+      "epub": "Download as e-book (EPUB)",
+      "clear": "Remove all"
+    },
+    "rename": {
+      "pattern": "Pattern",
+      "start": "First number",
+      "tokens": "Placeholders",
+      "token": {
+        "name": "Current name",
+        "nr": "Running number",
+        "datum": "Date (2024-07-14)",
+        "zeit": "Time (09-05-07)",
+        "jahr": "Year",
+        "monat": "Month",
+        "tag": "Day",
+        "kamera": "Camera (from EXIF)",
+        "ext": "File ending"
+      },
+      "tokensHint": "Clicking a placeholder adds it. The file ending always stays.",
+      "order": "Order",
+      "orders": {
+        "date": "By date taken",
+        "name": "By name"
+      },
+      "before": "Before",
+      "after": "After",
+      "fileDate": "(file date)",
+      "download_one": "Download 1 file as ZIP",
+      "download_other": "Download {{count}} files as ZIP",
+      "clear": "Remove all",
+      "zipHint": "Your originals stay unchanged – the browser may not rename them. Unpack the ZIP where you want the files."
     }
   },
   "feeds": {

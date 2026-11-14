@@ -45,3 +45,4 @@ export * from './image-forensics';
 export * from './audio-forensics';
 export * from './sstv';
 export * from './data-carriers';
+export * from './makers';

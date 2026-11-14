@@ -4407,6 +4407,26 @@
         "title": "Daten im Video",
         "teaser": "Verpacke eine beliebige Datei in ein Video aus schwarzen und weißen Kästchen – und hol sie wieder heraus.",
         "how": "Jedes Bild des Videos trägt ein Stück der Datei: Jedes Kästchen ist ein Bit, weiß = 1, schwarz = 0. Die oberste Reihe ist ein Muster, an dem Conbert beim Auslesen erkennt, was hell und was dunkel ist. Jedes Bild hat eine Prüfsumme, und die ganze Datei auch – so merkt Conbert, wenn etwas fehlt oder kaputt ist. Kleine Kästchen passen viel hinein, große überstehen das erneute Komprimieren von Video-Plattformen eher. Alles läuft in deinem Browser."
+      },
+      "sticker": {
+        "title": "Sticker-Macher",
+        "teaser": "Ein Bild als WhatsApp- oder Telegram-Sticker: freigestellt, mit weißem Rand, genau 512 × 512.",
+        "how": "Sticker sind Bilder mit durchsichtigem Hintergrund, genau 512 × 512 Pixel groß, für WhatsApp als WebP unter 100 KB. Conbert entfernt den Hintergrund – einfarbige Hintergründe selbst, Fotos auf Wunsch mit der KI deines Servers –, schneidet das Motiv knapp aus, setzt es mittig in den Sticker und zieht einen Rand drumherum, wie bei echten Aufklebern. Alles läuft in deinem Browser, nur die KI-Freistellung auf deinem Server."
+      },
+      "contactsheet": {
+        "title": "Kontaktabzug",
+        "teaser": "Ein Video als ein einziges Bild: gleichmäßig verteilte Szenen mit Zeitangaben – oder als Spritesheet für Spiele.",
+        "how": "Conbert nimmt Bilder in gleichen Abständen aus dem Video und legt sie in ein Raster. Der Kontaktabzug zeigt oben Name und Größe und an jedem Bild die Zeit – praktisch, um ein Video zu überblicken, ohne es anzusehen. Das Spritesheet ist ein schlichtes Raster ohne Beschriftung, wie es Spiele und Animationen brauchen. Alles läuft in deinem Browser."
+      },
+      "comic": {
+        "title": "Comic-Macher",
+        "teaser": "Ein Ordner voller Bilder wird zum Comic (CBZ) oder E-Book (EPUB) – für Comic-Reader, Tolino, Kindle-Apps & Co.",
+        "how": "Comic-Reader lesen CBZ-Dateien: ein ZIP mit durchnummerierten Bildern. Conbert sortiert deine Bilder so, wie Menschen zählen („Seite 2“ vor „Seite 10“), nummeriert sie und legt eine kleine Beschreibung bei. Als EPUB wird jedes Bild eine eigene Seite in festem Layout – so lässt es sich auf E-Book-Readern blättern. Die Bilder werden nicht neu komprimiert. Alles läuft in deinem Browser."
+      },
+      "rename": {
+        "title": "Stapel-Umbenennen",
+        "teaser": "Viele Dateien auf einmal umbenennen – z. B. „2024-07-14_Pixel-8_01.jpg“ mit Aufnahmedatum und Kamera aus den EXIF-Daten.",
+        "how": "Gib ein Muster ein, z. B. {datum}_{nr}. Conbert setzt für jede Datei die Angaben ein: Datum und Uhrzeit der Aufnahme und die Kamera aus den EXIF-Daten (bei Fotos), sonst das Datum der Datei, dazu eine fortlaufende Nummer. Doppelte Namen bekommen „-2“, „-3“. Weil ein Browser Dateien auf deinem Gerät nicht umbenennen darf, bekommst du die umbenannten Dateien als ZIP. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6498,6 +6518,90 @@
       "missing": "{{found}} von {{total}} Stücken gefunden – das Video wurde wohl gekürzt oder zu stark komprimiert.",
       "none": "In diesem Video steckt keine Conbert-Datei.",
       "broken": "Alle Stücke sind da, aber die Prüfsumme stimmt nicht."
+    },
+    "sticker": {
+      "background": "Hintergrund",
+      "backgrounds": {
+        "keep": "Behalten (schon durchsichtig)",
+        "flat": "Einfarbigen Hintergrund entfernen",
+        "ai": "Mit KI freistellen (Server)"
+      },
+      "backgroundHints": {
+        "keep": "Für Bilder, die schon einen durchsichtigen Hintergrund haben (PNG, WebP).",
+        "flat": "Entfernt die Farbe am Bildrand und alles, was daran hängt – gut für Logos, Grafiken und Fotos vor einer glatten Wand.",
+        "ai": "Die KI auf deinem Server erkennt das Motiv – auch bei unruhigem Hintergrund. Das Bild wird dafür an deinen Server geschickt."
+      },
+      "edge": "Randbreite: {{value}} Pixel",
+      "edgeLabel": "Randbreite",
+      "edgeColor": "Randfarbe",
+      "colors": {
+        "white": "Weiß",
+        "black": "Schwarz"
+      },
+      "make": "Sticker erstellen",
+      "failed": "Der Sticker ließ sich nicht erstellen.",
+      "previewAlt": "Vorschau des Stickers",
+      "webp": "WebP für WhatsApp ({{kb}} KB)",
+      "png": "PNG für Telegram & Co.",
+      "howToUse": "WhatsApp: Sticker lassen sich über Sticker-Apps einbinden (z. B. „Sticker Maker“). Telegram: Schick die PNG an den @Stickers-Bot."
+    },
+    "contactsheet": {
+      "grid": "Raster",
+      "gridValue": "{{n}} × {{n}} ({{count}} Bilder)",
+      "kind": "Art",
+      "kinds": {
+        "sheet": "Kontaktabzug",
+        "sprite": "Spritesheet"
+      },
+      "kindHints": {
+        "sheet": "Mit Dateiname, Größe und Zeit an jedem Bild (JPG).",
+        "sprite": "Schlichtes Raster ohne Rand und Beschriftung, Bilder 256 Pixel breit (PNG)."
+      },
+      "make": "Bild erstellen",
+      "failed": "Das Video ließ sich nicht lesen. Dein Browser kann dieses Videoformat vielleicht nicht öffnen – wandle es vorher in MP4 um.",
+      "previewAlt": "Vorschau des Kontaktabzugs",
+      "download": "Herunterladen"
+    },
+    "comic": {
+      "title": "Titel",
+      "defaultTitle": "Mein Comic",
+      "count_one": "1 Seite",
+      "count_other": "{{count}} Seiten",
+      "skipped_one": "1 Datei wurde übersprungen (nur JPG, PNG, WebP und GIF).",
+      "skipped_other": "{{count}} Dateien wurden übersprungen (nur JPG, PNG, WebP und GIF).",
+      "remove": "{{name}} entfernen",
+      "cbz": "Als Comic (CBZ) herunterladen",
+      "epub": "Als E-Book (EPUB) herunterladen",
+      "clear": "Alle entfernen"
+    },
+    "rename": {
+      "pattern": "Muster",
+      "start": "Erste Nummer",
+      "tokens": "Platzhalter",
+      "token": {
+        "name": "Bisheriger Name",
+        "nr": "Fortlaufende Nummer",
+        "datum": "Datum (2024-07-14)",
+        "zeit": "Uhrzeit (09-05-07)",
+        "jahr": "Jahr",
+        "monat": "Monat",
+        "tag": "Tag",
+        "kamera": "Kamera (aus EXIF)",
+        "ext": "Dateiendung"
+      },
+      "tokensHint": "Klick auf einen Platzhalter fügt ihn ein. Die Dateiendung bleibt immer erhalten.",
+      "order": "Reihenfolge",
+      "orders": {
+        "date": "Nach Aufnahmedatum",
+        "name": "Nach Name"
+      },
+      "before": "Vorher",
+      "after": "Nachher",
+      "fileDate": "(Datum der Datei)",
+      "download_one": "1 Datei als ZIP herunterladen",
+      "download_other": "{{count}} Dateien als ZIP herunterladen",
+      "clear": "Alle entfernen",
+      "zipHint": "Deine Originale bleiben unverändert – der Browser darf sie nicht umbenennen. Entpacke das ZIP, wo du die Dateien haben willst."
     }
   },
   "feeds": {

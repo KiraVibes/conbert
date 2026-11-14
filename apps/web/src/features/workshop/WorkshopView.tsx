@@ -16,6 +16,10 @@ import {
   TextSearchIcon,
   FileUserIcon,
   CalendarClockIcon,
+  TextCursorInputIcon,
+  BookOpenIcon,
+  LayoutGridIcon,
+  StickerIcon,
   FilmIcon,
   PrinterIcon,
   SatelliteIcon,
@@ -97,6 +101,10 @@ import { MorseTool } from './fun/MorseTool';
 import { SstvTool } from './fun/SstvTool';
 import { PaperBackupTool } from './carriers/PaperBackupTool';
 import { DataVideoTool } from './carriers/DataVideoTool';
+import { StickerTool } from './makers/StickerTool';
+import { ContactSheetTool } from './makers/ContactSheetTool';
+import { ComicTool } from './makers/ComicTool';
+import { RenameTool } from './makers/RenameTool';
 import { RedactCheckTool } from './forensics/RedactCheckTool';
 import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
@@ -129,6 +137,10 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   sstv: SstvTool,
   paper: PaperBackupTool,
   datavideo: DataVideoTool,
+  sticker: StickerTool,
+  contactsheet: ContactSheetTool,
+  comic: ComicTool,
+  rename: RenameTool,
   thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
@@ -184,6 +196,10 @@ const ICONS: Record<string, LucideIcon> = {
   sstv: SatelliteIcon,
   paper: PrinterIcon,
   datavideo: FilmIcon,
+  sticker: StickerIcon,
+  contactsheet: LayoutGridIcon,
+  comic: BookOpenIcon,
+  rename: TextCursorInputIcon,
   thumbprank: VenetianMaskIcon,
   treasure: MapIcon,
   ciphers: ScrollTextIcon,

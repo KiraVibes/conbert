@@ -51,6 +51,7 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'listen', group: 'fun' },
   { id: 'morse', group: 'fun' },
   { id: 'sstv', group: 'fun' },
+  { id: 'sticker', group: 'fun' },
   { id: 'glitch', group: 'fun' },
   { id: 'deepfry', group: 'fun' },
   { id: 'qr', group: 'fun' },
@@ -63,6 +64,9 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'extractimages', group: 'tools' },
   { id: 'scanner', group: 'tools' },
   { id: 'paper', group: 'tools' },
+  { id: 'contactsheet', group: 'tools' },
+  { id: 'comic', group: 'tools' },
+  { id: 'rename', group: 'tools' },
   { id: 'datavideo', group: 'hide' },
 ];
 
