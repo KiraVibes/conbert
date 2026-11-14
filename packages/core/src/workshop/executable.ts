@@ -21,8 +21,13 @@ const EXTENSIONS = new Set([
   'docm', 'xlsm', 'pptm', 'dotm', 'xltm', 'potm', 'xlam', 'ppam',
 ]); // prettier-ignore
 
+/** Is this extension one of a program, script or file that runs code? */
+export function isExecutableExt(ext: string): boolean {
+  return EXTENSIONS.has(ext.toLowerCase());
+}
+
 /** What the start of a file says: a program or a script? */
-function executableContent(head: Uint8Array): boolean {
+export function executableContent(head: Uint8Array): boolean {
   const b0 = head[0] ?? -1;
   const b1 = head[1] ?? -1;
   if (b0 === 0x4d && b1 === 0x5a) return true; // MZ: Windows program

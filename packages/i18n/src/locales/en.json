@@ -4337,6 +4337,21 @@
         "title": "Earlier versions",
         "teaser": "Many PDFs carry their old versions inside. Conbert takes them out again.",
         "how": "When a program changes a PDF, it often doesn't rewrite the whole file but only appends the changes at the end (“incremental save”). Every save ends with the mark “%%EOF”. Everything up to such a mark is the PDF exactly as it was saved back then – with the old text, deleted pages or removed comments. Conbert finds these spots, shows every version with its pages and which pages changed, and you can download each one. Everything runs in your browser."
+      },
+      "danger": {
+        "title": "Danger check",
+        "teaser": "Can I open this file safely? Conbert checks for disguised programs, macros, PDF scripts and archive tricks.",
+        "how": "Files become dangerous when they run something when opened. Conbert reads the file (without opening or running it) and looks for the typical tricks: programs posing as a PDF or photo (“invoice.pdf.exe”, hidden characters in the name), Office files with macros or templates from the internet, PDFs with JavaScript or launch commands, shortcuts that start PowerShell, archives with programs, path tricks or zip bombs, and web pages asking for passwords. At the end there's a traffic light with an explanation. Everything runs in your browser."
+      },
+      "program": {
+        "title": "Program inspector",
+        "teaser": "What's inside this .exe? Build date, signature, packer and everything the program is allowed to do.",
+        "how": "Programs (Windows .exe/.dll, Linux, macOS) start with a header full of details: which processor, window or console program, when it was built, whether it's digitally signed. It also lists which functions it needs from the operating system – that tells what it can do, e.g. read the keyboard or go online. Very evenly filled parts (high entropy) point to packed or encrypted code. Conbert only reads, the program is never started. Everything runs in your browser."
+      },
+      "strings": {
+        "title": "Text finder",
+        "teaser": "Readable text in any file – web addresses, e-mails, IP addresses, file paths and crypto addresses highlighted.",
+        "how": "Programs, pictures and unknown files often contain readable text too: error messages, web addresses, paths from the creator's computer. Conbert looks for spots with several readable characters in a row – in simple form and in the two-byte form Windows programs like to use (like the tool “strings”). Special finds are marked: web addresses, e-mail addresses, IP addresses, file paths and crypto wallet addresses. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6020,6 +6035,140 @@
       "changed": "Changed: page {{pages}}",
       "unchanged": "Text unchanged (maybe comments, forms or pictures)",
       "download": "Download this version"
+    },
+    "danger": {
+      "failed": "The file couldn't be checked.",
+      "level": {
+        "safe": "No signs of danger found",
+        "caution": "Careful",
+        "danger": "Dangerous!"
+      },
+      "advice": {
+        "safe": "Conbert found none of the typical dangers. Still, only open files from sources you trust.",
+        "caution": "The file has features often used for attacks – but they can be harmless too. Only open it if you know where it comes from.",
+        "danger": "Don't open this file unless you explicitly expected it and trust the sender. If in doubt: delete it or ask the sender another way."
+      },
+      "badge": {
+        "danger": "Danger",
+        "caution": "Careful"
+      },
+      "limits": "Conbert is no virus scanner: it recognises the typical tricks, but no specific malware. An inconspicuous file can still be dangerous.",
+      "findings": {
+        "program": "This is a program ({{arch}}). Opening it starts it, and it can do anything on your computer.",
+        "script": "This is a script (.{{ext}}). A double click runs it right away.",
+        "shortcut": "This is a shortcut (.lnk). Shortcuts can start any command when opened – they're often disguised as a “document”.",
+        "shortcutCommand": "The shortcut starts a command: “{{command}}”",
+        "disguised": "The program pretends to be “.{{shown}}” – a disguise only attackers use.",
+        "doubleExt": "Double ending: it looks like “.{{shown}}” but is “.{{real}}”. Windows often hides the last ending.",
+        "reversedName": "The file name contains invisible control characters that flip the writing direction – so “…fdp.exe” seems to be “…exe.pdf”.",
+        "hiddenExt": "Many spaces in the name push the real ending out of sight.",
+        "macros": "The file contains macros (small programs in Office). Macros are one of the most common ways for malware – don't enable them.",
+        "macroFormat": "The format can contain macros (e.g. .docm). None were found, but be careful.",
+        "externalTemplate": "The document loads a template from the internet when opened: {{url}} – a known trick to load malicious code.",
+        "externalLink": "The document points to content on the internet that can be loaded when opened: {{url}}",
+        "dde": "The document contains DDE fields. With them Word can start programs when opening.",
+        "oleObject_one": "The document contains 1 embedded object (OLE). Programs can hide inside.",
+        "oleObject_other": "The document contains {{count}} embedded objects (OLE). Programs can hide inside.",
+        "pdfJavascript": "The PDF contains JavaScript. Normal documents don't need that.",
+        "pdfLaunch": "The PDF contains a launch command (/Launch) that can open programs.",
+        "pdfAutoAction": "The PDF runs an action automatically when opened (/OpenAction or /AA).",
+        "pdfEmbedded": "Other files are attached inside the PDF.",
+        "pdfSubmit": "The PDF can send form data to an internet address.",
+        "zipTraversal": "An entry in the archive wants to land outside the target folder (“{{name}}”) – this can overwrite other files when unpacking.",
+        "zipProgram": "There's a program or script in the archive: “{{name}}”.",
+        "zipBomb": "Possible zip bomb: unpacked, the content is {{ratio}} times as big. That can fill up the disk.",
+        "zipEncrypted": "The archive is encrypted with a password. Virus scanners can't check encrypted content – a popular trick.",
+        "zipNested": "There's another archive in the archive (“{{name}}”). Nested archives are often meant to get past checks.",
+        "diskImage": "This is a disk image (e.g. ISO). These were used to get around Windows' warnings for files from the internet.",
+        "htmlScript": "The web page contains scripts.",
+        "htmlPassword": "The file is a web page with a password field. Locally saved login pages are a typical phishing trick – don't type anything there.",
+        "htmlForm": "The web page sends what you type to an internet address.",
+        "svgScript": "The SVG picture contains scripts. A picture doesn't need that.",
+        "mismatch": "The name says “.{{shown}}”, but the content is “{{real}}”."
+      }
+    },
+    "program": {
+      "failed": "The file couldn't be read.",
+      "notProgram": "This isn't a program Conbert can read (Windows, Linux or macOS).",
+      "yes": "Yes",
+      "no": "No",
+      "unknown": "Unknown (not stored)",
+      "archValue": "{{arch}} ({{bits}} bit)",
+      "packedUnknown": "Probably (unknown packer)",
+      "packedHint": "Packed programs hide their code. Some installers do that, but so does a lot of malware.",
+      "abilities": "What the program can do",
+      "abilitiesNone": "No conspicuous abilities found in its list of functions.",
+      "abilitiesMac": "For macOS programs Conbert only shows the libraries used.",
+      "abilitiesHint": "Read from the functions the program asks the system for. Many harmless programs need some of them – a mix like “read the keyboard” plus “internet” stands out.",
+      "imports": "Libraries used ({{count}})",
+      "sections": "Sections ({{count}})",
+      "sectionName": "Name",
+      "sectionSize": "Size",
+      "sectionEntropy": "Entropy (0–8)",
+      "facts": {
+        "kind": "Kind",
+        "format": "Format",
+        "arch": "Processor",
+        "subsystem": "Interface",
+        "built": "Built",
+        "signed": "Digitally signed",
+        "packed": "Packed",
+        "dotnet": ".NET program"
+      },
+      "kinds": {
+        "program": "Program",
+        "library": "Program library (DLL)",
+        "driver": "Driver",
+        "object": "Intermediate file (object)",
+        "core": "Memory dump"
+      },
+      "formats": {
+        "pe": "Windows (PE)",
+        "elf": "Linux (ELF)",
+        "macho": "macOS (Mach-O)"
+      },
+      "subsystems": {
+        "gui": "Window program",
+        "console": "Console program",
+        "native": "System level (driver)",
+        "other": "Other"
+      },
+      "ability": {
+        "keyboard": "Read keyboard input",
+        "inject": "Write into other running programs (typical for malware)",
+        "internet": "Connect to the internet",
+        "download": "Download files from the internet",
+        "registry": "Change the Windows registry",
+        "screen": "Grab screen content",
+        "crypto": "Encrypt data",
+        "process": "Start other programs",
+        "services": "Set up background services",
+        "debugger": "Check whether it's being examined (anti-analysis)",
+        "clipboard": "Read or change the clipboard",
+        "microphone": "Record from the microphone"
+      }
+    },
+    "strings": {
+      "failed": "The file couldn't be read.",
+      "minLength": "Minimum length",
+      "letters_one": "{{count}} character",
+      "letters_other": "{{count}} characters",
+      "search": "Search",
+      "searchHint": "e.g. http, password, .dll",
+      "kinds": "Filter by kind",
+      "kind": {
+        "all": "All",
+        "url": "Web addresses",
+        "email": "E-mails",
+        "ip": "IP addresses",
+        "path": "File paths",
+        "crypto": "Crypto addresses"
+      },
+      "truncated": "The file is very big – the first finds or the first 256 MB are shown.",
+      "more_one": "1 more find – refine the search or download the list.",
+      "more_other": "{{count}} more finds – refine the search or download the list.",
+      "export_one": "Download 1 find as text",
+      "export_other": "Download {{count}} finds as text"
     }
   },
   "feeds": {

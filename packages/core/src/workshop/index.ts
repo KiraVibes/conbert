@@ -35,3 +35,6 @@ export * from './exif-thumb';
 export * from './cropped-png';
 export * from './inflate-tail';
 export * from './pdf-forensics';
+export * from './strings';
+export * from './program';
+export * from './danger';

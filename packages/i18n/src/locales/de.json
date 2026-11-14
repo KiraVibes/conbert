@@ -4337,6 +4337,21 @@
         "title": "Frühere Fassungen",
         "teaser": "Viele PDFs tragen ihre alten Fassungen in sich. Conbert holt sie wieder heraus.",
         "how": "Wenn ein Programm eine PDF ändert, schreibt es oft nicht die ganze Datei neu, sondern hängt nur die Änderungen hinten an („inkrementelles Speichern“). Jede Speicherung endet mit der Markierung „%%EOF“. Alles bis zu einer solchen Markierung ist die PDF genau so, wie sie damals gespeichert wurde – mit dem alten Text, gelöschten Seiten oder entfernten Kommentaren. Conbert findet diese Stellen, zeigt jede Fassung mit ihren Seiten und welche Seiten sich geändert haben, und du kannst jede einzeln herunterladen. Alles läuft in deinem Browser."
+      },
+      "danger": {
+        "title": "Gefahren-Check",
+        "teaser": "Kann ich diese Datei gefahrlos öffnen? Conbert prüft auf getarnte Programme, Makros, PDF-Skripte und Archiv-Tricks.",
+        "how": "Gefährlich werden Dateien, wenn sie beim Öffnen etwas ausführen. Conbert liest die Datei (ohne sie zu öffnen oder auszuführen) und sucht nach den typischen Tricks: Programme, die sich als PDF oder Foto ausgeben („rechnung.pdf.exe“, versteckte Zeichen im Namen), Office-Dateien mit Makros oder Vorlagen aus dem Internet, PDFs mit JavaScript oder Start-Befehlen, Verknüpfungen, die PowerShell starten, Archive mit Programmen, Pfad-Tricks oder Zip-Bomben, und Webseiten, die nach Passwörtern fragen. Am Ende gibt es eine Ampel mit Erklärung. Alles läuft in deinem Browser."
+      },
+      "program": {
+        "title": "Programm-Inspektor",
+        "teaser": "Was steckt in dieser .exe? Erstellungsdatum, Signatur, Packer und was das Programm alles darf.",
+        "how": "Programme (Windows .exe/.dll, Linux, macOS) haben am Anfang einen Kopf mit vielen Angaben: für welchen Prozessor, ob Fenster- oder Konsolenprogramm, wann es gebaut wurde, ob es digital unterschrieben ist. Außerdem steht drin, welche Funktionen es vom Betriebssystem braucht – daraus lässt sich ablesen, was es kann, z. B. Tastatur mitlesen oder ins Internet gehen. Sehr gleichmäßig gefüllte Bereiche (hohe Entropie) deuten auf gepackten oder verschlüsselten Code. Conbert liest nur, das Programm wird nie gestartet. Alles läuft in deinem Browser."
+      },
+      "strings": {
+        "title": "Text-Finder",
+        "teaser": "Lesbarer Text in jeder Datei – Webadressen, E-Mails, IP-Adressen, Dateipfade und Krypto-Adressen hervorgehoben.",
+        "how": "Auch Programme, Bilder und unbekannte Dateien enthalten oft lesbaren Text: Fehlermeldungen, Webadressen, Pfade vom Rechner des Erstellers. Conbert sucht nach Stellen mit mehreren lesbaren Zeichen hintereinander – in einfacher Form und in der Zwei-Byte-Form, die Windows-Programme gern nutzen (wie das Werkzeug „strings“). Besondere Fundstücke werden markiert: Webadressen, E-Mail-Adressen, IP-Adressen, Dateipfade und Krypto-Wallet-Adressen. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6020,6 +6035,140 @@
       "changed": "Geändert: Seite {{pages}}",
       "unchanged": "Text unverändert (vielleicht Kommentare, Formulare oder Bilder)",
       "download": "Diese Fassung herunterladen"
+    },
+    "danger": {
+      "failed": "Die Datei ließ sich nicht prüfen.",
+      "level": {
+        "safe": "Keine Gefahrenzeichen gefunden",
+        "caution": "Vorsicht",
+        "danger": "Gefährlich!"
+      },
+      "advice": {
+        "safe": "Conbert hat keine der typischen Gefahren gefunden. Öffne trotzdem nur Dateien aus Quellen, denen du vertraust.",
+        "caution": "Die Datei hat Eigenschaften, die oft für Angriffe genutzt werden – aber auch harmlos sein können. Öffne sie nur, wenn du weißt, woher sie kommt.",
+        "danger": "Öffne diese Datei nicht, wenn du sie nicht ausdrücklich erwartet hast und dem Absender vertraust. Im Zweifel: löschen oder beim Absender auf einem anderen Weg nachfragen."
+      },
+      "badge": {
+        "danger": "Gefahr",
+        "caution": "Vorsicht"
+      },
+      "limits": "Conbert ist kein Virenscanner: Es erkennt die typischen Tricks, aber keine bestimmte Schadsoftware. Eine unauffällige Datei kann trotzdem gefährlich sein.",
+      "findings": {
+        "program": "Das ist ein Programm ({{arch}}). Beim Öffnen wird es gestartet und kann alles auf deinem Rechner tun.",
+        "script": "Das ist ein Skript (.{{ext}}). Ein Doppelklick führt es sofort aus.",
+        "shortcut": "Das ist eine Verknüpfung (.lnk). Verknüpfungen können beim Öffnen beliebige Befehle starten – sie werden gern als „Dokument“ getarnt.",
+        "shortcutCommand": "Die Verknüpfung startet einen Befehl: „{{command}}“",
+        "disguised": "Das Programm gibt sich als „.{{shown}}“ aus – eine Tarnung, die nur Angreifer nutzen.",
+        "doubleExt": "Doppelte Endung: Es sieht aus wie „.{{shown}}“, ist aber „.{{real}}“. Windows blendet die letzte Endung oft aus.",
+        "reversedName": "Der Dateiname enthält unsichtbare Steuerzeichen, die die Schreibrichtung umdrehen – so wird aus „…fdp.exe“ scheinbar „…exe.pdf“.",
+        "hiddenExt": "Viele Leerzeichen im Namen schieben die echte Endung aus dem Blickfeld.",
+        "macros": "Die Datei enthält Makros (kleine Programme in Office). Makros sind einer der häufigsten Wege für Schadsoftware – aktiviere sie nicht.",
+        "macroFormat": "Das Format kann Makros enthalten (z. B. .docm). Gefunden wurden keine, aber sei vorsichtig.",
+        "externalTemplate": "Das Dokument lädt beim Öffnen eine Vorlage aus dem Internet: {{url}} – ein bekannter Trick, um Schadcode nachzuladen.",
+        "externalLink": "Das Dokument verweist auf Inhalte im Internet, die beim Öffnen geladen werden können: {{url}}",
+        "dde": "Das Dokument enthält DDE-Felder. Damit kann Word beim Öffnen Programme starten.",
+        "oleObject_one": "Das Dokument enthält 1 eingebettetes Objekt (OLE). Darin können Programme stecken.",
+        "oleObject_other": "Das Dokument enthält {{count}} eingebettete Objekte (OLE). Darin können Programme stecken.",
+        "pdfJavascript": "Die PDF enthält JavaScript. Normale Dokumente brauchen das nicht.",
+        "pdfLaunch": "Die PDF enthält einen Start-Befehl (/Launch), der Programme öffnen kann.",
+        "pdfAutoAction": "Die PDF führt beim Öffnen automatisch eine Aktion aus (/OpenAction oder /AA).",
+        "pdfEmbedded": "In der PDF stecken weitere Dateien als Anhang.",
+        "pdfSubmit": "Die PDF kann Formulardaten an eine Internetadresse schicken.",
+        "zipTraversal": "Ein Eintrag im Archiv will außerhalb des Zielordners landen („{{name}}“) – damit lassen sich beim Entpacken andere Dateien überschreiben.",
+        "zipProgram": "Im Archiv steckt ein Programm oder Skript: „{{name}}“.",
+        "zipBomb": "Mögliche Zip-Bombe: Entpackt wird der Inhalt {{ratio}}-mal so groß. Das kann den Speicher füllen.",
+        "zipEncrypted": "Das Archiv ist mit Passwort verschlüsselt. Virenscanner können verschlüsselte Inhalte nicht prüfen – ein beliebter Trick.",
+        "zipNested": "Im Archiv steckt ein weiteres Archiv („{{name}}“). Verschachtelte Archive sollen oft Prüfungen umgehen.",
+        "diskImage": "Das ist ein Laufwerks-Abbild (z. B. ISO). Damit wurden Warnungen von Windows für Dateien aus dem Internet umgangen.",
+        "htmlScript": "Die Webseite enthält Skripte.",
+        "htmlPassword": "Die Datei ist eine Webseite mit Passwortfeld. Lokal gespeicherte Anmeldeseiten sind ein typischer Phishing-Trick – gib dort nichts ein.",
+        "htmlForm": "Die Webseite schickt eingegebene Daten an eine Internetadresse.",
+        "svgScript": "Das SVG-Bild enthält Skripte. Ein Bild braucht das nicht.",
+        "mismatch": "Der Name sagt „.{{shown}}“, der Inhalt ist aber „{{real}}“."
+      }
+    },
+    "program": {
+      "failed": "Die Datei ließ sich nicht lesen.",
+      "notProgram": "Das ist kein Programm, das Conbert lesen kann (Windows, Linux oder macOS).",
+      "yes": "Ja",
+      "no": "Nein",
+      "unknown": "Unbekannt (nicht gespeichert)",
+      "archValue": "{{arch}} ({{bits}} Bit)",
+      "packedUnknown": "Wahrscheinlich (unbekannter Packer)",
+      "packedHint": "Gepackte Programme verstecken ihren Code. Das machen manche Installer, aber auch viele Schadprogramme.",
+      "abilities": "Was das Programm kann",
+      "abilitiesNone": "Keine auffälligen Fähigkeiten in der Liste der Funktionen gefunden.",
+      "abilitiesMac": "Bei macOS-Programmen zeigt Conbert nur die benutzten Bibliotheken.",
+      "abilitiesHint": "Abgelesen an den Funktionen, die das Programm vom System anfordert. Viele harmlose Programme brauchen einige davon – auffällig ist eine Mischung wie „Tastatur mitlesen“ plus „Internet“.",
+      "imports": "Benutzte Bibliotheken ({{count}})",
+      "sections": "Abschnitte ({{count}})",
+      "sectionName": "Name",
+      "sectionSize": "Größe",
+      "sectionEntropy": "Entropie (0–8)",
+      "facts": {
+        "kind": "Art",
+        "format": "Format",
+        "arch": "Prozessor",
+        "subsystem": "Oberfläche",
+        "built": "Erstellt",
+        "signed": "Digital signiert",
+        "packed": "Gepackt",
+        "dotnet": ".NET-Programm"
+      },
+      "kinds": {
+        "program": "Programm",
+        "library": "Programmbibliothek (DLL)",
+        "driver": "Treiber",
+        "object": "Zwischendatei (Objekt)",
+        "core": "Speicherabzug"
+      },
+      "formats": {
+        "pe": "Windows (PE)",
+        "elf": "Linux (ELF)",
+        "macho": "macOS (Mach-O)"
+      },
+      "subsystems": {
+        "gui": "Fensterprogramm",
+        "console": "Konsolenprogramm",
+        "native": "Systemnah (Treiber)",
+        "other": "Andere"
+      },
+      "ability": {
+        "keyboard": "Tastatureingaben mitlesen",
+        "inject": "In andere laufende Programme schreiben (typisch für Schadsoftware)",
+        "internet": "Ins Internet verbinden",
+        "download": "Dateien aus dem Internet laden",
+        "registry": "Die Windows-Registry ändern",
+        "screen": "Bildschirminhalte abgreifen",
+        "crypto": "Daten verschlüsseln",
+        "process": "Andere Programme starten",
+        "services": "Hintergrunddienste einrichten",
+        "debugger": "Prüfen, ob es untersucht wird (Anti-Analyse)",
+        "clipboard": "Die Zwischenablage lesen oder ändern",
+        "microphone": "Das Mikrofon aufnehmen"
+      }
+    },
+    "strings": {
+      "failed": "Die Datei ließ sich nicht lesen.",
+      "minLength": "Mindestlänge",
+      "letters_one": "{{count}} Zeichen",
+      "letters_other": "{{count}} Zeichen",
+      "search": "Suchen",
+      "searchHint": "z. B. http, passwort, .dll",
+      "kinds": "Nach Art filtern",
+      "kind": {
+        "all": "Alle",
+        "url": "Webadressen",
+        "email": "E-Mails",
+        "ip": "IP-Adressen",
+        "path": "Dateipfade",
+        "crypto": "Krypto-Adressen"
+      },
+      "truncated": "Die Datei ist sehr groß – gezeigt werden die ersten Funde bzw. die ersten 256 MB.",
+      "more_one": "1 weiterer Fund – verfeinere die Suche oder lade die Liste herunter.",
+      "more_other": "{{count}} weitere Funde – verfeinere die Suche oder lade die Liste herunter.",
+      "export_one": "1 Fund als Text herunterladen",
+      "export_other": "{{count}} Funde als Text herunterladen"
     }
   },
   "feeds": {

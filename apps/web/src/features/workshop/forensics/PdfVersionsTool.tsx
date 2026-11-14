@@ -81,7 +81,11 @@ export function PdfVersionsTool() {
               {current.map((v, i) => (
                 <li key={v.number} className="flex gap-3 rounded-lg border p-3">
                   {v.thumb ? (
-                    <img src={v.thumb} alt="" className="h-28 w-20 rounded border bg-white object-contain" />
+                    <img
+                      src={v.thumb}
+                      alt=""
+                      className="h-28 w-20 rounded border bg-white object-contain"
+                    />
                   ) : (
                     <div className="h-28 w-20 rounded border bg-muted" />
                   )}
