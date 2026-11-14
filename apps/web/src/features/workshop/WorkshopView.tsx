@@ -9,6 +9,8 @@ import {
   ImagesIcon,
   ClapperboardIcon,
   ScanLineIcon,
+  PictureInPicture2Icon,
+  VenetianMaskIcon,
   ArrowLeftIcon,
   AudioLinesIcon,
   BinaryIcon,
@@ -63,6 +65,8 @@ import { CompareTool } from './compare/CompareTool';
 import { ExtractImagesTool } from './extract-images/ExtractImagesTool';
 import { AudioVideoTool } from './audio-video/AudioVideoTool';
 import { ScannerTool } from './scanner/ScannerTool';
+import { ThumbCheckTool } from './thumbs/ThumbCheckTool';
+import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
 import { StegoTool } from './stego/StegoTool';
 import { TreasureTool } from './treasure/TreasureTool';
@@ -75,6 +79,8 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   privacy: PrivacyTool,
   repair: RepairTool,
   ela: ElaTool,
+  thumbcheck: ThumbCheckTool,
+  thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
   stego: () => <StegoTool />,
@@ -111,6 +117,8 @@ const ICONS: Record<string, LucideIcon> = {
   privacy: ShieldAlertIcon,
   repair: WrenchIcon,
   ela: ContrastIcon,
+  thumbcheck: PictureInPicture2Icon,
+  thumbprank: VenetianMaskIcon,
   treasure: MapIcon,
   ciphers: ScrollTextIcon,
   stego: ImageIcon,

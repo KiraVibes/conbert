@@ -4141,6 +4141,10 @@
       "protect": {
         "title": "Schützen",
         "intro": "Dateien so verschlüsseln, dass nur die richtigen Menschen sie öffnen können."
+      },
+      "forensics": {
+        "title": "Datei-Forensik",
+        "intro": "Spuren lesen wie ein Ermittler: Was eine Datei über ihre Herkunft, Bearbeitung und Geschichte verrät."
       }
     },
     "tricks": {
@@ -4308,6 +4312,16 @@
         "title": "Dokument-Scanner",
         "teaser": "Fotografier Briefe, Quittungen oder Formulare – Conbert macht daraus gerade, saubere Seiten und ein PDF.",
         "how": "Conbert sucht auf dem Foto das helle Blatt Papier auf dem dunkleren Untergrund und setzt die vier Ecken dorthin. Passt eine Ecke nicht, ziehst du sie einfach an die richtige Stelle. Dann wird das Blatt „gerade gezogen“: Eine Perspektiv-Umrechnung (Homografie) rechnet für jeden Punkt der fertigen Seite aus, wo er auf dem schrägen Foto liegt – so wird aus einem Trapez wieder ein Rechteck. Danach wird aufgeräumt: „Farbe“ macht das Papier weiß und den Text kräftig, „Schwarzweiß“ vergleicht jeden Punkt mit seiner Umgebung, damit auch Schatten verschwinden. Alles passiert auf deinem Gerät; nur für die Texterkennung (OCR) geht das fertige PDF an deinen Server."
+      },
+      "thumbcheck": {
+        "title": "Vorschau-Prüfer",
+        "teaser": "Zeigt das versteckte Vorschaubild in einem Foto dasselbe wie das Foto selbst? Oft verrät es das Original vor dem Zuschneiden.",
+        "how": "Viele Kameras und Handys legen in ein JPEG-Foto ein kleines Vorschaubild (in den EXIF-Daten). Manche Programme ändern beim Zuschneiden oder Retuschieren nur das große Bild – das kleine bleibt wie vorher. Conbert holt das Vorschaubild heraus, legt beide nebeneinander und vergleicht sie Pixel für Pixel. Weichen sie stark ab, wurde das Bild nachträglich verändert – oder jemand hat dir einen Vorschau-Streich gespielt. Alles läuft in deinem Browser."
+      },
+      "thumbprank": {
+        "title": "Vorschau-Streich",
+        "teaser": "Ein Foto, das in der kleinen Vorschau ganz anders aussieht als beim Öffnen. Die Katze wird zur Gurke!",
+        "how": "JPEG-Fotos können ein kleines Vorschaubild in sich tragen (in den EXIF-Daten). Manche Datei-Explorer und Bildbetrachter zeigen in der Übersicht nur dieses kleine Bild, statt das große Foto zu lesen – das geht schneller. Conbert speichert dein echtes Bild und legt als Vorschau ein ganz anderes hinein. Wer die Datei in so einem Programm sieht und dann öffnet, staunt. Klappt z. B. im Windows-Explorer bei kleinen und mittleren Symbolen und in vielen Kamera- und Galerie-Apps. Messenger und soziale Netzwerke löschen die Vorschau meist beim Hochladen – dort klappt der Streich nicht. Mit dem „Vorschau-Prüfer“ kann man den Streich entlarven. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -5916,6 +5930,30 @@
       "done": "Fertig: {{name}} ({{size}}) wurde gespeichert.",
       "pdfTitle": "Scan",
       "fileName": "scan"
+    },
+    "thumbprank": {
+      "real": "Echtes Bild",
+      "realHint": "Das sieht man, wenn man die Datei öffnet.",
+      "preview": "Vorschau-Bild",
+      "previewHint": "Das sieht man vorher in der kleinen Vorschau. Es wird passend zugeschnitten.",
+      "make": "Streich-Bild erzeugen",
+      "failed": "Das Streich-Bild konnte nicht erzeugt werden. Ist eins der Bilder beschädigt oder in einem Format, das dein Browser nicht lesen kann?",
+      "done": "Fertig! Die Datei sieht in der Vorschau aus wie das Vorschau-Bild und beim Öffnen wie das echte Bild.",
+      "download": "{{name}} herunterladen",
+      "where": "Tipp: Leg die Datei in einen Ordner und schau sie dir im Windows-Explorer mit „Mittelgroße Symbole“ an. Hat Windows die Vorschau schon zwischengespeichert, benenne die Datei einmal um."
+    },
+    "thumbcheck": {
+      "failed": "Die Datei ließ sich nicht prüfen. Ist sie ein beschädigtes Bild?",
+      "picture": "Das Bild selbst",
+      "preview": "Das versteckte Vorschaubild",
+      "previewAlt": "Vorschaubild aus den EXIF-Daten",
+      "download": "Vorschaubild herunterladen",
+      "verdict": {
+        "none": "Dieses Bild hat kein Vorschaubild in den EXIF-Daten (oder ist kein JPEG). Hier gibt es nichts zu vergleichen.",
+        "same": "Vorschau und Bild zeigen dasselbe (nur {{percent}} % weichen ab). Kein Hinweis auf eine nachträgliche Bearbeitung.",
+        "cropped": "Das Vorschaubild hat ein anderes Seitenverhältnis als das Bild. Meist wurde das Bild nachträglich zugeschnitten – die Vorschau zeigt dann mehr vom Original. Manche Kameras setzen aber auch nur schwarze Ränder.",
+        "different": "Vorschau und Bild zeigen etwas anderes ({{percent}} % weichen ab)! Das Bild wurde nachträglich verändert, ohne die Vorschau anzupassen – oder es ist ein Vorschau-Streich."
+      }
     }
   },
   "feeds": {

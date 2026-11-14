@@ -31,3 +31,4 @@ export * from './test-files';
 export * from './compare';
 export * from './extract-images';
 export * from './scanner';
+export * from './exif-thumb';

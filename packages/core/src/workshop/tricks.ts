@@ -3,7 +3,7 @@
  * card (title, teaser, "how it works") under `workshop.tricks.<id>.*`.
  */
 
-export type WorkshopGroup = 'xray' | 'hide' | 'protect' | 'fun' | 'tools';
+export type WorkshopGroup = 'xray' | 'forensics' | 'hide' | 'protect' | 'fun' | 'tools';
 
 export interface WorkshopTrick {
   id: string;
@@ -23,7 +23,8 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'polyglot', group: 'hide' },
   { id: 'spectrogram', group: 'hide' },
   { id: 'metasecret', group: 'hide' },
-  { id: 'ela', group: 'hide' },
+  { id: 'ela', group: 'forensics' },
+  { id: 'thumbcheck', group: 'forensics' },
   { id: 'vault', group: 'protect' },
   { id: 'privacy', group: 'protect' },
   { id: 'treasure', group: 'protect' },
@@ -34,6 +35,7 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'emojimosaic', group: 'fun' },
   { id: 'ringtone', group: 'fun' },
   { id: 'audiovideo', group: 'fun' },
+  { id: 'thumbprank', group: 'fun' },
   { id: 'glitch', group: 'fun' },
   { id: 'deepfry', group: 'fun' },
   { id: 'qr', group: 'fun' },
@@ -49,6 +51,7 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
 
 export const WORKSHOP_GROUPS: readonly WorkshopGroup[] = [
   'xray',
+  'forensics',
   'hide',
   'protect',
   'fun',

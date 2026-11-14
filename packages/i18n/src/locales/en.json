@@ -4141,6 +4141,10 @@
       "protect": {
         "title": "Protect",
         "intro": "Encrypt files so that only the right people can open them."
+      },
+      "forensics": {
+        "title": "File forensics",
+        "intro": "Read traces like an investigator: what a file gives away about where it came from, how it was edited and its history."
       }
     },
     "tricks": {
@@ -4308,6 +4312,16 @@
         "title": "Document scanner",
         "teaser": "Take photos of letters, receipts or forms – Conbert turns them into straight, clean pages and a PDF.",
         "how": "Conbert looks for the bright sheet of paper on the darker background in the photo and puts the four corners there. If a corner is off, just drag it to the right spot. Then the sheet is “pulled straight”: a perspective calculation (homography) works out for every point of the finished page where it lies in the slanted photo – turning a trapezoid back into a rectangle. Then it is cleaned up: “Colour” makes the paper white and the text strong, “Black & white” compares every point with its surroundings so shadows disappear too. Everything happens on your device; only for text recognition (OCR) does the finished PDF go to your server."
+      },
+      "thumbcheck": {
+        "title": "Preview checker",
+        "teaser": "Does the hidden preview inside a photo show the same as the photo? It often gives away the original before cropping.",
+        "how": "Many cameras and phones put a small preview picture into a JPEG photo (in the EXIF data). Some programs only change the big picture when cropping or retouching – the small one stays as it was. Conbert takes the preview out, puts both side by side and compares them pixel by pixel. If they differ a lot, the picture was changed afterwards – or someone played a preview prank on you. Everything runs in your browser."
+      },
+      "thumbprank": {
+        "title": "Preview prank",
+        "teaser": "A photo that looks completely different in the small preview than when you open it. The cat turns into a cucumber!",
+        "how": "JPEG photos can carry a small preview picture (in the EXIF data). Some file explorers and image viewers show only this small picture in their overview instead of reading the big photo – it's faster. Conbert saves your real picture and puts a completely different one in as its preview. Whoever sees the file in such a program and then opens it is amazed. Works e.g. in Windows Explorer with small and medium icons and in many camera and gallery apps. Messengers and social networks usually delete the preview when uploading – the prank doesn't work there. The “Preview checker” unmasks the prank. Everything runs in your browser."
       }
     },
     "identify": {
@@ -5916,6 +5930,30 @@
       "done": "Done: {{name}} ({{size}}) was saved.",
       "pdfTitle": "Scan",
       "fileName": "scan"
+    },
+    "thumbprank": {
+      "real": "Real picture",
+      "realHint": "This is what you see when you open the file.",
+      "preview": "Preview picture",
+      "previewHint": "This is what the small preview shows first. It is cropped to fit.",
+      "make": "Make the prank picture",
+      "failed": "The prank picture couldn't be made. Is one of the pictures broken or in a format your browser can't read?",
+      "done": "Done! In the preview the file looks like the preview picture, when opened like the real one.",
+      "download": "Download {{name}}",
+      "where": "Tip: put the file in a folder and look at it in Windows Explorer with “Medium icons”. If Windows has already cached the preview, rename the file once."
+    },
+    "thumbcheck": {
+      "failed": "The file couldn't be checked. Is it a broken picture?",
+      "picture": "The picture itself",
+      "preview": "The hidden preview",
+      "previewAlt": "Preview picture from the EXIF data",
+      "download": "Download the preview",
+      "verdict": {
+        "none": "This picture has no preview in its EXIF data (or isn't a JPEG). There's nothing to compare.",
+        "same": "Preview and picture show the same (only {{percent}} % differ). No sign of later editing.",
+        "cropped": "The preview has a different side ratio than the picture. Usually the picture was cropped afterwards – the preview then shows more of the original. Some cameras just add black borders, though.",
+        "different": "Preview and picture show something different ({{percent}} % differ)! The picture was changed afterwards without updating the preview – or it's a preview prank."
+      }
     }
   },
   "feeds": {
