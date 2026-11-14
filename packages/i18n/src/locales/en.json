@@ -4377,6 +4377,21 @@
         "title": "Forensics magnifier",
         "teaser": "Filters that make edits visible: picture noise, edges and brightness bands.",
         "how": "Every photo has a fine noise that fits the camera and the light. Pasted or retouched parts often have different noise, sharper edges or slightly different brightness the eye can't see. The magnifier makes that visible: “Noise” shows only the fine grain, “Edges” the transitions, “Brightness band” stretches a narrow brightness range to full strength – so clone-stamp traces in sky and skin stand out. Everything runs in your browser."
+      },
+      "audiocuts": {
+        "title": "Cut detector",
+        "teaser": "Was this recording cut? Jumps in the background noise, clicks and the mains hum give it away.",
+        "how": "Every recording has a background sound that fits the room and the microphone – and often a quiet hum from the power grid (50 Hz in Europe, 60 Hz in America). When a recording is cut or put together from pieces, the background noise jumps, the hum changes, or a click appears where the pieces meet. Conbert measures that every half second, draws it and marks suspicious spots – clicking one jumps there in the player. Everything runs in your browser."
+      },
+      "listen": {
+        "title": "Listen to a file",
+        "teaser": "What does a JPG, a ZIP or an .exe sound like? Every byte becomes a sound.",
+        "how": "A sound is a long row of numbers, a speaker turns them into vibrations. Conbert simply takes the bytes of any file as such numbers. Packed files (ZIP, JPG, MP3) sound like noise, programs and texts have rhythm and patterns, uncompressed pictures (BMP) sound almost musical. The higher the sample rate, the faster and higher. Everything runs in your browser."
+      },
+      "morse": {
+        "title": "Morse code",
+        "teaser": "Turn text into dots and dashes – as sound, as a flashing light and back, even through the microphone.",
+        "how": "Morse code writes every letter as short and long signals: dot (short) and dash (three times as long). Between letters there's a pause of three dots, between words of seven. Conbert translates text into Morse, plays it as sound or flashes a lamp – and reads Morse back from characters or a recording: it measures when the tone is on and off and tells dots from dashes by their length. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6347,6 +6362,58 @@
           "amountHelp": "Which brightness is shown (0 = black, 255 = white). Slide slowly to search a picture."
         }
       }
+    },
+    "audiocuts": {
+      "working": "Examining the recording …",
+      "failed": "The file couldn't be read as sound.",
+      "found_one": "1 suspicious spot found.",
+      "found_other": "{{count}} suspicious spots found.",
+      "clean": "No traces of cuts found. The recording seems continuous.",
+      "chartAlt": "Background noise and mains hum over time with suspicious spots",
+      "legendHum": "Blue: background noise · Yellow: mains hum ({{hz}} Hz) · Red: suspicious spot (click to listen)",
+      "legendNoHum": "Blue: background noise · Red: suspicious spot (click to listen). No mains hum found.",
+      "reason": {
+        "noise": "The background noise jumps by {{strength}} dB – as if another recording followed.",
+        "click": "A click in the sound – typical for a hard cut.",
+        "hum": "The mains hum suddenly changes by {{strength}} dB."
+      },
+      "cutShort": "The recording is very long – the first 20 minutes were checked.",
+      "limits": "Not every jump is a cut: doors, fans or moving the microphone change the noise too. Listen to the spots."
+    },
+    "listen": {
+      "rate": "Sample rate",
+      "rates": {
+        "8000": "8,000 per second (slow, low)",
+        "11025": "11,025 per second",
+        "22050": "22,050 per second",
+        "44100": "44,100 per second (fast, high)"
+      },
+      "length": "Length: {{seconds}} seconds.",
+      "cut": "The file is big – only the first 20 MB become sound.",
+      "download": "Download as WAV"
+    },
+    "morse": {
+      "modes": {
+        "write": "Text → Morse",
+        "read": "Morse → text",
+        "listen": "Recording → text"
+      },
+      "text": "Your text",
+      "copy": "Copy Morse code",
+      "speed": "Speed: {{wpm}} words per minute",
+      "speedLabel": "Speed",
+      "flash": "Flash as light",
+      "stop": "Stop",
+      "download": "Download sound as WAV",
+      "code": "Morse code",
+      "codeHint": "Dots and dashes, separate letters with spaces, words with “/”.",
+      "listenIntro": "Upload a recording with Morse tones or record with the microphone – e.g. the sound your phone plays from “Text → Morse”.",
+      "record": "Record with microphone",
+      "recordStop": "Stop recording",
+      "listening": "Listening …",
+      "failed": "The recording couldn't be read (or the microphone isn't allowed).",
+      "nothing": "No Morse tone recognised.",
+      "listenTip": "Tip: it works best with a clear tone and little background noise."
     }
   },
   "feeds": {

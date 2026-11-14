@@ -16,6 +16,9 @@ import {
   TextSearchIcon,
   FileUserIcon,
   CalendarClockIcon,
+  RadioIcon,
+  HeadphonesIcon,
+  ScissorsIcon,
   SearchIcon,
   CopyIcon,
   CameraIcon,
@@ -85,6 +88,9 @@ import { TimelineTool } from './forensics/TimelineTool';
 import { JpegOriginTool } from './forensics/JpegOriginTool';
 import { CopyMoveTool } from './forensics/CopyMoveTool';
 import { MagnifierTool } from './forensics/MagnifierTool';
+import { AudioCutsTool } from './forensics/AudioCutsTool';
+import { ListenFileTool } from './fun/ListenFileTool';
+import { MorseTool } from './fun/MorseTool';
 import { RedactCheckTool } from './forensics/RedactCheckTool';
 import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
@@ -111,6 +117,9 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   jpegorigin: JpegOriginTool,
   copymove: CopyMoveTool,
   magnifier: MagnifierTool,
+  audiocuts: AudioCutsTool,
+  listen: ListenFileTool,
+  morse: MorseTool,
   thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
@@ -160,6 +169,9 @@ const ICONS: Record<string, LucideIcon> = {
   jpegorigin: CameraIcon,
   copymove: CopyIcon,
   magnifier: SearchIcon,
+  audiocuts: ScissorsIcon,
+  listen: HeadphonesIcon,
+  morse: RadioIcon,
   thumbprank: VenetianMaskIcon,
   treasure: MapIcon,
   ciphers: ScrollTextIcon,

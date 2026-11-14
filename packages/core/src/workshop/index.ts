@@ -42,3 +42,4 @@ export * from './office-secrets';
 export * from './timeline';
 export * from './jpeg-origin';
 export * from './image-forensics';
+export * from './audio-forensics';

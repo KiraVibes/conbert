@@ -4377,6 +4377,21 @@
         "title": "Forensik-Lupe",
         "teaser": "Filter, die Bearbeitungen sichtbar machen: Bildrauschen, Kanten und Helligkeitsbänder.",
         "how": "Jedes Foto hat ein feines Rauschen, das zur Kamera und zum Licht passt. Eingefügte oder retuschierte Teile haben oft ein anderes Rauschen, schärfere Kanten oder leicht andere Helligkeiten, die das Auge nicht sieht. Die Lupe macht das sichtbar: „Rauschen“ zeigt nur die feine Körnung, „Kanten“ die Übergänge, „Helligkeitsband“ dehnt einen schmalen Helligkeitsbereich auf volle Stärke – so fallen Stempel-Spuren in Himmel und Haut auf. Alles läuft in deinem Browser."
+      },
+      "audiocuts": {
+        "title": "Schnitt-Detektor",
+        "teaser": "Wurde diese Aufnahme geschnitten? Sprünge im Hintergrundrauschen, Klicks und das Netzbrummen verraten es.",
+        "how": "Jede Aufnahme hat ein Hintergrundgeräusch, das zum Raum und zum Mikrofon passt – und oft ein leises Brummen vom Stromnetz (50 Hz in Europa, 60 Hz in Amerika). Wird eine Aufnahme geschnitten oder aus Teilen zusammengesetzt, springt das Hintergrundrauschen, das Brummen ändert sich, oder an der Schnittstelle entsteht ein Klick. Conbert misst das alle halbe Sekunde, zeichnet es auf und markiert verdächtige Stellen – ein Klick darauf springt im Player dorthin. Alles läuft in deinem Browser."
+      },
+      "listen": {
+        "title": "Datei anhören",
+        "teaser": "Wie klingt eine JPG, eine ZIP oder eine .exe? Jedes Byte wird zu einem Ton.",
+        "how": "Ein Ton besteht aus vielen Zahlen hintereinander, ein Lautsprecher macht daraus Schwingungen. Conbert nimmt einfach die Bytes einer beliebigen Datei als solche Zahlen. Gepackte Dateien (ZIP, JPG, MP3) klingen wie Rauschen, Programme und Texte haben Rhythmus und Muster, Bilder ohne Kompression (BMP) klingen fast musikalisch. Je höher die Abtastrate, desto schneller und höher. Alles läuft in deinem Browser."
+      },
+      "morse": {
+        "title": "Morse-Code",
+        "teaser": "Text in Punkte und Striche verwandeln – als Ton, als Lichtblinken und zurück, sogar per Mikrofon.",
+        "how": "Morse-Code schreibt jeden Buchstaben als kurze und lange Signale: Punkt (kurz) und Strich (dreimal so lang). Zwischen Buchstaben ist eine Pause von drei Punkten, zwischen Wörtern von sieben. Conbert übersetzt Text in Morse-Zeichen, spielt sie als Ton oder lässt eine Lampe blinken – und liest Morse aus Zeichen oder aus einer Aufnahme zurück: Es misst, wann der Ton an und aus ist, und unterscheidet Punkte und Striche an ihrer Länge. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6347,6 +6362,58 @@
           "amountHelp": "Welche Helligkeit gezeigt wird (0 = schwarz, 255 = weiß). Schieb langsam, um ein Bild zu durchsuchen."
         }
       }
+    },
+    "audiocuts": {
+      "working": "Aufnahme wird untersucht …",
+      "failed": "Die Datei ließ sich nicht als Ton lesen.",
+      "found_one": "1 verdächtige Stelle gefunden.",
+      "found_other": "{{count}} verdächtige Stellen gefunden.",
+      "clean": "Keine Schnittspuren gefunden. Die Aufnahme wirkt durchgehend.",
+      "chartAlt": "Verlauf von Hintergrundrauschen und Netzbrummen mit verdächtigen Stellen",
+      "legendHum": "Blau: Hintergrundrauschen · Gelb: Netzbrummen ({{hz}} Hz) · Rot: verdächtige Stelle (anklicken zum Anhören)",
+      "legendNoHum": "Blau: Hintergrundrauschen · Rot: verdächtige Stelle (anklicken zum Anhören). Kein Netzbrummen gefunden.",
+      "reason": {
+        "noise": "Das Hintergrundrauschen springt um {{strength}} dB – als käme danach eine andere Aufnahme.",
+        "click": "Klick im Ton – typisch für eine harte Schnittstelle.",
+        "hum": "Das Netzbrummen ändert sich plötzlich um {{strength}} dB."
+      },
+      "cutShort": "Die Aufnahme ist sehr lang – geprüft wurden die ersten 20 Minuten.",
+      "limits": "Nicht jeder Sprung ist ein Schnitt: Türen, Lüfter oder Mikrofonbewegungen ändern das Rauschen auch. Hör dir die Stellen an."
+    },
+    "listen": {
+      "rate": "Abtastrate",
+      "rates": {
+        "8000": "8.000 pro Sekunde (langsam, tief)",
+        "11025": "11.025 pro Sekunde",
+        "22050": "22.050 pro Sekunde",
+        "44100": "44.100 pro Sekunde (schnell, hoch)"
+      },
+      "length": "Länge: {{seconds}} Sekunden.",
+      "cut": "Die Datei ist groß – nur die ersten 20 MB werden zu Ton.",
+      "download": "Als WAV herunterladen"
+    },
+    "morse": {
+      "modes": {
+        "write": "Text → Morse",
+        "read": "Morse → Text",
+        "listen": "Aufnahme → Text"
+      },
+      "text": "Dein Text",
+      "copy": "Morse-Code kopieren",
+      "speed": "Tempo: {{wpm}} Wörter pro Minute",
+      "speedLabel": "Tempo",
+      "flash": "Als Licht blinken",
+      "stop": "Stopp",
+      "download": "Ton als WAV herunterladen",
+      "code": "Morse-Zeichen",
+      "codeHint": "Punkte und Striche, Buchstaben mit Leerzeichen trennen, Wörter mit „/“.",
+      "listenIntro": "Lade eine Aufnahme mit Morse-Tönen hoch oder nimm mit dem Mikrofon auf – z. B. den Ton, den dein Handy aus „Text → Morse“ abspielt.",
+      "record": "Mit Mikrofon aufnehmen",
+      "recordStop": "Aufnahme beenden",
+      "listening": "Höre zu …",
+      "failed": "Die Aufnahme ließ sich nicht lesen (oder das Mikrofon ist nicht erlaubt).",
+      "nothing": "Kein Morse-Ton erkannt.",
+      "listenTip": "Tipp: Am besten klappt es mit einem klaren Ton und wenig Hintergrundlärm."
     }
   },
   "feeds": {

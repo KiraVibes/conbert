@@ -1,6 +1,7 @@
 import * as Comlink from 'comlink';
 import {
   blobReader,
+  audioCuts,
   cleanOffice,
   copyMove,
   dangerCheck,
@@ -11,6 +12,7 @@ import {
   readOfficeSecrets,
   recoverCroppedPng,
   type CleanOptions,
+  type CutReport,
   type CopyMoveRegion,
   type ForensicFilter,
   type CropRecovery,
@@ -87,6 +89,9 @@ const api = {
   async cleanOffice(file: Blob, options: CleanOptions): Promise<Uint8Array> {
     const bytes = await cleanOffice(blobReader(file), options);
     return Comlink.transfer(bytes, [bytes.buffer]);
+  },
+  cuts(samples: Float32Array, rate: number): CutReport {
+    return audioCuts(samples, rate);
   },
   async strings(file: Blob, minLength: number): Promise<StringsResult & { partial: boolean }> {
     return { ...findStrings(await head(file), { minLength }), partial: file.size > READ_LIMIT };
