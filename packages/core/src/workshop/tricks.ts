@@ -50,6 +50,7 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'thumbprank', group: 'fun' },
   { id: 'listen', group: 'fun' },
   { id: 'morse', group: 'fun' },
+  { id: 'sstv', group: 'fun' },
   { id: 'glitch', group: 'fun' },
   { id: 'deepfry', group: 'fun' },
   { id: 'qr', group: 'fun' },

@@ -10,6 +10,12 @@ import {
   inspectProgram,
   luminance,
   readOfficeSecrets,
+  floatWav,
+  sstvDecode,
+  sstvEncode,
+  SSTV_SPECS,
+  type SstvMode,
+  type SstvPicture,
   recoverCroppedPng,
   type CleanOptions,
   type CutReport,
@@ -89,6 +95,27 @@ const api = {
   async cleanOffice(file: Blob, options: CleanOptions): Promise<Uint8Array> {
     const bytes = await cleanOffice(blobReader(file), options);
     return Comlink.transfer(bytes, [bytes.buffer]);
+  },
+  /** The picture, cut to the mode's size, as SSTV sound (WAV). */
+  async sstvSend(file: Blob, mode: SstvMode): Promise<Uint8Array> {
+    const { width, height } = SSTV_SPECS[mode];
+    const bitmap = await createImageBitmap(file);
+    const canvas = new OffscreenCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('no 2d canvas');
+    // Fill the frame: cut the picture at the sides or top as needed.
+    const scale = Math.max(width / bitmap.width, height / bitmap.height);
+    const w = bitmap.width * scale;
+    const h = bitmap.height * scale;
+    ctx.drawImage(bitmap, (width - w) / 2, (height - h) / 2, w, h);
+    bitmap.close();
+    const rate = 22050;
+    const wav = floatWav(sstvEncode(ctx.getImageData(0, 0, width, height).data, mode, rate), rate);
+    return Comlink.transfer(wav, [wav.buffer]);
+  },
+  sstvReceive(samples: Float32Array, rate: number, fallback: SstvMode): SstvPicture | null {
+    const picture = sstvDecode(samples, rate, fallback);
+    return picture ? Comlink.transfer(picture, [picture.pixels.buffer]) : null;
   },
   cuts(samples: Float32Array, rate: number): CutReport {
     return audioCuts(samples, rate);

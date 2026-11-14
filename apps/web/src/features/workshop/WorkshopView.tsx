@@ -16,6 +16,7 @@ import {
   TextSearchIcon,
   FileUserIcon,
   CalendarClockIcon,
+  SatelliteIcon,
   RadioIcon,
   HeadphonesIcon,
   ScissorsIcon,
@@ -91,6 +92,7 @@ import { MagnifierTool } from './forensics/MagnifierTool';
 import { AudioCutsTool } from './forensics/AudioCutsTool';
 import { ListenFileTool } from './fun/ListenFileTool';
 import { MorseTool } from './fun/MorseTool';
+import { SstvTool } from './fun/SstvTool';
 import { RedactCheckTool } from './forensics/RedactCheckTool';
 import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
@@ -120,6 +122,7 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   audiocuts: AudioCutsTool,
   listen: ListenFileTool,
   morse: MorseTool,
+  sstv: SstvTool,
   thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
@@ -172,6 +175,7 @@ const ICONS: Record<string, LucideIcon> = {
   audiocuts: ScissorsIcon,
   listen: HeadphonesIcon,
   morse: RadioIcon,
+  sstv: SatelliteIcon,
   thumbprank: VenetianMaskIcon,
   treasure: MapIcon,
   ciphers: ScrollTextIcon,

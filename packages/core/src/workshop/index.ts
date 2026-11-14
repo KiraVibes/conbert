@@ -43,3 +43,4 @@ export * from './timeline';
 export * from './jpeg-origin';
 export * from './image-forensics';
 export * from './audio-forensics';
+export * from './sstv';

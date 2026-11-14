@@ -4392,6 +4392,11 @@
         "title": "Morse-Code",
         "teaser": "Text in Punkte und Striche verwandeln – als Ton, als Lichtblinken und zurück, sogar per Mikrofon.",
         "how": "Morse-Code schreibt jeden Buchstaben als kurze und lange Signale: Punkt (kurz) und Strich (dreimal so lang). Zwischen Buchstaben ist eine Pause von drei Punkten, zwischen Wörtern von sieben. Conbert übersetzt Text in Morse-Zeichen, spielt sie als Ton oder lässt eine Lampe blinken – und liest Morse aus Zeichen oder aus einer Aufnahme zurück: Es misst, wann der Ton an und aus ist, und unterscheidet Punkte und Striche an ihrer Länge. Alles läuft in deinem Browser."
+      },
+      "sstv": {
+        "title": "Bild als Funk-Ton (SSTV)",
+        "teaser": "Verwandle ein Bild in einen Ton, wie ihn Funkamateure und die ISS senden – und mach aus solchen Tönen wieder Bilder.",
+        "how": "SSTV („Slow Scan Television“) überträgt Bilder als Ton: Jeder Bildpunkt wird zu einer Tonhöhe zwischen 1500 Hz (schwarz) und 2300 Hz (weiß), jede Zeile beginnt mit einem kurzen 1200-Hz-Piep, und eine kleine Melodie am Anfang (VIS-Code) verrät die Betriebsart. Funkamateure senden so Bilder um die Welt, die Raumstation ISS zu besonderen Anlässen auch. Spiel den erzeugten Ton ab und halte ein Handy mit einer SSTV-App (z. B. „Robot36“) daneben – es malt das Bild Zeile für Zeile. Umgekehrt liest Conbert solche Aufnahmen. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6414,6 +6419,30 @@
       "failed": "Die Aufnahme ließ sich nicht lesen (oder das Mikrofon ist nicht erlaubt).",
       "nothing": "Kein Morse-Ton erkannt.",
       "listenTip": "Tipp: Am besten klappt es mit einem klaren Ton und wenig Hintergrundlärm."
+    },
+    "sstv": {
+      "tabs": {
+        "send": "Bild → Ton",
+        "receive": "Ton → Bild"
+      },
+      "mode": "Betriebsart",
+      "modes": {
+        "martin1": "Martin M1 – Farbe, 320 × 256, {{seconds}} s",
+        "robot36": "Robot 36 – Farbe, 320 × 240, {{seconds}} s"
+      },
+      "make": "Ton erzeugen",
+      "sendFailed": "Das Bild ließ sich nicht lesen.",
+      "download": "Ton als WAV herunterladen",
+      "sendTip": "Tipp: Spiel den Ton laut ab und halte ein Handy mit einer SSTV-App (z. B. „Robot36“ für Android, „SSTV Slow Scan TV“ für iPhone) daneben. Das Bild wird passend zugeschnitten.",
+      "record": "Mit Mikrofon aufnehmen",
+      "recordStop": "Aufnahme beenden",
+      "modeHint": "Die Betriebsart erkennt Conbert am Anfangston. Beginnt die Aufnahme erst danach, nimmt es die hier gewählte.",
+      "decoding": "Bild wird gelesen …",
+      "receiveFailed": "In der Aufnahme wurde kein SSTV-Bild gefunden (oder das Mikrofon ist nicht erlaubt).",
+      "found": "Erkannt: {{mode}}",
+      "noHeader": "Kein Anfangston gefunden – gelesen mit der gewählten Betriebsart.",
+      "pictureAlt": "Empfangenes SSTV-Bild",
+      "savePicture": "Bild speichern"
     }
   },
   "feeds": {

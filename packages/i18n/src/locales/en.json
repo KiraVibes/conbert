@@ -4392,6 +4392,11 @@
         "title": "Morse code",
         "teaser": "Turn text into dots and dashes – as sound, as a flashing light and back, even through the microphone.",
         "how": "Morse code writes every letter as short and long signals: dot (short) and dash (three times as long). Between letters there's a pause of three dots, between words of seven. Conbert translates text into Morse, plays it as sound or flashes a lamp – and reads Morse back from characters or a recording: it measures when the tone is on and off and tells dots from dashes by their length. Everything runs in your browser."
+      },
+      "sstv": {
+        "title": "Picture as radio sound (SSTV)",
+        "teaser": "Turn a picture into a sound like radio amateurs and the ISS send – and turn such sounds back into pictures.",
+        "how": "SSTV (“slow scan television”) sends pictures as sound: every pixel becomes a pitch between 1500 Hz (black) and 2300 Hz (white), every line starts with a short 1200 Hz beep, and a little tune at the start (VIS code) tells the mode. Radio amateurs send pictures around the world like this, and the International Space Station does too on special occasions. Play the sound and hold a phone with an SSTV app (e.g. “Robot36”) next to it – it paints the picture line by line. The other way round, Conbert reads such recordings. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6414,6 +6419,30 @@
       "failed": "The recording couldn't be read (or the microphone isn't allowed).",
       "nothing": "No Morse tone recognised.",
       "listenTip": "Tip: it works best with a clear tone and little background noise."
+    },
+    "sstv": {
+      "tabs": {
+        "send": "Picture → sound",
+        "receive": "Sound → picture"
+      },
+      "mode": "Mode",
+      "modes": {
+        "martin1": "Martin M1 – colour, 320 × 256, {{seconds}} s",
+        "robot36": "Robot 36 – colour, 320 × 240, {{seconds}} s"
+      },
+      "make": "Make the sound",
+      "sendFailed": "The picture couldn't be read.",
+      "download": "Download sound as WAV",
+      "sendTip": "Tip: play the sound loud and hold a phone with an SSTV app (e.g. “Robot36” for Android, “SSTV Slow Scan TV” for iPhone) next to it. The picture is cropped to fit.",
+      "record": "Record with microphone",
+      "recordStop": "Stop recording",
+      "modeHint": "Conbert recognises the mode by the starting tune. If the recording starts after it, the mode chosen here is used.",
+      "decoding": "Reading the picture …",
+      "receiveFailed": "No SSTV picture was found in the recording (or the microphone isn't allowed).",
+      "found": "Recognised: {{mode}}",
+      "noHeader": "No starting tune found – read with the chosen mode.",
+      "pictureAlt": "Received SSTV picture",
+      "savePicture": "Save picture"
     }
   },
   "feeds": {
