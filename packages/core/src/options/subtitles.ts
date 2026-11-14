@@ -7,7 +7,7 @@ import type { EngineOption } from '../engine';
  */
 
 /** Subtitle files that can be read (.ssa, the older form of ASS, counts as ASS). */
-export const SUBTITLE_READ = ['srt', 'vtt', 'ass'];
+export const SUBTITLE_READ = ['srt', 'vtt', 'ass', 'lrc'];
 /** What subtitles can become – TXT is only the words. */
 export const SUBTITLE_WRITE = ['srt', 'vtt', 'ass', 'txt'];
 /** Targets with times (TXT has none). */

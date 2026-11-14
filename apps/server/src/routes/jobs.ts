@@ -126,7 +126,10 @@ export async function startJob(
             trim: body.mode === 'convert' && readTrim(body.options) !== null,
           });
   if (!route) throw new HttpError(422, 'NO_SERVER_ROUTE', `${file.ext} → ${body.outputExt}`);
-  if (!aiAllowed && route.steps.some((s) => AI_ENGINES.has(s.engineId))) {
+  // "Recognise lyrics automatically" runs Whisper inside the audio → video engine.
+  const lyricsByAi =
+    body.options['vizLyrics'] === 'auto' && route.steps.some((s) => s.engineId === 'audio-video');
+  if (!aiAllowed && (lyricsByAi || route.steps.some((s) => AI_ENGINES.has(s.engineId)))) {
     throw new HttpError(403, 'FEATURE_FORBIDDEN', 'ai');
   }
   const attachments = checkedAttachments(ctx, userId, route, body.attachments);

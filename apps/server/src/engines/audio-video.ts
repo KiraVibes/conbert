@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { copyFile, mkdir, open } from 'node:fs/promises';
+import { copyFile, mkdir, open, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   ConversionError,
@@ -8,6 +8,8 @@ import {
   VISUALIZER_OUTPUTS,
   abortError,
   buildVisualizerArgs,
+  lyricsAss,
+  resolveVisualizer,
   getFormat,
   isAbortError,
   normalizeExt,
@@ -16,8 +18,10 @@ import {
   type Engine,
   type EngineStatus,
 } from '@conbert/core';
+import { decodeSubtitleText, parseSubtitles, subtitleFormatOf } from '@conbert/core/subtitles';
 import { ProcessError, runProcess } from '../lib/run-process';
 import { FFMPEG, probeDuration } from './ffmpeg';
+import { whisperEngine } from './whisper';
 
 /**
  * Audio → video (server, ffmpeg): music, podcasts or voice messages become a
@@ -45,6 +49,47 @@ async function coverType(file: string): Promise<string | null> {
   }
 }
 
+/**
+ * The lyrics as an ASS file in the job folder: from the chosen file (LRC,
+ * SRT, VTT, ASS – the type is read from the content) or recognised with
+ * Whisper. Null when no lyrics are wanted.
+ */
+async function lyricsFile(
+  req: ConvertRequest & { input: string; workDir: string },
+  hasCover: boolean,
+): Promise<string | null> {
+  const { lyrics } = resolveVisualizer(req.options);
+  if (lyrics === 'none') return null;
+  let text: string;
+  if (lyrics === 'file') {
+    const chosen = req.attachments?.['vizLyricsFile'];
+    if (!chosen) throw new ConversionError('errors.lyricsMissing', 'no lyrics file chosen');
+    text = decodeSubtitleText(new Uint8Array(await readFile(chosen)));
+  } else {
+    await whisperEngine.init();
+    if (whisperEngine.status() === 'error') {
+      throw new ConversionError('errors.lyricsNoSpeech', 'whisper is not available');
+    }
+    // Speech recognition is the slow part: it gets the first half of the progress bar.
+    const srt = await whisperEngine.convert({
+      input: req.input,
+      inputExt: req.inputExt,
+      outputExt: 'srt',
+      options: { speechLanguage: req.options['speechLanguage'] ?? 'auto' },
+      workDir: req.workDir,
+      ...(req.signal && { signal: req.signal }),
+      onProgress: ({ percent }) =>
+        req.onProgress?.({ percent: Math.round(percent / 2), stage: 'recognizing' }),
+    });
+    text = await readFile(String(srt), 'utf8');
+  }
+  const cues = parseSubtitles(text, subtitleFormatOf(text));
+  if (cues.length === 0) throw new ConversionError('errors.lyricsEmpty', 'no timed lines found');
+  const file = path.join(req.workDir, `${randomUUID()}.ass`);
+  await writeFile(file, lyricsAss(cues, req.options, hasCover));
+  return file;
+}
+
 async function convert(req: ConvertRequest): Promise<string> {
   if (req.signal?.aborted) throw abortError();
   if (typeof req.input !== 'string' || !req.workDir) {
@@ -66,6 +111,12 @@ async function convert(req: ConvertRequest): Promise<string> {
   }
 
   req.onProgress?.({ percent: 1, stage: 'converting' });
+  const lyrics = await lyricsFile(
+    { ...req, input: req.input, workDir: req.workDir },
+    cover !== null,
+  );
+  // With recognised lyrics the video is the second half of the progress bar.
+  const base = lyrics && resolveVisualizer(req.options).lyrics === 'auto' ? 50 : 0;
   const duration = await probeDuration(req.input, inputExt);
   const args = buildVisualizerArgs({
     input: req.input,
@@ -75,6 +126,7 @@ async function convert(req: ConvertRequest): Promise<string> {
     options: req.options,
     cover,
     duration,
+    lyrics,
   });
   try {
     await runProcess(FFMPEG, args, {
@@ -84,7 +136,7 @@ async function convert(req: ConvertRequest): Promise<string> {
         const seconds = parseProgressSeconds(chunk);
         if (seconds !== null && duration) {
           req.onProgress?.({
-            percent: Math.min(99, Math.round((seconds / duration) * 100)),
+            percent: Math.min(99, base + Math.round((seconds / duration) * (100 - base))),
             stage: 'converting',
           });
         }

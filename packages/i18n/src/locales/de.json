@@ -752,6 +752,24 @@
         "orange": "Orange",
         "green": "Grün"
       }
+    },
+    "vizLyrics": {
+      "label": "Liedtext",
+      "help": "Zeigt den Text des Liedes zeilenweise im Video – genau dann, wenn er gesungen wird. Dafür braucht es Zeitangaben: aus einer LRC-Datei oder von der Spracherkennung.",
+      "choices": {
+        "none": "Ohne",
+        "file": "Aus einer Datei",
+        "auto": "Automatisch erkennen"
+      },
+      "choiceHelp": {
+        "none": "Nur Bild und Welle, kein Text.",
+        "file": "Eine LRC-Datei mit Zeiten (z. B. [01:23.45]) – oder SRT/VTT/ASS. Am genauesten.",
+        "auto": "Die Spracherkennung (Whisper) hört den Gesang ab. Klappt bei klarem Gesang, bei lauter Musik nicht immer."
+      }
+    },
+    "vizLyricsFile": {
+      "label": "Liedtext-Datei",
+      "help": "Eine Datei mit dem Songtext und Zeitangaben. Am häufigsten ist LRC (Zeilen wie „[00:12.30]Erste Zeile“) – viele Musikplayer und Lyrics-Seiten bieten das als „synced lyrics“ an. SRT, VTT und ASS gehen auch. Reiner Text ohne Zeiten geht nicht, weil Conbert sonst nicht weiß, wann welche Zeile kommt."
     }
   },
   "engineStatus": {
@@ -1492,6 +1510,13 @@
       "goodFor": "Anime und Fan-Untertitel, Karaoke, Untertitel mit Farben oder an bestimmten Stellen im Bild",
       "badFor": "Fernseher und einfache Player, die nur SRT kennen",
       "openWith": "VLC, mpv, Jellyfin, Plex; bearbeiten mit Aegisub"
+    },
+    "lrc": {
+      "name": "LRC-Liedtext",
+      "summary": "Ein Songtext mit Zeitangaben: Jede Zeile weiß, wann sie gesungen wird.",
+      "goodFor": "Mitlesen im Musikplayer (z. B. Poweramp, foobar2000, MusicBee), Karaoke, Lyrics-Videos",
+      "openWith": "Jeder Texteditor; viele Musikplayer zeigen sie an, wenn sie gleich heißt wie das Lied",
+      "badFor": "Filme und Videos (dafür SRT)"
     }
   },
   "warnings": {
@@ -2324,6 +2349,21 @@
       "what": "Das Passwort passt nicht zu diesem PDF.",
       "cause": "Vielleicht ein Tippfehler, falsche Groß-/Kleinschreibung oder ein anderes Passwort.",
       "action": "Gib das Passwort noch einmal genau ein. Ohne das richtige Passwort lässt sich der Schutz nicht entfernen."
+    },
+    "lyricsMissing": {
+      "what": "Es ist keine Liedtext-Datei ausgewählt.",
+      "cause": "Bei „Aus einer Datei“ braucht Conbert die Datei mit dem Text.",
+      "action": "Wähl eine LRC-, SRT-, VTT- oder ASS-Datei aus – oder stell den Liedtext auf „Ohne“."
+    },
+    "lyricsEmpty": {
+      "what": "In der Liedtext-Datei stehen keine Zeilen mit Zeitangaben.",
+      "cause": "Wahrscheinlich ist es reiner Text ohne Zeiten wie [01:23.45] – dann weiß Conbert nicht, wann welche Zeile kommt. Bei „Automatisch erkennen“ hat die Spracherkennung nichts verstanden.",
+      "action": "Such nach einer LRC-Datei zum Lied (viele Seiten und Player bieten „synced lyrics“ an) oder probier „Automatisch erkennen“."
+    },
+    "lyricsNoSpeech": {
+      "what": "Die Spracherkennung ist auf diesem Server nicht verfügbar.",
+      "cause": "Whisper ist nicht eingerichtet oder funktioniert gerade nicht.",
+      "action": "Nimm eine Liedtext-Datei (LRC) – oder bitte deinen Admin, die Spracherkennung zu prüfen."
     }
   },
   "stages": {
@@ -5765,7 +5805,11 @@
       "needsServer": "Dafür braucht es den Server – er ist gerade nicht erreichbar oder ffmpeg fehlt dort.",
       "notSound": "Das ist keine Tondatei, die Conbert kennt. Es gehen MP3, WAV, FLAC, OGG, Opus, M4A, AAC, AIFF und WMA.",
       "failed": "Das Video konnte nicht erzeugt werden.",
-      "done": "Fertig: {{size}}"
+      "done": "Fertig: {{size}}",
+      "noSpeech": "Nicht verfügbar: Dafür braucht es die Spracherkennung auf deinem Server.",
+      "lyricsWrongType": "Das ist keine Liedtext-Datei mit Zeitangaben. Es gehen LRC, SRT, VTT und ASS.",
+      "autoHint": "Beim ersten Mal lädt der Server das Sprachmodell (einige hundert MB). Die Erkennung dauert etwa so lang wie das Lied oder länger. Tipp: Die Sprache vorgeben ist genauer als „automatisch“.",
+      "recognizing": "Liedtext wird erkannt … {{percent}} %"
     },
     "scanner": {
       "camera": "Foto aufnehmen",

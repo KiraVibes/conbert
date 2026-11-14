@@ -367,6 +367,13 @@ export const FORMATS: readonly FormatInfo[] = [
     hasOpenWith: true,
   }),
   defineFormat({
+    ext: 'lrc',
+    category: 'document',
+    mime: 'application/x-lrc',
+    lossy: false,
+    hasOpenWith: true,
+  }),
+  defineFormat({
     ext: 'vtt',
     category: 'document',
     mime: 'text/vtt',

@@ -29,6 +29,8 @@ import { formatBytes } from '@/lib/format-bytes';
 import { saveBlob } from '@/lib/zip';
 import { extOf } from '../audio-convert';
 import { HowItWorks, SingleFile } from '../SingleFile';
+import { lyricsFileOk, type LyricsChoice } from './lyrics';
+import { LyricsSection } from './LyricsSection';
 
 const CONTAINERS = ['mp4', 'webm'] as const;
 type Container = (typeof CONTAINERS)[number];
@@ -78,6 +80,11 @@ export function AudioVideoTool() {
   const [size, setSize] = useState<VisualizerSize>('landscape720');
   const [color, setColor] = useState<VisualizerColor>('violet');
   const [container, setContainer] = useState<Container>('mp4');
+  const [lyrics, setLyrics] = useState<LyricsChoice>({
+    source: 'none',
+    file: null,
+    language: 'auto',
+  });
   const [busy, setBusy] = useState<{
     percent: number;
     stage?: string;
@@ -91,6 +98,7 @@ export function AudioVideoTool() {
   const soundExt = sound ? extOf(sound.name) : '';
   const soundOk = !sound || VISUALIZER_INPUTS.includes(soundExt);
   const coverOk = !cover || VISUALIZER_COVER_TYPES.includes(extOf(cover.name));
+  const lyricsOk = lyrics.source !== 'file' || (lyrics.file !== null && lyricsFileOk(lyrics.file));
 
   const make = async () => {
     if (!sound) return;
@@ -108,6 +116,9 @@ export function AudioVideoTool() {
           vizSize: size,
           vizColor: color,
           ...(cover && { vizCover: cover }),
+          vizLyrics: lyrics.source,
+          ...(lyrics.source === 'file' && lyrics.file && { vizLyricsFile: lyrics.file }),
+          ...(lyrics.source === 'auto' && { speechLanguage: lyrics.language }),
         },
         signal: abort.signal,
         onProgress: ({ percent, stage }) => setBusy({ percent, ...(stage && { stage }), abort }),
@@ -183,6 +194,8 @@ export function AudioVideoTool() {
         </div>
       </fieldset>
 
+      <LyricsSection value={lyrics} onChange={setLyrics} />
+
       <div className="grid gap-3 sm:grid-cols-3">
         <OptionSelect
           id="viz-size"
@@ -218,7 +231,7 @@ export function AudioVideoTool() {
       <div className="flex flex-wrap items-center gap-2">
         <Button
           onClick={() => void make()}
-          disabled={!sound || !soundOk || !coverOk || busy !== null}
+          disabled={!sound || !soundOk || !coverOk || !lyricsOk || busy !== null}
         >
           {busy ? (
             <Loader2Icon className="animate-spin" aria-hidden="true" />
@@ -228,7 +241,9 @@ export function AudioVideoTool() {
           {busy
             ? busy.stage === 'uploading'
               ? t('workshop.audiovideo.uploading', { percent: busy.percent })
-              : t('workshop.audiovideo.making', { percent: busy.percent })
+              : busy.stage === 'recognizing'
+                ? t('workshop.audiovideo.recognizing', { percent: busy.percent })
+                : t('workshop.audiovideo.making', { percent: busy.percent })
             : t('workshop.audiovideo.make')}
         </Button>
         {busy && (

@@ -45,7 +45,7 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 - **Deep-Fry / Meme-Filter**, **„JPEG bis zur Unkenntlichkeit“** (Bild 100× neu komprimieren, Zwischenschritte als Animation).
 - **Glitch-Art**: gezielte Byte-Manipulation („Datamoshing“) für Bilder und Videos, mit Erklärung.
 - **GIF rückwärts / Bumerang**, Video als Sprite-Sheet oder Kontaktbogen, Bild-Collage.
-- **Audio zu Video** (ergänzt 2026-11-14): Tondatei + optionales Cover → MP4/WebM mit Wellenform, Frequenz-Säulen, Spektrum oder nur Bild (Engine `audio-video`, nur Server; auch über „Umwandeln“ und in Workflows).
+- **Audio zu Video** (ergänzt 2026-11-14): Tondatei + optionales Cover + optionaler Liedtext (LRC/SRT/VTT/ASS oder automatisch per Whisper) → MP4/WebM mit Wellenform, Frequenz-Säulen, Spektrum oder nur Bild (Engine `audio-video`, nur Server; auch über „Umwandeln“ und in Workflows).
 - **Audio rückwärts**, Tonhöhe/Tempo ändern („Chipmunk“), Klingelton-Maker (Ausschnitt + Fade + M4R/MP3).
 - **Icon- & Favicon-Generator**: ein Bild → ICO, ICNS, alle Favicon-Größen + `manifest.json`.
 - **QR-Codes** erstellen (Text, WLAN-Zugang, Kontakt) mit Logo in der Mitte, und QR/Barcodes aus Bildern lesen.

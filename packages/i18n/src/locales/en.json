@@ -752,6 +752,24 @@
         "orange": "Orange",
         "green": "Green"
       }
+    },
+    "vizLyrics": {
+      "label": "Lyrics",
+      "help": "Shows the song's words line by line in the video – right when they are sung. That needs times: from an LRC file or from speech recognition.",
+      "choices": {
+        "none": "None",
+        "file": "From a file",
+        "auto": "Recognise automatically"
+      },
+      "choiceHelp": {
+        "none": "Only picture and wave, no text.",
+        "file": "An LRC file with times (e.g. [01:23.45]) – or SRT/VTT/ASS. Most exact.",
+        "auto": "Speech recognition (Whisper) listens to the singing. Works with clear vocals, not always with loud music."
+      }
+    },
+    "vizLyricsFile": {
+      "label": "Lyrics file",
+      "help": "A file with the song's words and times. Most common is LRC (lines like “[00:12.30]First line”) – many music players and lyrics sites offer it as “synced lyrics”. SRT, VTT and ASS work too. Plain text without times doesn't, because Conbert wouldn't know when which line comes."
     }
   },
   "engineStatus": {
@@ -1492,6 +1510,13 @@
       "goodFor": "Anime and fan subtitles, karaoke, subtitles with colours or at certain places in the picture",
       "badFor": "TVs and simple players that only know SRT",
       "openWith": "VLC, mpv, Jellyfin, Plex; edit with Aegisub"
+    },
+    "lrc": {
+      "name": "LRC lyrics",
+      "summary": "Song lyrics with times: every line knows when it is sung.",
+      "goodFor": "Reading along in music players (e.g. Poweramp, foobar2000, MusicBee), karaoke, lyric videos",
+      "openWith": "Any text editor; many music players show it when it has the same name as the song",
+      "badFor": "Films and videos (use SRT for those)"
     }
   },
   "warnings": {
@@ -2324,6 +2349,21 @@
       "what": "The password doesn't match this PDF.",
       "cause": "Maybe a typo, upper/lower case, or a different password.",
       "action": "Type the password again exactly. Without the right password the protection can't be removed."
+    },
+    "lyricsMissing": {
+      "what": "No lyrics file is chosen.",
+      "cause": "With “From a file” Conbert needs the file with the text.",
+      "action": "Choose an LRC, SRT, VTT or ASS file – or set the lyrics to “None”."
+    },
+    "lyricsEmpty": {
+      "what": "The lyrics file has no lines with times.",
+      "cause": "Most likely it is plain text without times like [01:23.45] – then Conbert doesn't know when which line comes. With “Recognise automatically” the speech recognition understood nothing.",
+      "action": "Look for an LRC file for the song (many sites and players offer “synced lyrics”) or try “Recognise automatically”."
+    },
+    "lyricsNoSpeech": {
+      "what": "Speech recognition isn't available on this server.",
+      "cause": "Whisper isn't set up or doesn't work right now.",
+      "action": "Use a lyrics file (LRC) – or ask your admin to check speech recognition."
     }
   },
   "stages": {
@@ -5765,7 +5805,11 @@
       "needsServer": "This needs the server – it can't be reached right now or ffmpeg is missing there.",
       "notSound": "This isn't a sound file Conbert knows. MP3, WAV, FLAC, OGG, Opus, M4A, AAC, AIFF and WMA work.",
       "failed": "The video couldn't be made.",
-      "done": "Done: {{size}}"
+      "done": "Done: {{size}}",
+      "noSpeech": "Not available: this needs speech recognition on your server.",
+      "lyricsWrongType": "This isn't a lyrics file with times. LRC, SRT, VTT and ASS work.",
+      "autoHint": "The first time, the server downloads the speech model (a few hundred MB). Recognition takes about as long as the song or longer. Tip: choosing the language is more exact than “automatic”.",
+      "recognizing": "Recognising the lyrics … {{percent}} %"
     },
     "scanner": {
       "camera": "Take a photo",

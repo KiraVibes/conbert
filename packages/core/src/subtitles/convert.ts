@@ -178,19 +178,70 @@ function parseAss(text: string): Cue[] {
   return cues;
 }
 
-/** The format by its content: ASS has sections, WebVTT a header, the rest is SRT. */
-export function subtitleFormatOf(text: string): 'srt' | 'vtt' | 'ass' {
+/** The format by its content: ASS has sections, WebVTT a header, LRC [mm:ss] stamps, the rest is SRT. */
+export function subtitleFormatOf(text: string): 'srt' | 'vtt' | 'ass' | 'lrc' {
   const start = text.replace(/^\uFEFF/, '').trimStart();
   if (/^WEBVTT/.test(start)) return 'vtt';
   if (/^\[(Script Info|V4\+? Styles|Events)\]/im.test(start)) return 'ass';
+  if (/^\[(\d{1,3}:\d{1,2}([.:]\d{1,3})?|[a-z]{2,6}:[^\]]*)\]/i.test(start)) return 'lrc';
   return 'srt';
+}
+
+const LRC_STAMP = /^\[(\d{1,3}):(\d{1,2})(?:[.:](\d{1,3}))?\]/;
+/** A line stays on screen at most this long when the next one is far away (instrumental parts). */
+const LRC_MAX_LINE_MS = 10_000;
+const LRC_LAST_LINE_MS = 6_000;
+
+/**
+ * Song lyrics in LRC: "[01:23.45]A line" (several stamps per line allowed,
+ * word stamps <01:23.45> of "enhanced LRC" are dropped). A line lasts until
+ * the next one starts; empty lines end the previous one (instrumental part).
+ * Tags like [ar:Artist] are skipped, [offset:+500] shows everything earlier.
+ */
+export function parseLrc(text: string): Cue[] {
+  let offset = 0;
+  const stamps: { time: number; text: string }[] = [];
+  for (const raw of text.replace(/^\uFEFF/, '').split(/\r?\n/)) {
+    let rest = raw.trim();
+    const off = /^\[offset:\s*([+-]?\d+)\s*\]$/i.exec(rest);
+    if (off) {
+      offset = Number(off[1]);
+      continue;
+    }
+    const times: number[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = LRC_STAMP.exec(rest))) {
+      const frac = m[3] ?? '0';
+      const ms = Number(frac) * 10 ** (3 - frac.length);
+      times.push((Number(m[1]) * 60 + Number(m[2])) * 1000 + ms);
+      rest = rest.slice(m[0].length);
+    }
+    if (times.length === 0) continue;
+    const words = rest
+      .replace(/<\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?>/g, '')
+      .replace(/[<>]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    for (const time of times) stamps.push({ time: Math.max(0, time - offset), text: words });
+  }
+  stamps.sort((a, b) => a.time - b.time);
+  const cues: Cue[] = [];
+  stamps.forEach((s, i) => {
+    if (!s.text) return;
+    const next = stamps[i + 1];
+    const end = next ? Math.min(next.time, s.time + LRC_MAX_LINE_MS) : s.time + LRC_LAST_LINE_MS;
+    if (end > s.time) cues.push({ start: s.time, end, text: s.text });
+  });
+  return cues;
 }
 
 export function parseSubtitles(text: string, ext: string): Cue[] {
   const cues =
     ext === 'ass' || ext === 'ssa'
       ? parseAss(text)
-      : parseBlocks(text, ext === 'vtt' || /^\uFEFF?WEBVTT/.test(text));
+      : ext === 'lrc'
+        ? parseLrc(text)
+        : parseBlocks(text, ext === 'vtt' || /^\uFEFF?WEBVTT/.test(text));
   return cues.filter((c) => c.end > c.start).sort((a, b) => a.start - b.start || a.end - b.end);
 }
 

@@ -109,3 +109,40 @@ describe('format by content', () => {
     expect(subtitleFormatOf(decodeSubtitleText(fixture('sample.ass')))).toBe('ass');
   });
 });
+
+describe('LRC lyrics', () => {
+  const lrc = [
+    '[ar:Someone]',
+    '[ti:A song]',
+    '[offset:+200]',
+    '[00:01.00]First line',
+    '[00:03.50][00:20.00]Chorus <00:03.80>with <00:04.10>words',
+    '[00:06.0]',
+    '[00:30.123]Last line',
+  ].join('\n');
+
+  it('is recognised by its content', () => {
+    expect(subtitleFormatOf(lrc)).toBe('lrc');
+    expect(subtitleFormatOf('[00:01.00]Hi')).toBe('lrc');
+    expect(subtitleFormatOf('1\n00:00:01,000 --> 00:00:02,000\nHi\n')).toBe('srt');
+  });
+
+  it('turns stamped lines into cues that last until the next line', () => {
+    const cues = parseSubtitles(lrc, 'lrc');
+    expect(cues.map((c) => [c.start, c.end, c.text])).toEqual([
+      [800, 3300, 'First line'],
+      [3300, 5800, 'Chorus with words'],
+      // The empty line at 6.0 ends the chorus; far-away next lines are capped at 10 s.
+      [19800, 29800, 'Chorus with words'],
+      [29923, 35923, 'Last line'],
+    ]);
+  });
+
+  it('converts to SRT like any other subtitle file', () => {
+    const srt = new TextDecoder().decode(
+      convertSubtitles(new TextEncoder().encode('[00:01.50]Hallo Welt\n'), 'lrc', 'srt', {}),
+    );
+    expect(srt).toContain('00:00:01,500 --> 00:00:07,500');
+    expect(srt).toContain('Hallo Welt');
+  });
+});

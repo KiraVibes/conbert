@@ -1,8 +1,8 @@
-import { copyFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { buildVisualizerArgs } from '@conbert/core';
+import { buildVisualizerArgs, lyricsAss, visualizerLayout } from '@conbert/core';
 import { runProcess } from '../lib/run-process';
 import { hasCommand } from '../test/helpers';
 import { audioVideoEngine } from './audio-video';
@@ -49,6 +49,39 @@ describe('audio → video arguments', () => {
     expect(graph).toContain('showwaves=s=1280x');
     expect(graph).toContain('0xa78bfa');
     expect(args).toContain('libvpx-vp9');
+  });
+
+  it('burns lyrics in with libass and makes room for them', () => {
+    const args = buildVisualizerArgs({
+      input: '/in/song',
+      inputExt: 'mp3',
+      output: '/out/video',
+      outputExt: 'mp4',
+      options: { vizStyle: 'wave' },
+      cover: '/in/cover.png',
+      lyrics: '/work/abc.ass',
+    });
+    const graph = args[args.indexOf('-filter_complex') + 1] ?? '';
+    expect(graph).toContain("subtitles=filename='/work/abc.ass'");
+    const plain = visualizerLayout('wave', 1280, 720, true, false);
+    const withText = visualizerLayout('wave', 1280, 720, true, true);
+    expect(withText.art).toBeLessThan(plain.art);
+    // The line sits between the cover and the waveform.
+    expect(withText.lyricsY).toBeGreaterThan(withText.artTop + withText.art);
+    expect(withText.lyricsY).toBeLessThan(withText.bandY);
+  });
+
+  it('writes lyrics as ASS without letting the text inject override codes', () => {
+    const ass = lyricsAss(
+      [{ start: 1500, end: 3000, text: 'Hallo {\\an8}Welt\nzwei' }],
+      { vizSize: 'square' },
+      false,
+    );
+    expect(ass).toContain('PlayResX: 1080');
+    expect(ass).toContain('Dialogue: 0,0:00:01.50,0:00:03.00,Lyrics');
+    // Braces and backslashes from the text can't start override codes.
+    expect(ass).not.toContain('{\\an8}');
+    expect(ass).toContain('Hallo an8Welt\\Nzwei');
   });
 
   it('refuses unknown containers', () => {
@@ -118,6 +151,41 @@ describe.skipIf(!installed)('audio → video (real ffmpeg)', () => {
     );
     expect(await probe(out)).toEqual(['audio', 'video,1280,720']);
   }, 120_000);
+
+  it('mp3 → mp4 with lyrics from an LRC file', async () => {
+    // Uploads have no ending: the type is read from the content.
+    const lrc = path.join(workDir, 'lyrics-upload');
+    writeFileSync(
+      lrc,
+      ['[ti:Test]', '[00:00.20]Erste Zeile', '[00:01.00]Zweite Zeile mit Ümläuten', ''].join('\n'),
+    );
+    const out = String(
+      await audioVideoEngine.convert({
+        input: path.join(fixtures, 'sample.mp3'),
+        inputExt: 'mp3',
+        outputExt: 'mp4',
+        options: { vizStyle: 'bars', vizLyrics: 'file' },
+        attachments: { vizLyricsFile: lrc },
+        workDir,
+      }),
+    );
+    expect(await probe(out)).toEqual(['audio', 'video,1280,720']);
+  }, 120_000);
+
+  it('says so when the lyrics file has no times', async () => {
+    const plain = path.join(workDir, 'plain-lyrics');
+    writeFileSync(plain, ['Nur Text', 'ohne Zeiten', ''].join('\n'));
+    await expect(
+      audioVideoEngine.convert({
+        input: path.join(fixtures, 'sample.mp3'),
+        inputExt: 'mp3',
+        outputExt: 'mp4',
+        options: { vizLyrics: 'file' },
+        attachments: { vizLyricsFile: plain },
+        workDir,
+      }),
+    ).rejects.toMatchObject({ messageKey: 'errors.lyricsEmpty' });
+  });
 
   it('refuses a cover that is no picture', async () => {
     const cover = path.join(workDir, 'not-a-picture');
