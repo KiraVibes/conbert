@@ -2319,6 +2319,11 @@
       "what": "The chosen cover isn't a picture Conbert can read.",
       "cause": "Only JPG, PNG, WebP and BMP work as a cover.",
       "action": "Convert the picture to JPG or PNG first, then choose it again."
+    },
+    "pdfWrongPassword": {
+      "what": "The password doesn't match this PDF.",
+      "cause": "Maybe a typo, upper/lower case, or a different password.",
+      "action": "Type the password again exactly. Without the right password the protection can't be removed."
     }
   },
   "stages": {
@@ -2628,6 +2633,48 @@
       "help": "For scans and photos of documents: Conbert reads the text in the pictures and lays it invisibly over the page. Afterwards you can search the PDF (Ctrl+F) and select and copy text. The pages look the same as before.",
       "hint": "Runs on your server – the finished PDF is sent there for this. Depending on the number of pages it takes a few seconds to a few minutes.",
       "unavailable": "Not available: this needs your Conbert server with text recognition. Check that the server can be reached."
+    },
+    "redact": {
+      "open": "Black out",
+      "openNamed": "Black out {{label}}",
+      "count_one": "{{count}} area blacked out",
+      "count_other": "{{count}} areas blacked out",
+      "title": "Black out areas",
+      "intro": "Drag rectangles with the mouse or your finger over everything nobody should see – names, addresses, account numbers.",
+      "pageAlt": "Page to black out",
+      "removeOne": "Remove black box {{n}}",
+      "howItWorks": "When the PDF is made, this page is redrawn as a picture with the black boxes burnt in. Only that way is the text underneath really gone – a black box in a normal PDF program often leaves the text selectable. In return, the page's text can't be selected or searched any more (unless you turn on text recognition).",
+      "clear": "Remove all",
+      "cancel": "Cancel",
+      "apply_one": "Apply {{count}} box",
+      "apply_other": "Apply {{count}} boxes",
+      "resultHint": "Blacked-out pages are pictures now: the text underneath is gone for good."
+    },
+    "locked": {
+      "title": "“{{name}}” is protected with a password",
+      "help": "Enter the password, then your server removes the protection and the pages show up here. The password isn't stored.",
+      "passwordFor": "Password for {{name}}",
+      "open": "Open",
+      "skip": "Skip"
+    },
+    "protect": {
+      "label": "Watermark & password",
+      "watermark": "Watermark",
+      "watermarkHelp": "A text stamped on every page, e.g. “Copy”, “Draft” or “Only for my application at company X”. Leave empty = no watermark. It is drawn in and can't simply be removed again.",
+      "watermarkPlaceholder": "e.g. COPY – for the landlord only",
+      "position": "Position",
+      "positions": {
+        "diagonal": "Big and slanted",
+        "center": "Big in the middle",
+        "footer": "Small at the bottom"
+      },
+      "password": "Password (optional)",
+      "passwordHelp": "Protects the finished PDF with a password (AES-256, the strongest PDF protection). It can't be opened without it. Browsers can't encrypt PDFs – so the file goes to your own server once; the password isn't stored there.",
+      "show": "Show password",
+      "hide": "Hide password",
+      "remember": "Keep the password safe – without it nobody can get at the content, not even Conbert.",
+      "locking": "Adding the password … {{done}}/{{total}}",
+      "droppedChars": "Some characters of the watermark (e.g. emojis) can't be drawn by the built-in PDF font – they were left out."
     }
   },
   "preview": {

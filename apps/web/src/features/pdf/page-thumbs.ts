@@ -60,6 +60,39 @@ async function render(source: PdfSource, index: number): Promise<string> {
   return remember(source.id, URL.createObjectURL(blob));
 }
 
+/**
+ * Draws one page upright (with its own rotation) onto a canvas `width` pixels
+ * wide. Also returns the page size in PDF points (1/72 inch).
+ */
+export async function renderPageCanvas(
+  source: PdfSource,
+  index: number,
+  width: number,
+): Promise<{ canvas: HTMLCanvasElement; points: { width: number; height: number } }> {
+  const canvas = document.createElement('canvas');
+  if (source.kind !== 'pdf') {
+    const bitmap = await createImageBitmap(
+      new Blob([source.bytes.slice()], { type: `image/${source.kind === 'jpg' ? 'jpeg' : 'png'}` }),
+    );
+    const scale = Math.min(1, width / bitmap.width);
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const points = { width: bitmap.width * 0.75, height: bitmap.height * 0.75 };
+    bitmap.close();
+    return { canvas, points };
+  }
+  const doc = await openDoc(source);
+  const page = await doc.getPage(index + 1);
+  const base = page.getViewport({ scale: 1 });
+  const viewport = page.getViewport({ scale: width / base.width });
+  canvas.width = Math.round(viewport.width);
+  canvas.height = Math.round(viewport.height);
+  await page.render({ canvas, viewport, intent: 'print' }).promise;
+  page.cleanup();
+  return { canvas, points: { width: base.width, height: base.height } };
+}
+
 function thumbnail(source: PdfSource, index: number): Promise<string> {
   const key = `${source.id}:${index}`;
   let result = thumbs.get(key);

@@ -25,6 +25,7 @@ const FEATURE_ROUTES: [prefix: string, feature: Feature][] = [
   ['/api/media', 'media'],
   ['/api/swipe', 'media'],
   ['/api/tokens', 'apiTokens'],
+  ['/api/pdf', 'pdf'],
 ];
 
 /** Engines that count as "AI" (checked when a job starts, see routes/jobs.ts). */

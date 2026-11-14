@@ -40,6 +40,8 @@ export const API_ERROR_KEYS = {
   TOKEN_NOT_ALLOWED: 'errors.tokenNotAllowed',
   NO_SERVER_ROUTE: 'errors.noServerRoute',
   ATTACHMENT_INVALID: 'errors.attachmentInvalid',
+  PDF_WRONG_PASSWORD: 'errors.pdfWrongPassword',
+  PDF_BROKEN: 'errors.pdfBroken',
   RESULT_GONE: 'errors.resultGone',
   TOO_MANY_ATTEMPTS: 'errors.tooManyAttempts',
   INVALID_USERNAME: 'errors.invalidUsername',

@@ -2319,6 +2319,11 @@
       "what": "Das gewählte Cover ist kein Bild, das Conbert lesen kann.",
       "cause": "Fürs Cover gehen nur JPG, PNG, WebP und BMP.",
       "action": "Wandle das Bild zuerst in JPG oder PNG um und wähl es dann noch einmal."
+    },
+    "pdfWrongPassword": {
+      "what": "Das Passwort passt nicht zu diesem PDF.",
+      "cause": "Vielleicht ein Tippfehler, falsche Groß-/Kleinschreibung oder ein anderes Passwort.",
+      "action": "Gib das Passwort noch einmal genau ein. Ohne das richtige Passwort lässt sich der Schutz nicht entfernen."
     }
   },
   "stages": {
@@ -2628,6 +2633,48 @@
       "help": "Für Scans und Fotos von Dokumenten: Conbert liest den Text in den Bildern und legt ihn unsichtbar über die Seite. Danach kannst du im PDF suchen (Strg+F) und Text markieren und kopieren. Das Aussehen der Seiten ändert sich nicht.",
       "hint": "Läuft auf deinem Server – das fertige PDF wird dafür dorthin geschickt. Je nach Seitenzahl dauert das ein paar Sekunden bis einige Minuten.",
       "unavailable": "Nicht verfügbar: Dafür braucht es deinen Conbert-Server mit Texterkennung. Prüf, ob der Server erreichbar ist."
+    },
+    "redact": {
+      "open": "Schwärzen",
+      "openNamed": "{{label}} schwärzen",
+      "count_one": "{{count}} Stelle geschwärzt",
+      "count_other": "{{count}} Stellen geschwärzt",
+      "title": "Stellen schwärzen",
+      "intro": "Zieh mit Maus oder Finger Rechtecke über alles, was niemand sehen soll – Namen, Adressen, Kontonummern.",
+      "pageAlt": "Seite zum Schwärzen",
+      "removeOne": "Schwarzes Feld {{n}} entfernen",
+      "howItWorks": "Beim Erstellen wird diese Seite als Bild neu gezeichnet und die schwarzen Felder werden fest eingebrannt. Nur so ist der Text darunter wirklich weg – ein schwarzer Kasten in einem normalen PDF-Programm lässt den Text oft weiter markierbar. Dafür ist der Text der Seite danach nicht mehr markierbar oder durchsuchbar (außer du schaltest die Texterkennung an).",
+      "clear": "Alle entfernen",
+      "cancel": "Abbrechen",
+      "apply_one": "{{count}} Feld übernehmen",
+      "apply_other": "{{count}} Felder übernehmen",
+      "resultHint": "Geschwärzte Seiten sind jetzt Bilder: Der Text darunter ist endgültig entfernt."
+    },
+    "locked": {
+      "title": "„{{name}}“ ist mit einem Passwort geschützt",
+      "help": "Gib das Passwort ein, dann entfernt dein Server den Schutz und die Seiten erscheinen hier. Das Passwort wird nicht gespeichert.",
+      "passwordFor": "Passwort für {{name}}",
+      "open": "Öffnen",
+      "skip": "Überspringen"
+    },
+    "protect": {
+      "label": "Wasserzeichen & Passwort",
+      "watermark": "Wasserzeichen",
+      "watermarkHelp": "Ein Text, der auf jede Seite gestempelt wird, z. B. „Kopie“, „Entwurf“ oder „Nur für die Bewerbung bei Firma X“. Leer lassen = kein Wasserzeichen. Er wird hineingezeichnet und lässt sich nicht einfach wieder entfernen.",
+      "watermarkPlaceholder": "z. B. KOPIE – nur für Vermieter",
+      "position": "Position",
+      "positions": {
+        "diagonal": "Groß und schräg",
+        "center": "Groß in der Mitte",
+        "footer": "Klein unten"
+      },
+      "password": "Passwort (optional)",
+      "passwordHelp": "Schützt das fertige PDF mit einem Passwort (AES-256, der stärkste PDF-Schutz). Ohne Passwort lässt es sich dann nicht öffnen. Browser können PDFs nicht verschlüsseln – dafür geht die Datei einmal an deinen eigenen Server, das Passwort wird dort nicht gespeichert.",
+      "show": "Passwort zeigen",
+      "hide": "Passwort verbergen",
+      "remember": "Merk dir das Passwort gut – ohne kommt niemand mehr an den Inhalt, auch Conbert nicht.",
+      "locking": "Passwortschutz wird gesetzt … {{done}}/{{total}}",
+      "droppedChars": "Einige Zeichen des Wasserzeichens (z. B. Emojis) kann die eingebaute PDF-Schrift nicht darstellen – sie wurden weggelassen."
     }
   },
   "preview": {

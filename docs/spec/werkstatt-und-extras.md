@@ -70,7 +70,7 @@ Diese Funktionen gehören zum Funktionsumfang, werden aber erst nach den Kernpha
 - Bild: zuschneiden, drehen, Größe ändern, Seitenverhältnis-Vorlagen (Instagram 4:5, YouTube-Thumbnail 16:9), **Hintergrund entfernen** (ONNX-Modell lokal im Browser oder auf dem Server), **Hochskalieren** (Real-ESRGAN, serverseitig, GPU falls vorhanden).
 - Video: **zuschneiden/kürzen** per Zeitleiste ohne Neukodierung (wenn möglich), Ausschnitt als **GIF/WebP-Animation**, Ton entfernen, Standbild exportieren.
 - Audio: Lautstärke angleichen (EBU R128 / `loudnorm`), Stille am Anfang/Ende entfernen, Ausschnitt schneiden. *(Umgesetzt als Expertenoptionen der ffmpeg-Engines, Browser und Server.)*
-- PDF: zusammenfügen, aufteilen, Seiten sortieren/drehen/löschen, **OCR** (Tesseract) für durchsuchbare PDFs.
+- PDF: zusammenfügen, aufteilen, Seiten sortieren/drehen/löschen, **OCR** (Tesseract) für durchsuchbare PDFs. **Schwärzen** (ergänzt 2026-11-14): Rechtecke pro Seite ziehen; die Seite wird beim Erstellen als Bild (150 dpi, JPEG) neu aufgebaut, damit Text/Links darunter wirklich weg sind. **Wasserzeichen** (Text groß schräg, groß mittig oder klein unten; pdf-lib, im Browser; Zeichen außerhalb der PDF-Standardschrift werden mit Hinweis weggelassen). **Passwort** setzen (AES-256) und geschützte PDFs mit Passwort öffnen: qpdf auf dem Server (`POST /api/pdf/password`, Passwort nur in einer Argument-Datei, nie in der Befehlszeile/im Log, nichts gespeichert).
 
 **Transkription & Untertitel**
 - Sprache aus Video/Audio in Text bzw. Untertitel (SRT/VTT) umwandeln mit Whisper (`whisper.cpp`, serverseitig; kleines Modell optional im Browser).

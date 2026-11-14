@@ -48,6 +48,7 @@ import { JobRunner, resumeJobs } from './queue/runner';
 import { startCleanup } from './storage/cleanup';
 import { registerUploads } from './storage/uploads';
 import { registerWhisperRoutes, readWhisperModel } from './routes/whisper';
+import { registerPdfRoutes } from './routes/pdf';
 import { registerImageAiRoutes } from './routes/image-ai';
 import { registerTokenRoutes } from './routes/tokens';
 import { registerScriptingRoutes } from './routes/scripting';
@@ -286,6 +287,7 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
   registerKeyRoutes(app, ctx);
   registerMediaRoutes(app, ctx);
   registerWhisperRoutes(app, ctx);
+  registerPdfRoutes(app, ctx);
   registerBlenderRoutes(app, blender);
   registerImageAiRoutes(app, ctx);
   registerTokenRoutes(app, ctx);

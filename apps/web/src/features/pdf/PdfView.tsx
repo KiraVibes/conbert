@@ -3,6 +3,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   DownloadIcon,
+  EraserIcon,
   FileTextIcon,
   Loader2Icon,
   RotateCcwIcon,
@@ -25,6 +26,9 @@ import { SaveToStorageButton } from '@/features/storage/StorageButtons';
 import { formatBytes } from '@/lib/format-bytes';
 import { createZip, saveBlob, zipFileName } from '@/lib/zip';
 import { usePageThumb } from './page-thumbs';
+import { addWatermark, flattenPage } from './pdf-finish';
+import { pdfPassword } from './pdf-password';
+import { LockedFiles, ProtectSection, RedactDialog, type ProtectSettings } from './PdfExtras';
 import {
   baseName,
   buildPdf,
@@ -48,6 +52,8 @@ function PageTile({ page, position, total }: { page: PageRef; position: number; 
   const { move, rotate, remove, toggle } = usePdfTool.getState();
   const thumb = usePageThumb(source, page.index);
   const [dragOver, setDragOver] = useState(false);
+  const [redacting, setRedacting] = useState(false);
+  const blackBoxes = page.redactions?.length ?? 0;
   const sideways = page.rotation === 90 || page.rotation === 270;
   const label = t('pdf.pageLabel', {
     position,
@@ -117,6 +123,20 @@ function PageTile({ page, position, total }: { page: PageRef; position: number; 
       <p className="truncate text-xs text-muted-foreground" title={source?.name}>
         {t('pdf.fromFile', { name: source?.name ?? '', page: page.index + 1 })}
       </p>
+      <Button
+        size="sm"
+        variant={blackBoxes > 0 ? 'secondary' : 'ghost'}
+        className="h-7 justify-start px-2 text-xs"
+        disabled={!source}
+        onClick={() => setRedacting(true)}
+        aria-label={t('pdf.redact.openNamed', { label })}
+      >
+        <EraserIcon aria-hidden="true" />
+        {blackBoxes > 0 ? t('pdf.redact.count', { count: blackBoxes }) : t('pdf.redact.open')}
+      </Button>
+      {source && (
+        <RedactDialog page={page} source={source} open={redacting} onOpenChange={setRedacting} />
+      )}
       <div className="flex justify-between">
         <Button
           size="icon"
@@ -166,6 +186,8 @@ interface Progress {
   total: number;
   /** While the server recognises text: percent of the current file. */
   ocrPercent?: number;
+  /** While the server puts the password on. */
+  locking?: boolean;
 }
 
 interface BuildError {
@@ -185,12 +207,18 @@ function OutputPanel() {
   const [ocrOn, setOcrOn] = useState(false);
   const [ocrOptions, setOcrOptions] = useState<Record<string, unknown>>({});
   const ocr = ocrOn && ocrEngine !== null;
+  const [protect, setProtect] = useState<ProtectSettings>({
+    watermark: '',
+    position: 'diagonal',
+    password: '',
+  });
+  const [droppedChars, setDroppedChars] = useState(false);
   const [controller, setController] = useState<AbortController | null>(null);
   // Any change to the pages makes an old result outdated: results remember
   // the inputs they were built from and only show while those are current.
   const inputs = useMemo(
-    () => ({ pages, selected, mode, ranges, ocr, ocrOptions }),
-    [pages, selected, mode, ranges, ocr, ocrOptions],
+    () => ({ pages, selected, mode, ranges, ocr, ocrOptions, protect }),
+    [pages, selected, mode, ranges, ocr, ocrOptions, protect],
   );
   const [built, setResult] = useState<{ files: OutputFile[]; inputs: object } | null>(null);
   const [failed, setError] = useState<(BuildError & { inputs: object }) | null>(null);
@@ -220,7 +248,12 @@ function OutputPanel() {
         const chosen = mode === 'merge' ? pages : pages.filter((p) => selected.has(p.id));
         const fileName =
           sources.length === 1 ? t('pdf.fileName.edited', { name }) : t('pdf.fileName.merged');
-        files = [{ name: `${fileName}.pdf`, bytes: await buildPdf(sources, chosen, progress) }];
+        files = [
+          {
+            name: `${fileName}.pdf`,
+            bytes: await buildPdf(sources, chosen, progress, flattenPage),
+          },
+        ];
       } else {
         const list = mode === 'each' ? pages.map((_, i) => [i + 1]) : (groups ?? []);
         files = await splitPdf(
@@ -233,6 +266,7 @@ function OutputPanel() {
               pages: groupLabel(group),
             })}.pdf`,
           progress,
+          flattenPage,
         );
       }
       if (ocr) {
@@ -251,6 +285,34 @@ function OutputPanel() {
           files[n] = { name: file.name, bytes: new Uint8Array(await searchable.arrayBuffer()) };
         }
       }
+      let dropped = false;
+      if (protect.watermark.trim()) {
+        for (const [n, file] of files.entries()) {
+          const marked = await addWatermark(file.bytes, {
+            text: protect.watermark,
+            position: protect.position,
+          });
+          dropped ||= marked.dropped;
+          files[n] = { name: file.name, bytes: marked.bytes };
+        }
+      }
+      if (protect.password) {
+        // Browsers can't encrypt PDFs: qpdf on the server does it (the password goes there once).
+        for (const [n, file] of files.entries()) {
+          setBusy({ done: n + 1, total: files.length, locking: true });
+          files[n] = {
+            name: file.name,
+            bytes: await pdfPassword(
+              file.bytes,
+              file.name,
+              'protect',
+              protect.password,
+              abort.signal,
+            ),
+          };
+        }
+      }
+      setDroppedChars(dropped);
       setResult({ files, inputs });
     } catch (err) {
       if (isAbortError(err)) return;
@@ -350,6 +412,8 @@ function OutputPanel() {
         disabled={busy !== null}
       />
 
+      <ProtectSection value={protect} onChange={setProtect} disabled={busy !== null} />
+
       <div className="flex flex-wrap items-center gap-2">
         <Button onClick={() => void build()} disabled={!canBuild}>
           {busy ? (
@@ -358,12 +422,14 @@ function OutputPanel() {
             <FileTextIcon aria-hidden="true" />
           )}
           {busy
-            ? busy.ocrPercent !== undefined
-              ? t('pdf.output.recognizing', { ...busy, percent: busy.ocrPercent })
-              : t('pdf.output.creating', { done: busy.done, total: busy.total })
+            ? busy.locking
+              ? t('pdf.protect.locking', { done: busy.done, total: busy.total })
+              : busy.ocrPercent !== undefined
+                ? t('pdf.output.recognizing', { ...busy, percent: busy.ocrPercent })
+                : t('pdf.output.creating', { done: busy.done, total: busy.total })
             : t('pdf.output.create')}
         </Button>
-        {controller && ocr && (
+        {controller && (ocr || protect.password) && (
           <Button variant="outline" onClick={() => controller.abort()}>
             {t('convert.cancel')}
           </Button>
@@ -381,6 +447,14 @@ function OutputPanel() {
               size: formatBytes(totalSize, i18n.language),
             })}
           </p>
+          {droppedChars && (
+            <p className="text-sm text-amber-700 dark:text-amber-400">
+              {t('pdf.protect.droppedChars')}
+            </p>
+          )}
+          {pages.some((p) => p.redactions?.length) && (
+            <p className="text-sm text-muted-foreground">{t('pdf.redact.resultHint')}</p>
+          )}
           <div className="flex flex-wrap gap-2">
             <Button onClick={() => void download()} disabled={zipping}>
               {zipping ? (
@@ -420,6 +494,8 @@ export function PdfView() {
           {t('pdf.loading')}
         </p>
       )}
+
+      <LockedFiles />
 
       {rejected.length > 0 && (
         <div className="space-y-2">

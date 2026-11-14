@@ -15,13 +15,34 @@ export interface PdfSource {
   bytes: Uint8Array;
 }
 
+/** A blacked-out area, as fractions (0–1) of the upright page (its own rotation applied). */
+export interface Rect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 /** One page in the work list: page `index` (0-based) of a source, turned by `rotation`. */
 export interface PageRef {
   id: string;
   sourceId: string;
   index: number;
   rotation: Rotation;
+  /** Areas to black out – the page then becomes a picture, so nothing hides beneath. */
+  redactions?: readonly Rect[];
 }
+
+/** A page drawn as a picture (with black boxes), sized in PDF points. */
+export interface FlatPage {
+  bytes: Uint8Array;
+  kind: 'jpg' | 'png';
+  width: number;
+  height: number;
+}
+
+/** Draws a page with its black boxes (the browser does it with pdf.js and a canvas). */
+export type Flatten = (source: PdfSource, ref: PageRef) => Promise<FlatPage>;
 
 export interface OutputFile {
   name: string;
@@ -64,6 +85,7 @@ export async function buildPdf(
   sources: readonly PdfSource[],
   pages: readonly PageRef[],
   onProgress?: (done: number, total: number) => void,
+  flatten?: Flatten,
 ): Promise<Uint8Array> {
   if (pages.length === 0) throw new ConversionError('errors.pdfNoPages');
   const lib = await loadPdfLib();
@@ -72,7 +94,16 @@ export async function buildPdf(
   for (const [n, ref] of pages.entries()) {
     const source = sources.find((s) => s.id === ref.sourceId);
     if (!source) throw new ConversionError('errors.pdfBroken', `missing source ${ref.sourceId}`);
-    if (source.kind === 'pdf') {
+    if (ref.redactions?.length && flatten) {
+      // Blacked out: the page is rebuilt as a picture – text, links and form fields
+      // under the boxes are gone for good, not just covered.
+      const flat = await flatten(source, ref);
+      const image =
+        flat.kind === 'jpg' ? await out.embedJpg(flat.bytes) : await out.embedPng(flat.bytes);
+      const page = out.addPage([flat.width, flat.height]);
+      page.drawImage(image, { x: 0, y: 0, width: flat.width, height: flat.height });
+      if (ref.rotation) page.setRotation(lib.degrees(ref.rotation));
+    } else if (source.kind === 'pdf') {
       let doc = opened.get(source.id);
       if (!doc) {
         doc = await openSource(lib, source);
@@ -143,11 +174,15 @@ export async function splitPdf(
   groups: readonly (readonly number[])[],
   nameFor: (group: readonly number[]) => string,
   onProgress?: (done: number, total: number) => void,
+  flatten?: Flatten,
 ): Promise<OutputFile[]> {
   const files: OutputFile[] = [];
   for (const [n, group] of groups.entries()) {
     const chosen = group.map((position) => pages[position - 1]).filter((p) => p !== undefined);
-    files.push({ name: nameFor(group), bytes: await buildPdf(sources, chosen) });
+    files.push({
+      name: nameFor(group),
+      bytes: await buildPdf(sources, chosen, undefined, flatten),
+    });
     onProgress?.(n + 1, groups.length);
   }
   return files;

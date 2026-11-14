@@ -129,3 +129,13 @@ Abos (`GET /api/downloader/feeds`) und Booru-Abos (`GET /api/subscriptions`) lie
 ### Listen leeren (2026-11-12)
 
 `DELETE /api/downloader/jobs` und `DELETE /api/booru/jobs` (ohne ID) entfernen alle fertigen, fehlgeschlagenen und abgebrochenen Einträge des Nutzers auf einmal und liefern `{ removed }`. Laufende und wartende (bei Booru auch pausierte) bleiben. Downloads: Dateien bleiben (Speicherort/Server-Archiv). Booru: Dateien, die noch auf die Umwandeln-Liste warten, werden gelöscht – wie beim Entfernen einzelner Einträge.
+
+### PDF-Passwort (2026-11-14)
+
+```
+POST /api/pdf/password   { fileId, action: 'protect' | 'unlock', password }  → application/pdf
+```
+
+- `fileId` = eigene Upload-Datei (tus). `protect`: AES-256, Besitzer-Passwort = Nutzer-Passwort (keine zusätzlichen Sperren). `unlock`: Schutz mit bekanntem Passwort entfernen.
+- qpdf bekommt die Argumente über eine Datei (`@args`, Rechte 0600, sofort gelöscht) – das Passwort steht nie in der Prozessliste oder im Log. Passwörter mit Zeilenumbruch werden abgelehnt (400).
+- Fehler: `PDF_WRONG_PASSWORD` (422), `PDF_BROKEN` (422). Gehört zur Funktion `pdf` (Gruppenrechte).

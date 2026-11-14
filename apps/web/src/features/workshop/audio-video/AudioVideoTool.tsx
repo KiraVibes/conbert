@@ -35,13 +35,13 @@ type Container = (typeof CONTAINERS)[number];
 
 function OptionSelect<T extends string>({
   id,
-  optionKey,
+  option,
   value,
   values,
   onChange,
 }: {
   id: string;
-  optionKey: string;
+  option: string;
   value: T;
   values: readonly T[];
   onChange: (v: T) => void;
@@ -50,8 +50,8 @@ function OptionSelect<T extends string>({
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="flex items-center gap-1">
-        {t(`options.${optionKey}.label`)}
-        <HelpTip helpKey={`options.${optionKey}.help`} labelKey={`options.${optionKey}.label`} />
+        {t(`options.${option}.label`)}
+        <HelpTip helpKey={`options.${option}.help`} labelKey={`options.${option}.label`} />
       </Label>
       <Select value={value} onValueChange={(v) => onChange(v as T)}>
         <SelectTrigger id={id} className="w-full">
@@ -60,7 +60,7 @@ function OptionSelect<T extends string>({
         <SelectContent>
           {values.map((v) => (
             <SelectItem key={v} value={v}>
-              {t(`options.${optionKey}.choices.${v}`)}
+              {t(`options.${option}.choices.${v}`)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -186,14 +186,14 @@ export function AudioVideoTool() {
       <div className="grid gap-3 sm:grid-cols-3">
         <OptionSelect
           id="viz-size"
-          optionKey="vizSize"
+          option="vizSize"
           value={size}
           values={VISUALIZER_SIZES}
           onChange={setSize}
         />
         <OptionSelect
           id="viz-color"
-          optionKey="vizColor"
+          option="vizColor"
           value={color}
           values={VISUALIZER_COLORS}
           onChange={setColor}

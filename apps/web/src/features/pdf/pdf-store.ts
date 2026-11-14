@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import { ConversionError } from '@conbert/core';
 import { detectFileType } from '@/lib/detect-type';
 import { createId } from '@/lib/id';
-import { countPages, turn, type PageRef, type PdfSource } from './pdf-ops';
+import { pdfPassword } from './pdf-password';
+import { countPages, turn, type PageRef, type PdfSource, type Rect } from './pdf-ops';
 
 /** A file that couldn't be added, with the reason (three-part error key). */
 export interface RejectedFile {
@@ -11,13 +12,25 @@ export interface RejectedFile {
   details?: string;
 }
 
+/** A PDF with a password: it waits until the password is typed in. */
+export interface LockedFile {
+  id: string;
+  name: string;
+  bytes: Uint8Array;
+}
+
 interface PdfState {
   sources: PdfSource[];
+  locked: LockedFile[];
   pages: PageRef[];
   selected: Set<string>;
   rejected: RejectedFile[];
   loading: number;
   addFiles: (files: File[]) => Promise<void>;
+  /** Takes the password off on the server and adds the pages; throws on a wrong password. */
+  unlock: (id: string, password: string) => Promise<void>;
+  dismissLocked: (id: string) => void;
+  setRedactions: (id: string, rects: readonly Rect[]) => void;
   move: (id: string, to: number) => void;
   rotate: (ids: readonly string[], by: 90 | -90) => void;
   remove: (ids: readonly string[]) => void;
@@ -31,6 +44,7 @@ const KINDS: Record<string, PdfSource['kind']> = { pdf: 'pdf', jpg: 'jpg', png: 
 
 export const usePdfTool = create<PdfState>()((set, get) => ({
   sources: [],
+  locked: [],
   pages: [],
   selected: new Set(),
   rejected: [],
@@ -64,6 +78,11 @@ export const usePdfTool = create<PdfState>()((set, get) => ({
         }));
         set((s) => ({ sources: [...s.sources, source], pages: [...s.pages, ...pages] }));
       } catch (error) {
+        if (error instanceof ConversionError && error.messageKey === 'errors.encrypted') {
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          set((s) => ({ locked: [...s.locked, { id: createId(), name: file.name, bytes }] }));
+          continue;
+        }
         const rejected: RejectedFile =
           error instanceof ConversionError
             ? {
@@ -77,6 +96,24 @@ export const usePdfTool = create<PdfState>()((set, get) => ({
         set((s) => ({ loading: s.loading - 1 }));
       }
     }
+  },
+
+  async unlock(id, password) {
+    const file = get().locked.find((f) => f.id === id);
+    if (!file) return;
+    const open = await pdfPassword(file.bytes, file.name, 'unlock', password);
+    set((s) => ({ locked: s.locked.filter((f) => f.id !== id) }));
+    await get().addFiles([new File([open.slice()], file.name, { type: 'application/pdf' })]);
+  },
+
+  dismissLocked(id) {
+    set((s) => ({ locked: s.locked.filter((f) => f.id !== id) }));
+  },
+
+  setRedactions(id, rects) {
+    set((s) => ({
+      pages: s.pages.map((p) => (p.id === id ? { ...p, redactions: [...rects] } : p)),
+    }));
   },
 
   move(id, to) {
@@ -128,6 +165,6 @@ export const usePdfTool = create<PdfState>()((set, get) => ({
   },
 
   clear() {
-    set({ sources: [], pages: [], selected: new Set(), rejected: [] });
+    set({ sources: [], pages: [], selected: new Set(), rejected: [], locked: [] });
   },
 }));
