@@ -4211,6 +4211,11 @@
         "title": "Audio to video",
         "teaser": "Turn a song or podcast into a video with a waveform and cover – for YouTube, Instagram & TikTok.",
         "how": "Many platforms only take videos, not plain sound files. Conbert sends your sound file to your own server, and ffmpeg builds a video from it: every frame shows what the sound looks like right now – as a wave (volume over time), as bars (how strong low and high notes are) or as a spectrum (the notes as a colour carpet). The cover goes sharp into the middle and blurred into the background. The sound stays in good quality (AAC or Opus). Tip: “Picture only” is fastest – for an hour of podcast a moving wave takes a lot longer."
+      },
+      "scanner": {
+        "title": "Document scanner",
+        "teaser": "Take photos of letters, receipts or forms – Conbert turns them into straight, clean pages and a PDF.",
+        "how": "Conbert looks for the bright sheet of paper on the darker background in the photo and puts the four corners there. If a corner is off, just drag it to the right spot. Then the sheet is “pulled straight”: a perspective calculation (homography) works out for every point of the finished page where it lies in the slanted photo – turning a trapezoid back into a rectangle. Then it is cleaned up: “Colour” makes the paper white and the text strong, “Black & white” compares every point with its surroundings so shadows disappear too. Everything happens on your device; only for text recognition (OCR) does the finished PDF go to your server."
       }
     },
     "identify": {
@@ -5761,6 +5766,53 @@
       "notSound": "This isn't a sound file Conbert knows. MP3, WAV, FLAC, OGG, Opus, M4A, AAC, AIFF and WMA work.",
       "failed": "The video couldn't be made.",
       "done": "Done: {{size}}"
+    },
+    "scanner": {
+      "camera": "Take a photo",
+      "tips": "Tips: put the sheet on a dark surface, shoot from straight above and use even light. If iPhone photos in HEIC format don't show up here, convert them to JPG under “Convert” first.",
+      "unreadable": "The browser couldn't open these pictures: {{names}}. Convert them to JPG or PNG first.",
+      "pages": "Scanned pages",
+      "pageLabel": "Page {{n}}",
+      "working": "Working on the page …",
+      "notFound": "No sheet found – set the corners by hand.",
+      "filterFor": "Look of {{label}}",
+      "filters": {
+        "color": "Colour (white paper)",
+        "gray": "Greyscale",
+        "bw": "Black & white (text)",
+        "original": "Original"
+      },
+      "allFilter": "For all pages:",
+      "choose": "Choose …",
+      "filterHelp": "Colour: the paper turns white, colours stay – good for forms with stamps or photos. Greyscale: neutral, a bit smaller. Black & white: only black and white, shadows disappear – best to read and smallest for plain text. Original: only pulled straight, otherwise unchanged.",
+      "editCorners": "Adjust corners of {{label}}",
+      "rotate": "Turn {{label}}",
+      "moveUp": "Move {{label}} forward",
+      "moveDown": "Move {{label}} back",
+      "remove": "Remove {{label}}",
+      "cornersTitle": "Adjust corners",
+      "cornersIntro": "Drag the four dots exactly onto the corners of the sheet. Everything inside is pulled straight.",
+      "photoAlt": "Photo of the document",
+      "cornerLabel": "Move the {{corner}} corner",
+      "corners": {
+        "tl": "top left",
+        "tr": "top right",
+        "br": "bottom right",
+        "bl": "bottom left"
+      },
+      "keyboardHint": "With the keyboard: pick a dot (Tab), then move it with the arrow keys (with Shift in big steps).",
+      "wholePhoto": "Whole photo",
+      "cancel": "Cancel",
+      "apply": "Apply",
+      "makePdf_one": "Save as PDF ({{count}} page)",
+      "makePdf_other": "Save as PDF ({{count}} pages)",
+      "saveImages_one": "Save as picture",
+      "saveImages_other": "Save as pictures (ZIP)",
+      "making": "Finishing page {{done}} of {{total}} …",
+      "recognizing": "Recognising text … {{percent}} %",
+      "done": "Done: {{name}} ({{size}}) was saved.",
+      "pdfTitle": "Scan",
+      "fileName": "scan"
     }
   },
   "feeds": {

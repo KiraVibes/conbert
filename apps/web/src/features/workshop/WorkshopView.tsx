@@ -8,6 +8,7 @@ import {
   DiffIcon,
   ImagesIcon,
   ClapperboardIcon,
+  ScanLineIcon,
   ArrowLeftIcon,
   AudioLinesIcon,
   BinaryIcon,
@@ -61,6 +62,7 @@ import { TestFilesTool } from './testfiles/TestFilesTool';
 import { CompareTool } from './compare/CompareTool';
 import { ExtractImagesTool } from './extract-images/ExtractImagesTool';
 import { AudioVideoTool } from './audio-video/AudioVideoTool';
+import { ScannerTool } from './scanner/ScannerTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
 import { StegoTool } from './stego/StegoTool';
 import { TreasureTool } from './treasure/TreasureTool';
@@ -96,6 +98,7 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   compare: CompareTool,
   extractimages: ExtractImagesTool,
   audiovideo: AudioVideoTool,
+  scanner: ScannerTool,
 };
 
 const ICONS: Record<string, LucideIcon> = {
@@ -131,6 +134,7 @@ const ICONS: Record<string, LucideIcon> = {
   compare: DiffIcon,
   extractimages: ImagesIcon,
   audiovideo: ClapperboardIcon,
+  scanner: ScanLineIcon,
 };
 
 /** The FileWizard workshop: an overview of the tricks, or the open trick. */

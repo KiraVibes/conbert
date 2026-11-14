@@ -4211,6 +4211,11 @@
         "title": "Audio zu Video",
         "teaser": "Mach aus einem Lied oder Podcast ein Video mit Wellenform und Cover – für YouTube, Instagram & TikTok.",
         "how": "Viele Plattformen nehmen nur Videos an, keine reinen Tondateien. Conbert schickt deine Tondatei an deinen eigenen Server, und ffmpeg baut daraus ein Video: Jedes Bild zeigt, wie der Ton gerade aussieht – als Welle (Lautstärke im Zeitverlauf), als Säulen (wie stark tiefe und hohe Töne gerade sind) oder als Spektrum (die Töne als Farbteppich). Das Cover wird scharf in die Mitte und verschwommen in den Hintergrund gelegt. Der Ton bleibt in guter Qualität (AAC bzw. Opus). Tipp: „Nur das Bild“ ist am schnellsten – bei einer Stunde Podcast dauert eine bewegte Welle deutlich länger."
+      },
+      "scanner": {
+        "title": "Dokument-Scanner",
+        "teaser": "Fotografier Briefe, Quittungen oder Formulare – Conbert macht daraus gerade, saubere Seiten und ein PDF.",
+        "how": "Conbert sucht auf dem Foto das helle Blatt Papier auf dem dunkleren Untergrund und setzt die vier Ecken dorthin. Passt eine Ecke nicht, ziehst du sie einfach an die richtige Stelle. Dann wird das Blatt „gerade gezogen“: Eine Perspektiv-Umrechnung (Homografie) rechnet für jeden Punkt der fertigen Seite aus, wo er auf dem schrägen Foto liegt – so wird aus einem Trapez wieder ein Rechteck. Danach wird aufgeräumt: „Farbe“ macht das Papier weiß und den Text kräftig, „Schwarzweiß“ vergleicht jeden Punkt mit seiner Umgebung, damit auch Schatten verschwinden. Alles passiert auf deinem Gerät; nur für die Texterkennung (OCR) geht das fertige PDF an deinen Server."
       }
     },
     "identify": {
@@ -5761,6 +5766,53 @@
       "notSound": "Das ist keine Tondatei, die Conbert kennt. Es gehen MP3, WAV, FLAC, OGG, Opus, M4A, AAC, AIFF und WMA.",
       "failed": "Das Video konnte nicht erzeugt werden.",
       "done": "Fertig: {{size}}"
+    },
+    "scanner": {
+      "camera": "Foto aufnehmen",
+      "tips": "Tipps: Leg das Blatt auf einen dunklen Untergrund, fotografier von oben und sorg für gleichmäßiges Licht. iPhone-Fotos im HEIC-Format vorher unter „Umwandeln“ in JPG umwandeln, falls sie hier nicht erscheinen.",
+      "unreadable": "Diese Bilder konnte der Browser nicht öffnen: {{names}}. Wandle sie zuerst in JPG oder PNG um.",
+      "pages": "Gescannte Seiten",
+      "pageLabel": "Seite {{n}}",
+      "working": "Seite wird bearbeitet …",
+      "notFound": "Kein Blatt erkannt – stell die Ecken von Hand ein.",
+      "filterFor": "Darstellung für {{label}}",
+      "filters": {
+        "color": "Farbe (Papier weiß)",
+        "gray": "Graustufen",
+        "bw": "Schwarzweiß (Text)",
+        "original": "Original"
+      },
+      "allFilter": "Für alle Seiten:",
+      "choose": "Auswählen …",
+      "filterHelp": "Farbe: Papier wird weiß, Farben bleiben – gut für Formulare mit Stempeln oder Fotos. Graustufen: neutral, etwas kleiner. Schwarzweiß: nur Schwarz und Weiß, Schatten verschwinden – am besten lesbar und am kleinsten für reinen Text. Original: nur gerade gezogen, sonst unverändert.",
+      "editCorners": "Ecken von {{label}} anpassen",
+      "rotate": "{{label}} drehen",
+      "moveUp": "{{label}} nach vorne",
+      "moveDown": "{{label}} nach hinten",
+      "remove": "{{label}} entfernen",
+      "cornersTitle": "Ecken anpassen",
+      "cornersIntro": "Zieh die vier Punkte genau auf die Ecken des Blatts. Alles innerhalb wird gerade gezogen.",
+      "photoAlt": "Foto des Dokuments",
+      "cornerLabel": "Ecke {{corner}} verschieben",
+      "corners": {
+        "tl": "oben links",
+        "tr": "oben rechts",
+        "br": "unten rechts",
+        "bl": "unten links"
+      },
+      "keyboardHint": "Mit der Tastatur: Punkt anwählen (Tab), dann mit den Pfeiltasten schieben (mit Umschalt in großen Schritten).",
+      "wholePhoto": "Ganzes Foto",
+      "cancel": "Abbrechen",
+      "apply": "Übernehmen",
+      "makePdf_one": "Als PDF speichern ({{count}} Seite)",
+      "makePdf_other": "Als PDF speichern ({{count}} Seiten)",
+      "saveImages_one": "Als Bild speichern",
+      "saveImages_other": "Als Bilder speichern (ZIP)",
+      "making": "Seite {{done}} von {{total}} wird fertig gemacht …",
+      "recognizing": "Text wird erkannt … {{percent}} %",
+      "done": "Fertig: {{name}} ({{size}}) wurde gespeichert.",
+      "pdfTitle": "Scan",
+      "fileName": "scan"
     }
   },
   "feeds": {
