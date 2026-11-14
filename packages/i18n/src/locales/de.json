@@ -4362,6 +4362,21 @@
         "title": "Zeitleiste",
         "teaser": "Alle Datums- und Zeitangaben einer Datei der Reihe nach – und Hinweise, wo sie nicht zusammenpassen.",
         "how": "Fotos, Videos, PDFs und Office-Dateien tragen viele Zeitangaben in sich: wann aufgenommen, erstellt, geändert, wann die Metadaten zuletzt angefasst wurden, oft sogar jeden Bearbeitungsschritt (XMP-Verlauf). Dazu kommt die Zeit, zu der die Datei auf deinem Gerät zuletzt geändert wurde. Conbert liest alle Angaben mit ExifTool, ordnet sie auf einer Zeitleiste und zeigt Widersprüche: geändert vor dem Erstellen, Zeiten in der Zukunft, eine nicht gestellte Kamera-Uhr, Bearbeitung mit Photoshop & Co. Alles läuft in deinem Browser."
+      },
+      "jpegorigin": {
+        "title": "JPG-Herkunft",
+        "teaser": "Kamera, Bildbearbeitung oder Messenger? Die Kompressionstabellen eines Fotos verraten, wer es zuletzt gespeichert hat.",
+        "how": "JPEG speichert Bilder mit Tabellen, die festlegen, wie stark welche Details vereinfacht werden. Kameras und Handys haben ihre eigenen Tabellen, Programme und Messenger nutzen meist die Standard-Tabellen mit einer bestimmten Qualitätsstufe. Dazu kommen Spuren wie Photoshop-Markierungen, der Kamerahersteller in den EXIF-Daten oder eine typische Bildgröße (WhatsApp, Instagram & Co. verkleinern auf feste Maße). Conbert liest diese Hinweise und schätzt, woher das Bild kommt. Alles läuft in deinem Browser."
+      },
+      "copymove": {
+        "title": "Kopierte Bereiche",
+        "teaser": "Wurde ein Teil des Bildes kopiert, um etwas zu verdecken oder zu verdoppeln? Conbert findet es.",
+        "how": "Ein beliebter Fälschungstrick: Man kopiert einen Bildteil an eine andere Stelle – um eine Person zu verdecken (mit Hintergrund) oder etwas zu verdoppeln (mehr Rauch, mehr Leute). Conbert zerlegt das Bild in kleine Blöcke, gibt jedem einen Fingerabdruck und sucht gleiche Fingerabdrücke an verschiedenen Stellen. Verschieben sich viele Blöcke um denselben Abstand, wurde dieser Bereich kopiert. Gleichmäßige Flächen wie Himmel lässt Conbert aus, die würden überall passen. Alles läuft in deinem Browser."
+      },
+      "magnifier": {
+        "title": "Forensik-Lupe",
+        "teaser": "Filter, die Bearbeitungen sichtbar machen: Bildrauschen, Kanten und Helligkeitsbänder.",
+        "how": "Jedes Foto hat ein feines Rauschen, das zur Kamera und zum Licht passt. Eingefügte oder retuschierte Teile haben oft ein anderes Rauschen, schärfere Kanten oder leicht andere Helligkeiten, die das Auge nicht sieht. Die Lupe macht das sichtbar: „Rauschen“ zeigt nur die feine Körnung, „Kanten“ die Übergänge, „Helligkeitsband“ dehnt einen schmalen Helligkeitsbereich auf volle Stärke – so fallen Stempel-Spuren in Himmel und Haut auf. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6262,6 +6277,75 @@
         "fileOlder": "Laut Dateisystem ist die Datei älter als der Inhalt, den sie zeigt. Die Zeit im Dateisystem wurde wahrscheinlich nachträglich gesetzt.",
         "editedLater": "Die Datei wurde mehr als einen Tag nach der Aufnahme noch einmal geändert.",
         "zones": "Die Zeitangaben nennen verschiedene Zeitzonen ({{zones}}) – z. B. nach einer Reise oder einer Bearbeitung in einem anderen Land."
+      }
+    },
+    "jpegorigin": {
+      "failed": "Die Datei ließ sich nicht lesen.",
+      "notJpeg": "Das ist kein JPEG-Bild. Die Herkunft lässt sich nur bei JPEG lesen.",
+      "limits": "Das ist eine Schätzung aus Spuren. Wer ein Bild absichtlich tarnen will, kann sie verwischen.",
+      "origin": {
+        "camera": "Wahrscheinlich direkt aus einer Kamera oder einem Handy",
+        "editor": "Mit einem Bildbearbeitungsprogramm gespeichert",
+        "messenger": "Wahrscheinlich über einen Messenger oder ein soziales Netzwerk verschickt",
+        "program": "Von einem Programm oder einer Webseite gespeichert",
+        "unknown": "Herkunft unklar"
+      },
+      "originHint": {
+        "camera": "Eigene Kompressionstabellen und ein Kamerahersteller in den EXIF-Daten.",
+        "editor": "Spuren eines Bearbeitungsprogramms – das Bild wurde nach der Aufnahme verändert oder neu gespeichert.",
+        "messenger": "Standard-Tabellen, keine EXIF-Daten und eine typische Messenger-Größe: So sehen Bilder nach WhatsApp, Instagram, Facebook & Co. aus.",
+        "program": "Standard-Tabellen: Das Bild wurde von einem Programm neu gespeichert (Bildbetrachter, Webseite, Konverter).",
+        "unknown": "Die Hinweise passen zu keinem typischen Muster."
+      },
+      "clues": {
+        "standardTables": "Standard-Kompressionstabellen (libjpeg) – typisch für Programme und Messenger, untypisch für Kameras.",
+        "customTables": "Eigene Kompressionstabellen – typisch für Kameras, Handys und manche Programme (z. B. Photoshop).",
+        "quality": "Geschätzte Qualität: {{quality}} von 100.",
+        "cameraExif": "Kamerahersteller in den EXIF-Daten: {{make}}.",
+        "noExif": "Keine EXIF-Daten – Messenger und Webseiten entfernen sie beim Hochladen.",
+        "photoshop": "Photoshop-Block in der Datei.",
+        "adobe": "Adobe-Markierung (typisch für Adobe-Programme).",
+        "software": "Programm laut EXIF: {{software}}.",
+        "progressive": "Progressiv gespeichert (baut sich beim Laden schrittweise auf) – typisch fürs Web.",
+        "subsampling": "Farbauflösung: {{sampling}}.",
+        "messengerSize": "Längste Seite genau {{side}} Pixel – eine typische Größe, auf die Messenger und soziale Netzwerke verkleinern.",
+        "jfif": "JFIF-Kopf statt EXIF – typisch für Programme, nicht für Kameras."
+      }
+    },
+    "copymove": {
+      "working": "Bild wird durchsucht …",
+      "failed": "Das Bild ließ sich nicht lesen.",
+      "found_one": "1 kopierter Bereich gefunden!",
+      "found_other": "{{count}} kopierte Bereiche gefunden!",
+      "clean": "Keine kopierten Bereiche gefunden.",
+      "legend": "Blau = Original-Stelle, Rot = Kopie.",
+      "mapAlt": "Bild mit markierten kopierten Bereichen",
+      "limits": "Wiederholende Muster (Fliesen, Zäune, Stoffe) können als Kopie erscheinen. Gedrehte oder verkleinerte Kopien findet Conbert nicht."
+    },
+    "magnifier": {
+      "filter": "Filter",
+      "working": "Filter wird angewendet …",
+      "failed": "Das Bild ließ sich nicht lesen.",
+      "resultAlt": "Gefiltertes Bild",
+      "filters": {
+        "noise": {
+          "label": "Rauschen",
+          "help": "Zeigt nur die feine Körnung. Ein unbearbeitetes Foto rauscht überall ähnlich; eingefügte oder weichgezeichnete Stellen fallen als glatte oder anders körnige Flecken auf.",
+          "amount": "Verstärkung: {{value}}",
+          "amountHelp": "Wie stark das Rauschen hervorgehoben wird. Höher = mehr sichtbar, aber auch mehr Störungen."
+        },
+        "edges": {
+          "label": "Kanten",
+          "help": "Zeigt, wo sich das Bild schnell ändert. Ausgeschnittene und eingefügte Teile haben oft auffällig scharfe oder unnatürliche Ränder.",
+          "amount": "Verstärkung: {{value}}",
+          "amountHelp": "Wie stark die Kanten hervorgehoben werden."
+        },
+        "levels": {
+          "label": "Helligkeitsband",
+          "help": "Zeigt nur einen schmalen Helligkeitsbereich, gedehnt auf Schwarz bis Weiß. Fahr mit dem Regler durch: Stempel-Spuren in Himmel oder Haut werden sichtbar.",
+          "amount": "Helligkeit: {{value}}",
+          "amountHelp": "Welche Helligkeit gezeigt wird (0 = schwarz, 255 = weiß). Schieb langsam, um ein Bild zu durchsuchen."
+        }
       }
     }
   },

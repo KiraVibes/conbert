@@ -4362,6 +4362,21 @@
         "title": "Timeline",
         "teaser": "Every date and time in a file, in order – and hints where they don't fit together.",
         "how": "Photos, videos, PDFs and Office files carry many times: when taken, created, changed, when the metadata was last touched, often even every editing step (XMP history). Plus the time the file was last changed on your device. Conbert reads all of them with ExifTool, puts them on a timeline and shows contradictions: changed before created, times in the future, a camera clock that wasn't set, editing with Photoshop & co. Everything runs in your browser."
+      },
+      "jpegorigin": {
+        "title": "JPG origin",
+        "teaser": "Camera, photo editor or messenger? A photo's compression tables give away who saved it last.",
+        "how": "JPEG stores pictures with tables that decide how much each detail is simplified. Cameras and phones have their own tables, programs and messengers mostly use the standard tables at a certain quality. Add traces like Photoshop marks, the camera maker in the EXIF data or a typical picture size (WhatsApp, Instagram & co. shrink to fixed sizes). Conbert reads these hints and estimates where the picture comes from. Everything runs in your browser."
+      },
+      "copymove": {
+        "title": "Copied areas",
+        "teaser": "Was part of the picture copied to hide or double something? Conbert finds it.",
+        "how": "A popular faking trick: copy part of the picture to another spot – to cover a person (with background) or to double something (more smoke, more people). Conbert splits the picture into small blocks, gives each a fingerprint and looks for equal fingerprints in different places. If many blocks are shifted by the same distance, that area was copied. Conbert leaves out even areas like sky, they'd match everywhere. Everything runs in your browser."
+      },
+      "magnifier": {
+        "title": "Forensics magnifier",
+        "teaser": "Filters that make edits visible: picture noise, edges and brightness bands.",
+        "how": "Every photo has a fine noise that fits the camera and the light. Pasted or retouched parts often have different noise, sharper edges or slightly different brightness the eye can't see. The magnifier makes that visible: “Noise” shows only the fine grain, “Edges” the transitions, “Brightness band” stretches a narrow brightness range to full strength – so clone-stamp traces in sky and skin stand out. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6262,6 +6277,75 @@
         "fileOlder": "According to the file system the file is older than the content it shows. The file system time was probably set afterwards.",
         "editedLater": "The file was changed again more than a day after it was taken.",
         "zones": "The times name different time zones ({{zones}}) – e.g. after a trip or editing in another country."
+      }
+    },
+    "jpegorigin": {
+      "failed": "The file couldn't be read.",
+      "notJpeg": "This isn't a JPEG picture. The origin can only be read from JPEG.",
+      "limits": "This is an estimate from traces. Someone who wants to disguise a picture on purpose can blur them.",
+      "origin": {
+        "camera": "Probably straight from a camera or phone",
+        "editor": "Saved with a photo editor",
+        "messenger": "Probably sent through a messenger or social network",
+        "program": "Saved by a program or website",
+        "unknown": "Origin unclear"
+      },
+      "originHint": {
+        "camera": "Own compression tables and a camera maker in the EXIF data.",
+        "editor": "Traces of an editing program – the picture was changed or saved again after it was taken.",
+        "messenger": "Standard tables, no EXIF data and a typical messenger size: that's how pictures look after WhatsApp, Instagram, Facebook & co.",
+        "program": "Standard tables: the picture was saved again by a program (image viewer, website, converter).",
+        "unknown": "The hints fit no typical pattern."
+      },
+      "clues": {
+        "standardTables": "Standard compression tables (libjpeg) – typical for programs and messengers, unusual for cameras.",
+        "customTables": "Own compression tables – typical for cameras, phones and some programs (e.g. Photoshop).",
+        "quality": "Estimated quality: {{quality}} of 100.",
+        "cameraExif": "Camera maker in the EXIF data: {{make}}.",
+        "noExif": "No EXIF data – messengers and websites remove it when uploading.",
+        "photoshop": "Photoshop block in the file.",
+        "adobe": "Adobe mark (typical for Adobe programs).",
+        "software": "Program according to EXIF: {{software}}.",
+        "progressive": "Saved progressively (builds up step by step while loading) – typical for the web.",
+        "subsampling": "Colour resolution: {{sampling}}.",
+        "messengerSize": "Longest side exactly {{side}} pixels – a typical size messengers and social networks shrink to.",
+        "jfif": "JFIF header instead of EXIF – typical for programs, not cameras."
+      }
+    },
+    "copymove": {
+      "working": "Searching the picture …",
+      "failed": "The picture couldn't be read.",
+      "found_one": "1 copied area found!",
+      "found_other": "{{count}} copied areas found!",
+      "clean": "No copied areas found.",
+      "legend": "Blue = original spot, red = copy.",
+      "mapAlt": "Picture with copied areas marked",
+      "limits": "Repeating patterns (tiles, fences, fabrics) can look like a copy. Conbert doesn't find rotated or scaled copies."
+    },
+    "magnifier": {
+      "filter": "Filter",
+      "working": "Applying filter …",
+      "failed": "The picture couldn't be read.",
+      "resultAlt": "Filtered picture",
+      "filters": {
+        "noise": {
+          "label": "Noise",
+          "help": "Shows only the fine grain. An unedited photo is noisy everywhere in a similar way; pasted or blurred spots stand out as smooth or differently grainy patches.",
+          "amount": "Boost: {{value}}",
+          "amountHelp": "How strongly the noise is brought out. Higher = more visible, but also more clutter."
+        },
+        "edges": {
+          "label": "Edges",
+          "help": "Shows where the picture changes quickly. Cut-out and pasted parts often have conspicuously sharp or unnatural borders.",
+          "amount": "Boost: {{value}}",
+          "amountHelp": "How strongly edges are brought out."
+        },
+        "levels": {
+          "label": "Brightness band",
+          "help": "Shows only a narrow brightness range, stretched from black to white. Slide through it: clone-stamp traces in sky or skin become visible.",
+          "amount": "Brightness: {{value}}",
+          "amountHelp": "Which brightness is shown (0 = black, 255 = white). Slide slowly to search a picture."
+        }
       }
     }
   },
