@@ -119,6 +119,12 @@ export interface Engine {
    * into the same format. Audio and video engines only.
    */
   supportsTrim?: boolean;
+  /**
+   * Kinds of conversion that normally make no sense (see target-rules) but
+   * that this engine does properly – e.g. audio → video with a moving
+   * picture. Only direct conversions with this engine, never chains.
+   */
+  extraTargets?: { from: Category; to: Category }[];
   /** Higher = preferred when several engines can do the same thing. */
   priority: number;
   /** Lazy: load WASM / check binaries only when needed. */
@@ -147,6 +153,7 @@ export function describeEngine(engine: Engine): EngineDescriptor {
     options: engine.options,
     supportsCompression: engine.supportsCompression,
     ...(engine.supportsTrim && { supportsTrim: true }),
+    ...(engine.extraTargets && { extraTargets: engine.extraTargets }),
     priority: engine.priority,
     status: engine.status(),
   };

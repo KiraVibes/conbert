@@ -116,6 +116,8 @@ export const audioVideoEngine: Engine = {
   })),
   options: VISUALIZER_OPTIONS,
   supportsCompression: false,
+  // Audio → video is normally refused (it would be a video without picture); here it has one.
+  extraTargets: [{ from: 'audio', to: 'video' }],
   priority: 5,
   async init() {
     try {

@@ -10,7 +10,11 @@ export type ExecutionMode = 'local' | 'server' | 'auto';
 export type RoutableEngine = Pick<
   EngineDescriptor,
   'id' | 'runtime' | 'formats' | 'priority' | 'status'
-> & { supportsCompression?: boolean; supportsTrim?: boolean };
+> & {
+  supportsCompression?: boolean;
+  supportsTrim?: boolean;
+  extraTargets?: EngineDescriptor['extraTargets'];
+};
 
 export interface RouteOptions {
   /** Compressing: the same format in and out is allowed (engines that can compress). */
@@ -44,6 +48,31 @@ type EdgeMap = Map<string, Map<string, RoutableEngine[]>>;
 
 function usable(engine: RoutableEngine): boolean {
   return engine.status !== 'error';
+}
+
+/**
+ * Engines that do a conversion the target rules would normally refuse
+ * (e.g. audio → video with a waveform) – directly, in one step.
+ */
+function extraEngines(
+  engines: readonly RoutableEngine[],
+  from: string,
+  to: string,
+  runtime: Runtime,
+): RoutableEngine[] {
+  const fromCat = getFormat(from)?.category;
+  const toCat = getFormat(to)?.category;
+  if (!fromCat || !toCat) return [];
+  return engines
+    .filter(
+      (e) =>
+        e.runtime === runtime &&
+        usable(e) &&
+        (e.extraTargets ?? []).some((r) => r.from === fromCat && r.to === toCat) &&
+        e.formats.some((f) => normalizeExt(f.ext) === from && f.canRead) &&
+        e.formats.some((f) => normalizeExt(f.ext) === to && f.canWrite),
+    )
+    .sort((a, b) => b.priority - a.priority);
 }
 
 /** Builds the format graph of one runtime: from → to → engines (best first). */
@@ -118,7 +147,12 @@ function conversionRoutes(
   to: string,
   runtime: Runtime,
 ): Route[] {
-  if (!isSensibleTarget(from, to)) return [];
+  if (!isSensibleTarget(from, to)) {
+    return extraEngines(engines, from, to, runtime).map((e) => ({
+      runtime,
+      steps: [{ engineId: e.id, runtime, from, to }],
+    }));
+  }
   const edges = buildEdges(engines, runtime);
 
   const direct = edges.get(from)?.get(to) ?? [];
@@ -261,7 +295,12 @@ export function listTargets(
       frontier = next;
     }
   }
-  return [...result.values()].filter((t) => isSensibleTarget(from, t.ext));
+  return [...result.values()].flatMap((t) => {
+    if (isSensibleTarget(from, t.ext)) return [t];
+    // Only where an engine does this kind of conversion properly, and only its runtimes.
+    const able = runtimes.filter((r) => extraEngines(engines, from, t.ext, r).length > 0);
+    return able.length > 0 ? [{ ext: t.ext, runtimes: able, steps: 1 }] : [];
+  });
 }
 
 export interface RoutingContext {

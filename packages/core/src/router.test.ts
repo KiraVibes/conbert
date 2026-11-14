@@ -226,3 +226,43 @@ describe('decideRoute', () => {
     expect(d.reason).toBe('serverUnavailable');
   });
 });
+
+describe('engine-declared extra conversions', () => {
+  const av = (runtime: Runtime) => ({
+    ...engine(
+      'audio-video',
+      runtime,
+      [
+        fmt('mp3', true, false),
+        fmt('wav', true, false),
+        fmt('mp4', false, true),
+        fmt('webm', false, true),
+      ],
+      5,
+    ),
+    extraTargets: [{ from: 'audio' as const, to: 'video' as const }],
+  });
+  // Like mediabunny: reads sound, writes video containers – but would make a picture-less video.
+  const plain = engine('mediabunny', 'browser', [fmt('mp3'), fmt('mp4')], 20);
+
+  it('allows audio → video only through the engine that declares it', () => {
+    const engines = [plain, av('server')];
+    expect(findRoutes(engines, 'mp3', 'mp4', 'browser')).toEqual([]);
+    expect(findRoutes(engines, 'mp3', 'mp4', 'server')).toEqual([
+      {
+        runtime: 'server',
+        steps: [{ engineId: 'audio-video', runtime: 'server', from: 'mp3', to: 'mp4' }],
+      },
+    ]);
+  });
+
+  it('lists the target only for the runtimes that can do it', () => {
+    const targets = listTargets([plain, av('server')], 'mp3', ['browser', 'server']);
+    expect(targets.find((t) => t.ext === 'mp4')).toEqual({
+      ext: 'mp4',
+      runtimes: ['server'],
+      steps: 1,
+    });
+    expect(listTargets([plain], 'mp3', ['browser']).some((t) => t.ext === 'mp4')).toBe(false);
+  });
+});

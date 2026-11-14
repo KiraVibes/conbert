@@ -49,6 +49,7 @@ export const engineDescriptorSchema = z.object({
   options: z.array(engineOptionSchema),
   supportsCompression: z.boolean(),
   supportsTrim: z.boolean().optional(),
+  extraTargets: z.array(z.object({ from: categorySchema, to: categorySchema })).optional(),
   priority: z.number(),
   status: engineStatusSchema,
 });
