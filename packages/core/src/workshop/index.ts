@@ -29,3 +29,4 @@ export * from './emoji-mosaic';
 export * from './ringtone';
 export * from './test-files';
 export * from './compare';
+export * from './extract-images';

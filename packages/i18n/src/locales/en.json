@@ -4105,6 +4105,11 @@
         "title": "Compare",
         "teaser": "Put two files side by side and see exactly what is different.",
         "how": "First Conbert compares the two files byte by byte – every single character of the raw data. If all are the same, the files are identical, whatever their names. If they differ, Conbert looks closer. For text it finds (like the “diff” program) the smallest number of lines to delete and add to turn file A into file B. For pictures it compares every pixel and colours changed spots red; a tolerance hides tiny JPEG noise. For all other files you see where (offset) which bytes are different. Everything happens on your device."
+      },
+      "extractimages": {
+        "title": "Get pictures out",
+        "teaser": "Pull every photo and graphic out of Word, PowerPoint, PDF, EPUB & co. – in original quality.",
+        "how": "Many documents are really ZIP archives: Word (DOCX), PowerPoint (PPTX), Excel (XLSX), LibreOffice (ODT/ODP), e-books (EPUB), comics (CBZ) and Apple Pages/Keynote/Numbers. The pictures sit inside as normal files, e.g. under “word/media/image1.png”. Conbert simply unpacks them – without saving them again, so in full quality. A PDF keeps every picture as an “object” of its own: JPEG photos are stored unchanged and come out exactly like that. Other pictures are stored as packed raw pixels; Conbert turns them into PNG files. A few special formats (e.g. fax compression in scanned pages) can't be converted – they are counted but skipped. Everything happens on your device."
       }
     },
     "identify": {
@@ -5620,6 +5625,26 @@
       "offset": "Position (offset)",
       "length": "Length",
       "moreRanges": "There are more differences – only the first 50 are listed here."
+    },
+    "extractimages": {
+      "searching": "Looking for pictures …",
+      "found_one": "{{count}} picture found",
+      "found_other": "{{count}} pictures found",
+      "none": "There are no pictures in this file.",
+      "notDocument": "This isn't a document Conbert can get pictures out of. It works with Word, PowerPoint, Excel, LibreOffice, EPUB, CBZ, Apple Pages/Keynote/Numbers, ZIP and PDF.",
+      "failed": "The file couldn't be read. Maybe it is damaged.",
+      "select": "Select “{{name}}”",
+      "saveOne": "Save “{{name}}”",
+      "selectAll": "Select all",
+      "selectNone": "Select none",
+      "saveZip": "Save {{count}} pictures as ZIP",
+      "saveSelected": "Save selection",
+      "zipSuffix": "pictures",
+      "skipped_one": "{{count}} picture is stored in a special format (e.g. fax compression from scanners) and was skipped.",
+      "skipped_other": "{{count}} pictures are stored in a special format (e.g. fax compression from scanners) and were skipped.",
+      "previews": "Preview pictures the app made itself (e.g. for the file explorer) start unselected.",
+      "pdfHint": "Pictures come out of PDFs the way they are stored – cropped or turned pictures may therefore appear whole or unturned. Transparent areas are missing (the mask is an object of its own).",
+      "pdfPrefix": "image"
     }
   },
   "feeds": {

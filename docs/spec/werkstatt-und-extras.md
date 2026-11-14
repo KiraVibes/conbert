@@ -54,6 +54,7 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 - **Passwortgeschützte Archive** erstellen (7Z/ZIP mit AES-256).
 - **Base64 / Hex / URL-Encoding** für Dateien und Text, **Data-URI-Generator**.
 - **Text-Werkzeuge**: Zeichenkodierung erkennen und umwandeln (z. B. kaputte Umlaute „FÃ¼r“ → „Für“ reparieren), Zeilenenden CRLF ↔ LF.
+- **Bilder herausholen** (ergänzt 2026-11-14): alle Bilder aus ZIP-basierten Dokumenten (DOCX/PPTX/XLSX, ODT/ODP/ODS, EPUB, CBZ, Pages/Keynote/Numbers, ZIP) unverändert auspacken; aus PDFs JPEG/JPEG 2000 unverändert, Flate-Rohpixel (Grau/RGB/CMYK, 8 Bit, auch mit PNG-Prädiktor) als PNG. Masken, Paletten-/Sonderfarbräume, CCITT/JBIG2 werden übersprungen und gezählt; Vorschaubilder der App sind abgewählt; Auswahl als ZIP. Im Browser.
 - **Testdateien** (ergänzt 2026-11-14): Dateien in exakter Größe (Nullen, Zufallsdaten, Textzeilen; bis 4 GB, frei wählbare Endung), Testbild (Farbbalken, Grauverlauf, Gitter mit Kreis, roter Rand; PNG/JPG/WebP), Testton (440 Hz, Frequenz-Lauf, Piepton pro Sekunde, links/rechts; WAV), Test-PDF mit nummerierten A4-Seiten, Testvideo (Farbbalken, Uhr, Bildnummer, Piepton; MP4/WebM über WebCodecs). Alles im Browser.
 
 **Grenzen der Werkstatt:** Keine Tricks, die ausführbaren Code tarnen (EXE in Bild, Doppel-Endungen wie `bild.jpg.exe`, Makros), keine Werkzeuge zum Umgehen von Virenscannern oder Upload-Filtern Dritter. Beim Verstecken in Archiven nur Archivformate.

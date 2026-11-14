@@ -4105,6 +4105,11 @@
         "title": "Vergleichen",
         "teaser": "Leg zwei Dateien nebeneinander und sieh genau, was sich unterscheidet.",
         "how": "Zuerst vergleicht Conbert die beiden Dateien Byte für Byte, also jedes einzelne Zeichen der Rohdaten. Sind alle gleich, sind die Dateien identisch, egal wie sie heißen. Unterscheiden sie sich, schaut Conbert genauer hin. Bei Texten sucht es (wie das Programm „diff“) die kleinste Zahl an Zeilen, die man löschen und hinzufügen muss, um aus Datei A Datei B zu machen. Bei Bildern vergleicht es jedes Pixel und färbt veränderte Stellen rot; eine Toleranz blendet winziges JPEG-Rauschen aus. Bei allen anderen Dateien siehst du, an welcher Stelle (Offset) welche Bytes anders sind. Alles passiert auf deinem Gerät."
+      },
+      "extractimages": {
+        "title": "Bilder herausholen",
+        "teaser": "Hol alle Fotos und Grafiken aus Word, PowerPoint, PDF, EPUB & Co. – in Originalqualität.",
+        "how": "Viele Dokumente sind in Wahrheit ZIP-Archive: Word (DOCX), PowerPoint (PPTX), Excel (XLSX), LibreOffice (ODT/ODP), E-Books (EPUB), Comics (CBZ) und Apple Pages/Keynote/Numbers. Die Bilder liegen darin als ganz normale Dateien, z. B. unter „word/media/image1.png“. Conbert packt sie einfach aus – ohne neu zu speichern, also in voller Qualität. Ein PDF speichert jedes Bild als eigenes „Objekt“: JPEG-Fotos liegen dort unverändert und kommen genauso heraus. Andere Bilder sind als gepackte Rohpixel gespeichert; Conbert macht daraus PNG-Dateien. Ein paar Spezialformate (z. B. Fax-Kompression bei eingescannten Seiten) kann Conbert nicht umwandeln – die werden gezählt, aber übersprungen. Alles passiert auf deinem Gerät."
       }
     },
     "identify": {
@@ -5620,6 +5625,26 @@
       "offset": "Stelle (Offset)",
       "length": "Länge",
       "moreRanges": "Es gibt noch weitere Abweichungen – hier stehen nur die ersten 50."
+    },
+    "extractimages": {
+      "searching": "Suche nach Bildern …",
+      "found_one": "{{count}} Bild gefunden",
+      "found_other": "{{count}} Bilder gefunden",
+      "none": "In dieser Datei sind keine Bilder.",
+      "notDocument": "Das ist kein Dokument, aus dem Conbert Bilder holen kann. Es klappt mit Word, PowerPoint, Excel, LibreOffice, EPUB, CBZ, Apple Pages/Keynote/Numbers, ZIP und PDF.",
+      "failed": "Die Datei konnte nicht gelesen werden. Vielleicht ist sie beschädigt.",
+      "select": "„{{name}}“ auswählen",
+      "saveOne": "„{{name}}“ speichern",
+      "selectAll": "Alle auswählen",
+      "selectNone": "Keine auswählen",
+      "saveZip": "{{count}} Bilder als ZIP speichern",
+      "saveSelected": "Auswahl speichern",
+      "zipSuffix": "bilder",
+      "skipped_one": "{{count}} Bild ist in einem Spezialformat gespeichert (z. B. Fax-Kompression von Scannern) und wurde übersprungen.",
+      "skipped_other": "{{count}} Bilder sind in einem Spezialformat gespeichert (z. B. Fax-Kompression von Scannern) und wurden übersprungen.",
+      "previews": "Vorschaubilder, die das Programm selbst angelegt hat (z. B. für den Datei-Explorer), sind zu Beginn abgewählt.",
+      "pdfHint": "Bilder aus PDFs kommen so heraus, wie sie gespeichert sind – zugeschnittene oder gedrehte Bilder erscheinen daher manchmal ganz bzw. ungedreht. Durchsichtige Bereiche fehlen (die Maske ist ein eigenes Objekt).",
+      "pdfPrefix": "bild"
     }
   },
   "feeds": {
