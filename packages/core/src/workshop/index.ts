@@ -34,3 +34,4 @@ export * from './scanner';
 export * from './exif-thumb';
 export * from './cropped-png';
 export * from './inflate-tail';
+export * from './pdf-forensics';

@@ -4327,6 +4327,16 @@
         "title": "Cropped?",
         "teaser": "Does a cropped screenshot still hold the rest of the original? Conbert brings it back.",
         "how": "Some cropping tools – older versions of the Windows Snipping Tool and Google Pixel Markup (“aCropalypse”, 2023) – simply wrote the smaller picture over the old file without making it shorter. Behind the new picture's end, the rest of the old one is still there. Conbert looks there for the packed picture data, finds the spot where it can be read again, guesses the old picture's width and rebuilds the lower part of the original. Bytes that were overwritten when cropping are guessed (usually they're background). This shows why it's best to save pictures again before sharing them. Everything runs in your browser."
+      },
+      "redactcheck": {
+        "title": "Real redaction?",
+        "teaser": "Is the text still there under a PDF's black bars? Conbert finds it.",
+        "how": "Many people black out PDFs by just putting a black box over the text. The text is still in the file, though – select, copy, done. Conbert draws every page and looks at every line of text: if its area is one flat colour, something lies on top – a bar, a white field – or the text is set invisible. Conbert shows you those lines. Real redaction works in Conbert's PDF section: there the page becomes a picture, and the text below is really gone. Everything runs in your browser."
+      },
+      "pdfversions": {
+        "title": "Earlier versions",
+        "teaser": "Many PDFs carry their old versions inside. Conbert takes them out again.",
+        "how": "When a program changes a PDF, it often doesn't rewrite the whole file but only appends the changes at the end (“incremental save”). Every save ends with the mark “%%EOF”. Everything up to such a mark is the PDF exactly as it was saved back then – with the old text, deleted pages or removed comments. Conbert finds these spots, shows every version with its pages and which pages changed, and you can download each one. Everything runs in your browser."
       }
     },
     "identify": {
@@ -5979,6 +5989,37 @@
         "recovered": "Found! The rest of the original picture was hiding behind the picture's end. Conbert recovered {{height}} rows of {{width}} pixels – that's the lower part of the original."
       },
       "showLost": "Show guessed spots in pink ({{percent}} % of the picture)"
+    },
+    "redactcheck": {
+      "working": "Checking pages …",
+      "failed": "The PDF couldn't be opened. Is it broken or protected with a password? You remove a password in the PDF section.",
+      "found_one": "Careful: 1 piece of text is only covered – the text is still in the file!",
+      "found_other": "Careful: {{count}} pieces of text are only covered – the text is still in the file!",
+      "clean_one": "Good: on the checked page no text lies under a bar.",
+      "clean_other": "Good: on the {{count}} checked pages no text lies under a bar.",
+      "limit": "The first {{checked}} of {{pages}} pages were checked.",
+      "where": {
+        "dark": "Page {{page}} – under a dark bar",
+        "light": "Page {{page}} – invisible (white on white or under a white field)",
+        "color": "Page {{page}} – under a coloured area"
+      },
+      "copy": "Copy text",
+      "fix": "How to do it right: open the PDF in Conbert's PDF section and black it out there – the pages concerned become pictures, the text really disappears."
+    },
+    "pdfversions": {
+      "failed": "The file couldn't be read.",
+      "none": "This doesn't look like a PDF – there's no end mark “%%EOF”.",
+      "single": "This PDF has only one version. It was saved in one go.",
+      "found_one": "This PDF contains 1 older version!",
+      "found_other": "This PDF contains {{count}} older versions!",
+      "latest": "Current version",
+      "version": "Version {{n}}",
+      "unreadable": "Can't be opened on its own",
+      "pages_one": "1 page · {{size}}",
+      "pages_other": "{{count}} pages · {{size}}",
+      "changed": "Changed: page {{pages}}",
+      "unchanged": "Text unchanged (maybe comments, forms or pictures)",
+      "download": "Download this version"
     }
   },
   "feeds": {

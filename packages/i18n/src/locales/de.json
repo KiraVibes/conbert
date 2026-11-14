@@ -4327,6 +4327,16 @@
         "title": "Abgeschnitten?",
         "teaser": "Steckt im zugeschnittenen Screenshot noch der Rest des Originals? Conbert holt ihn zurück.",
         "how": "Manche Werkzeuge zum Zuschneiden – ältere Versionen des Windows-Snipping-Tools und von Google-Pixel-Markup („aCropalypse“, 2023) – haben das kleinere Bild einfach über die alte Datei geschrieben, ohne sie zu kürzen. Hinter dem Ende des neuen Bildes liegt dann noch der Rest des alten. Conbert sucht dort nach den gepackten Bilddaten, findet die Stelle, an der sie sich wieder lesen lassen, errät die alte Bildbreite und baut den unteren Teil des Originals wieder auf. Bytes, die beim Zuschneiden überschrieben wurden, rät Conbert (meist ist es Hintergrund). Das zeigt, warum man Bilder vor dem Teilen am besten neu speichert. Alles läuft in deinem Browser."
+      },
+      "redactcheck": {
+        "title": "Schwärzung echt?",
+        "teaser": "Liegt unter den schwarzen Balken einer PDF noch der Text? Conbert findet ihn.",
+        "how": "Viele schwärzen PDFs, indem sie nur einen schwarzen Kasten über den Text legen. Der Text steht aber weiter in der Datei – markieren, kopieren, fertig. Conbert zeichnet jede Seite und schaut sich jede Textzeile an: Ist ihre Fläche ganz einfarbig, dann liegt etwas darüber – ein Balken, ein weißes Feld – oder der Text ist unsichtbar gesetzt. Solche Zeilen zeigt Conbert dir an. Echtes Schwärzen geht im PDF-Bereich von Conbert: Dort wird die Seite zu einem Bild, und der Text darunter ist wirklich weg. Alles läuft in deinem Browser."
+      },
+      "pdfversions": {
+        "title": "Frühere Fassungen",
+        "teaser": "Viele PDFs tragen ihre alten Fassungen in sich. Conbert holt sie wieder heraus.",
+        "how": "Wenn ein Programm eine PDF ändert, schreibt es oft nicht die ganze Datei neu, sondern hängt nur die Änderungen hinten an („inkrementelles Speichern“). Jede Speicherung endet mit der Markierung „%%EOF“. Alles bis zu einer solchen Markierung ist die PDF genau so, wie sie damals gespeichert wurde – mit dem alten Text, gelöschten Seiten oder entfernten Kommentaren. Conbert findet diese Stellen, zeigt jede Fassung mit ihren Seiten und welche Seiten sich geändert haben, und du kannst jede einzeln herunterladen. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -5979,6 +5989,37 @@
         "recovered": "Gefunden! Hinter dem Bildende steckte der Rest des ursprünglichen Bildes. Conbert hat {{height}} Zeilen mit {{width}} Pixeln Breite wiederhergestellt – das ist der untere Teil des Originals."
       },
       "showLost": "Geratene Stellen pink zeigen ({{percent}} % des Bildes)"
+    },
+    "redactcheck": {
+      "working": "Seiten werden geprüft …",
+      "failed": "Die PDF ließ sich nicht öffnen. Ist sie beschädigt oder mit einem Passwort geschützt? Ein Passwort entfernst du im PDF-Bereich.",
+      "found_one": "Achtung: 1 Textstelle ist nur überdeckt – der Text ist noch in der Datei!",
+      "found_other": "Achtung: {{count}} Textstellen sind nur überdeckt – der Text ist noch in der Datei!",
+      "clean_one": "Gut: Auf der geprüften Seite liegt kein Text unter einem Balken.",
+      "clean_other": "Gut: Auf den {{count}} geprüften Seiten liegt kein Text unter einem Balken.",
+      "limit": "Geprüft wurden die ersten {{checked}} von {{pages}} Seiten.",
+      "where": {
+        "dark": "Seite {{page}} – unter einem dunklen Balken",
+        "light": "Seite {{page}} – unsichtbar (weiß auf weiß oder unter einem weißen Feld)",
+        "color": "Seite {{page}} – unter einer farbigen Fläche"
+      },
+      "copy": "Text kopieren",
+      "fix": "So machst du es richtig: Öffne die PDF im PDF-Bereich von Conbert und schwärze dort – die betroffenen Seiten werden zu Bildern, der Text verschwindet wirklich."
+    },
+    "pdfversions": {
+      "failed": "Die Datei ließ sich nicht lesen.",
+      "none": "Das sieht nicht wie eine PDF aus – es gibt keine Endmarkierung „%%EOF“.",
+      "single": "Diese PDF hat nur eine Fassung. Sie wurde in einem Rutsch gespeichert.",
+      "found_one": "Diese PDF enthält 1 ältere Fassung!",
+      "found_other": "Diese PDF enthält {{count}} ältere Fassungen!",
+      "latest": "Aktuelle Fassung",
+      "version": "Fassung {{n}}",
+      "unreadable": "Lässt sich allein nicht öffnen",
+      "pages_one": "1 Seite · {{size}}",
+      "pages_other": "{{count}} Seiten · {{size}}",
+      "changed": "Geändert: Seite {{pages}}",
+      "unchanged": "Text unverändert (vielleicht Kommentare, Formulare oder Bilder)",
+      "download": "Diese Fassung herunterladen"
     }
   },
   "feeds": {

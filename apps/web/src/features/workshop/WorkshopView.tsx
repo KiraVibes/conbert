@@ -11,6 +11,7 @@ import {
   ScanLineIcon,
   PictureInPicture2Icon,
   CropIcon,
+  HistoryIcon,
   VenetianMaskIcon,
   ArrowLeftIcon,
   AudioLinesIcon,
@@ -68,6 +69,8 @@ import { AudioVideoTool } from './audio-video/AudioVideoTool';
 import { ScannerTool } from './scanner/ScannerTool';
 import { ThumbCheckTool } from './thumbs/ThumbCheckTool';
 import { CropCheckTool } from './forensics/CropCheckTool';
+import { PdfVersionsTool } from './forensics/PdfVersionsTool';
+import { RedactCheckTool } from './forensics/RedactCheckTool';
 import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
 import { StegoTool } from './stego/StegoTool';
@@ -83,6 +86,8 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   ela: ElaTool,
   thumbcheck: ThumbCheckTool,
   cropcheck: CropCheckTool,
+  redactcheck: RedactCheckTool,
+  pdfversions: PdfVersionsTool,
   thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
@@ -122,6 +127,8 @@ const ICONS: Record<string, LucideIcon> = {
   ela: ContrastIcon,
   thumbcheck: PictureInPicture2Icon,
   cropcheck: CropIcon,
+  redactcheck: EyeOffIcon,
+  pdfversions: HistoryIcon,
   thumbprank: VenetianMaskIcon,
   treasure: MapIcon,
   ciphers: ScrollTextIcon,

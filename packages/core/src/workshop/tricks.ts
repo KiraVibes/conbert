@@ -26,6 +26,8 @@ export const WORKSHOP_TRICKS: readonly WorkshopTrick[] = [
   { id: 'ela', group: 'forensics' },
   { id: 'thumbcheck', group: 'forensics' },
   { id: 'cropcheck', group: 'forensics' },
+  { id: 'redactcheck', group: 'forensics' },
+  { id: 'pdfversions', group: 'forensics' },
   { id: 'vault', group: 'protect' },
   { id: 'privacy', group: 'protect' },
   { id: 'treasure', group: 'protect' },
