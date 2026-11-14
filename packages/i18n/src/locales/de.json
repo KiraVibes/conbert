@@ -802,7 +802,7 @@
     },
     "vizFont": {
       "label": "Schriftart",
-      "help": "Die Schrift für den Liedtext. Alle Schriften sind auf deinem Server vorhanden. Die Vorschau hier zeigt eine ähnliche Schrift deines Geräts – im Video kann sie leicht anders aussehen.",
+      "help": "Die Schrift für den Liedtext. Die Liste und die Vorschau zeigen jede Schrift so, wie sie im Video aussieht.",
       "choices": {
         "sans": "Klar (DejaVu Sans)",
         "serif": "Mit Serifen (DejaVu Serif)",
@@ -5868,7 +5868,7 @@
       "coverColorN": "Cover-Farbe {{n}} ({{hex}})",
       "previewLabel": "Vorschau des Liedtextes",
       "previewText": "So sieht dein Liedtext aus",
-      "previewHint": "Die Vorschau zeigt eine ähnliche Schrift deines Geräts – im Video wird die passende Schrift vom Server genommen."
+      "previewHint": "Die Vorschau nutzt dieselbe Schrift wie das Video. Ist der Server nicht erreichbar, siehst du eine ähnliche Schrift deines Geräts."
     },
     "scanner": {
       "camera": "Foto aufnehmen",

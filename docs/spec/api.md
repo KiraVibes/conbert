@@ -139,3 +139,12 @@ POST /api/pdf/password   { fileId, action: 'protect' | 'unlock', password }  →
 - `fileId` = eigene Upload-Datei (tus). `protect`: AES-256, Besitzer-Passwort = Nutzer-Passwort (keine zusätzlichen Sperren). `unlock`: Schutz mit bekanntem Passwort entfernen.
 - qpdf bekommt die Argumente über eine Datei (`@args`, Rechte 0600, sofort gelöscht) – das Passwort steht nie in der Prozessliste oder im Log. Passwörter mit Zeilenumbruch werden abgelehnt (400).
 - Fehler: `PDF_WRONG_PASSWORD` (422), `PDF_BROKEN` (422). Gehört zur Funktion `pdf` (Gruppenrechte).
+
+### Schriften für den Liedtext (2026-11-14)
+
+```
+GET /api/fonts/lyrics/:font   → font/otf | font/ttf
+```
+
+- `:font` = einer der Werte aus `LYRICS_FONTS` (`sans`, `serif`, `elegant`, `modern`, `narrow`, `classic`, `typewriter`, `script`). Liefert dieselbe Datei, die libass beim Einbrennen nimmt, damit Schriftauswahl und Vorschau im Browser echt aussehen.
+- Feste Pfade im Image, nichts aus der Anfrage landet im Pfad. Unbekannte Schrift oder Datei fehlt (z. B. Entwicklung unter Windows) → 404; der Browser nimmt dann eine ähnliche Geräteschrift. Nur mit Anmeldung.

@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ColorPicker } from './ColorPicker';
-import { swatchHex } from './lyrics';
+import { lyricsFontCss, swatchHex, useLyricsFonts } from './lyrics';
 
 export interface TextStyle {
   font: LyricsFont;
@@ -39,6 +39,7 @@ export function TextStyleSection({
   coverColors: readonly string[];
 }) {
   const { t } = useTranslation();
+  useLyricsFonts();
   const colour =
     value.color === 'wave' ? waveColor : (swatchHex(value.color) ?? coverColors[0] ?? '#ffffff');
   const light =
@@ -66,7 +67,13 @@ export function TextStyleSection({
             <SelectContent>
               {LYRICS_FONTS.map((f) => (
                 <SelectItem key={f} value={f}>
-                  <span style={{ fontFamily: FONT_FAMILY[f].css }}>
+                  <span
+                    className="text-base"
+                    style={{
+                      fontFamily: lyricsFontCss(f),
+                      fontWeight: FONT_FAMILY[f].bold ? 700 : 400,
+                    }}
+                  >
                     {t(`options.vizFont.choices.${f}`)}
                   </span>
                 </SelectItem>
@@ -112,7 +119,7 @@ export function TextStyleSection({
       >
         <span
           style={{
-            fontFamily: face.css,
+            fontFamily: lyricsFontCss(value.font),
             fontWeight: face.bold ? 700 : 400,
             fontSize:
               value.size === 'small' ? '1.1rem' : value.size === 'large' ? '1.9rem' : '1.5rem',

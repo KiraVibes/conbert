@@ -802,7 +802,7 @@
     },
     "vizFont": {
       "label": "Font",
-      "help": "The font for the lyrics. All fonts are on your server. The preview here shows a similar font from your device – in the video it may look slightly different.",
+      "help": "The font for the lyrics. The list and the preview show each font the way it looks in the video.",
       "choices": {
         "sans": "Clear (DejaVu Sans)",
         "serif": "With serifs (DejaVu Serif)",
@@ -5868,7 +5868,7 @@
       "coverColorN": "Cover colour {{n}} ({{hex}})",
       "previewLabel": "Preview of the lyrics",
       "previewText": "This is how your lyrics look",
-      "previewHint": "The preview shows a similar font from your device – the video uses the matching font from the server."
+      "previewHint": "The preview uses the same font as the video. If the server can't be reached, you see a similar font from your device."
     },
     "scanner": {
       "camera": "Take a photo",
