@@ -1,10 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DEFAULT_SETTINGS, SETTINGS_STORAGE_KEY, useSettings } from './settings-store';
+import {
+  DEFAULT_SETTINGS,
+  parseRemoteSettings,
+  SETTINGS_STORAGE_KEY,
+  useSettings,
+} from './settings-store';
 
 describe('settings store', () => {
   beforeEach(() => {
     localStorage.clear();
     useSettings.getState().reset();
+    useSettings.setState({ workshopFavorites: [] });
   });
 
   it('starts in simple mode with automatic execution', () => {
@@ -36,5 +42,24 @@ describe('settings store', () => {
     useSettings.getState().setTheme('dark');
     useSettings.getState().reset();
     expect(useSettings.getState().theme).toBe(DEFAULT_SETTINGS.theme);
+  });
+
+  it('pins and unpins workshop tools in the order they were added, and keeps them on reset', () => {
+    const { toggleWorkshopFavorite } = useSettings.getState();
+    toggleWorkshopFavorite('palette');
+    toggleWorkshopFavorite('hex');
+    toggleWorkshopFavorite('morse');
+    toggleWorkshopFavorite('hex');
+    expect(useSettings.getState().workshopFavorites).toEqual(['palette', 'morse']);
+    useSettings.getState().reset();
+    expect(useSettings.getState().workshopFavorites).toEqual(['palette', 'morse']);
+  });
+
+  it('accepts only sensible favourites from the server', () => {
+    expect(parseRemoteSettings({ workshopFavorites: ['palette', 'morse'] })).toEqual({
+      workshopFavorites: ['palette', 'morse'],
+    });
+    expect(parseRemoteSettings({ workshopFavorites: ['<script>'] })).toEqual({});
+    expect(parseRemoteSettings({ workshopFavorites: 'palette' })).toEqual({});
   });
 });

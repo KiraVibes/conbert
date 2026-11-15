@@ -7283,6 +7283,15 @@
       "download_one": "Download PDF",
       "download_other": "Download PDF ({{count}} pages)",
       "fileName": "Letter.pdf"
+    },
+    "favorites": {
+      "title": "Favourites",
+      "intro": "Your pinned tools. Use the star to pin tools or unpin them again.",
+      "hint": "Tip: use the star on a tool to pin it up here.",
+      "add": "Add “{{name}}” to favourites",
+      "remove": "Remove “{{name}}” from favourites",
+      "makeFavorite": "Add to favourites",
+      "isFavorite": "Favourite"
     }
   },
   "feeds": {

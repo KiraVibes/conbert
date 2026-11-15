@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  StarIcon,
   Clock3Icon,
   MailWarningIcon,
   Music4Icon,
@@ -142,6 +143,8 @@ import { VaultTool } from './vault/VaultTool';
 import { XrayTool } from './xray/XrayTool';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { useSettings } from '@/features/settings/settings-store';
 import { matchesSearch } from './workshop-search';
 
 /** Tricks with a page of their own (the X-ray tricks share one). */
@@ -296,12 +299,160 @@ function rememberedLayout(): Layout {
   }
 }
 
+/** Pins a tool to the favourites (or unpins it). */
+function FavoriteStar({ id, labeled = false }: { id: string; labeled?: boolean }) {
+  const { t } = useTranslation();
+  const on = useSettings((s) => s.workshopFavorites.includes(id));
+  const toggle = useSettings((s) => s.toggleWorkshopFavorite);
+  const label = t(on ? 'workshop.favorites.remove' : 'workshop.favorites.add', {
+    name: t(`workshop.tricks.${id}.title`),
+  });
+  const star = <StarIcon className={cn('size-4', on && 'fill-current')} aria-hidden="true" />;
+  if (labeled)
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => toggle(id)}
+        aria-pressed={on}
+        className={cn(on && 'text-amber-600 dark:text-amber-400')}
+      >
+        {star}
+        {t(on ? 'workshop.favorites.isFavorite' : 'workshop.favorites.makeFavorite')}
+      </Button>
+    );
+  return (
+    <button
+      type="button"
+      onClick={() => toggle(id)}
+      aria-pressed={on}
+      aria-label={label}
+      title={label}
+      className={cn(
+        'flex size-8 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+        on ? 'text-amber-500' : 'text-muted-foreground/50 hover:text-foreground',
+      )}
+      data-testid={`favorite-${id}`}
+    >
+      {star}
+    </button>
+  );
+}
+
+/** One group of tools (or the favourites) as tiles or as a compact list. */
+function TrickSection({
+  title,
+  intro,
+  icon: HeadIcon,
+  ids,
+  layout,
+  onOpen,
+  testId,
+}: {
+  title: string;
+  intro: string;
+  icon?: LucideIcon;
+  ids: string[];
+  layout: Layout;
+  onOpen: (id: string) => void;
+  testId?: string | undefined;
+}) {
+  const { t } = useTranslation();
+  const heading = (
+    <h2
+      className={cn(
+        'flex items-center gap-2 font-heading font-semibold',
+        layout === 'list' ? 'text-base' : 'text-lg',
+      )}
+    >
+      {HeadIcon && <HeadIcon className="size-4 fill-amber-400 text-amber-500" aria-hidden="true" />}
+      {title}
+      {layout === 'list' && (
+        <span className="text-xs font-normal text-muted-foreground">
+          {t('workshop.layout.count', { count: ids.length })}
+        </span>
+      )}
+    </h2>
+  );
+  if (layout === 'list')
+    return (
+      <section className="mb-6 space-y-2" data-testid={testId}>
+        {heading}
+        <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+          {ids.map((id) => {
+            const Icon = ICONS[id] ?? ScanSearchIcon;
+            return (
+              <li key={id} className="flex items-center pr-1">
+                <button
+                  type="button"
+                  onClick={() => onOpen(id)}
+                  className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
+                >
+                  <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                  <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-3">
+                    <span className="block font-medium sm:w-60 sm:shrink-0">
+                      {t(`workshop.tricks.${id}.title`)}
+                    </span>
+                    <span className="block truncate text-sm text-muted-foreground">
+                      {t(`workshop.tricks.${id}.teaser`)}
+                    </span>
+                  </span>
+                  <ChevronRightIcon
+                    className="size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </button>
+                <FavoriteStar id={id} />
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    );
+  return (
+    <section className="mb-8 space-y-3" data-testid={testId}>
+      <div>
+        {heading}
+        <p className="text-sm text-muted-foreground">{intro}</p>
+      </div>
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {ids.map((id) => {
+          const Icon = ICONS[id] ?? ScanSearchIcon;
+          return (
+            <li key={id} className="relative">
+              <button
+                type="button"
+                onClick={() => onOpen(id)}
+                className="flex h-full w-full items-start gap-3 rounded-xl border bg-card p-4 pr-11 text-left shadow-xs transition-colors hover:border-primary/50 hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              >
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <span className="space-y-1">
+                  <span className="block font-medium">{t(`workshop.tricks.${id}.title`)}</span>
+                  <span className="block text-sm text-muted-foreground">
+                    {t(`workshop.tricks.${id}.teaser`)}
+                  </span>
+                </span>
+              </button>
+              <span className="absolute top-2 right-2">
+                <FavoriteStar id={id} />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 /** The FileWizard workshop: an overview of the tricks, or the open trick. */
 export function WorkshopView() {
   const { t } = useTranslation();
   const [trick, openTrick] = useWorkshopTrick();
   const [layout, setLayoutState] = useState<Layout>(rememberedLayout);
   const [query, setQuery] = useState('');
+  const favoriteIds = useSettings((s) => s.workshopFavorites);
   const setLayout = (next: Layout) => {
     setLayoutState(next);
     try {
@@ -313,13 +464,16 @@ export function WorkshopView() {
 
   const Tool = trick ? TOOLS[trick] : undefined;
   const group = WORKSHOP_TRICKS.find((tr) => tr.id === trick)?.group;
-  if (Tool && group) {
+  if (Tool && group && trick) {
     return (
       <div className="space-y-4">
-        <Button variant="ghost" size="sm" className="-ml-2" onClick={() => openTrick(null)}>
-          <ArrowLeftIcon aria-hidden="true" />
-          {t('workshop.back')}
-        </Button>
+        <div className="flex items-center justify-between gap-2">
+          <Button variant="ghost" size="sm" className="-ml-2" onClick={() => openTrick(null)}>
+            <ArrowLeftIcon aria-hidden="true" />
+            {t('workshop.back')}
+          </Button>
+          <FavoriteStar id={trick} labeled />
+        </div>
         <ViewIntro title={t(`workshop.tricks.${trick}.title`)}>
           {t(`workshop.tricks.${trick}.teaser`)}
         </ViewIntro>
@@ -331,10 +485,13 @@ export function WorkshopView() {
   if (isXrayTrick(trick)) {
     return (
       <div className="space-y-4">
-        <Button variant="ghost" size="sm" className="-ml-2" onClick={() => openTrick(null)}>
-          <ArrowLeftIcon aria-hidden="true" />
-          {t('workshop.back')}
-        </Button>
+        <div className="flex items-center justify-between gap-2">
+          <Button variant="ghost" size="sm" className="-ml-2" onClick={() => openTrick(null)}>
+            <ArrowLeftIcon aria-hidden="true" />
+            {t('workshop.back')}
+          </Button>
+          {trick && <FavoriteStar id={trick} labeled />}
+        </div>
         <ViewIntro title={t('workshop.groups.xray.title')}>
           {t('workshop.groups.xray.intro')}
         </ViewIntro>
@@ -355,6 +512,9 @@ export function WorkshopView() {
       ].join(' '),
     ),
   );
+
+  // Favourites in the order they were pinned; tools that no longer exist are skipped.
+  const favorites = favoriteIds.filter((id) => found.some((tr) => tr.id === id));
 
   return (
     <div>
@@ -417,83 +577,39 @@ export function WorkshopView() {
             : t('workshop.search.none', { query: query.trim() })}
         </p>
       )}
+      {favorites.length > 0 && (
+        <TrickSection
+          title={t('workshop.favorites.title')}
+          intro={t('workshop.favorites.intro')}
+          icon={StarIcon}
+          ids={favorites}
+          layout={layout}
+          onOpen={openTrick}
+          testId="workshop-favorites"
+        />
+      )}
+      {favoriteIds.length === 0 && !query.trim() && (
+        <p
+          className="mb-4 flex items-center gap-2 text-sm text-muted-foreground"
+          data-testid="workshop-favorites-hint"
+        >
+          <StarIcon className="size-4 shrink-0" aria-hidden="true" />
+          {t('workshop.favorites.hint')}
+        </p>
+      )}
       {WORKSHOP_GROUPS.map((group) => {
-        const tricks = found.filter((tr) => tr.group === group);
-        if (tricks.length === 0) return null;
-        if (layout === 'list')
-          return (
-            <section key={group} className="mb-6 space-y-2" data-testid="workshop-list">
-              <h2 className="flex items-baseline gap-2 font-heading text-base font-semibold">
-                {t(`workshop.groups.${group}.title`)}
-                <span className="text-xs font-normal text-muted-foreground">
-                  {t('workshop.layout.count', { count: tricks.length })}
-                </span>
-              </h2>
-              <ul className="divide-y overflow-hidden rounded-xl border bg-card">
-                {tricks.map(({ id }) => {
-                  const Icon = ICONS[id] ?? ScanSearchIcon;
-                  return (
-                    <li key={id}>
-                      <button
-                        type="button"
-                        onClick={() => openTrick(id)}
-                        className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
-                      >
-                        <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                        <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-3">
-                          <span className="block font-medium sm:w-60 sm:shrink-0">
-                            {t(`workshop.tricks.${id}.title`)}
-                          </span>
-                          <span className="block truncate text-sm text-muted-foreground">
-                            {t(`workshop.tricks.${id}.teaser`)}
-                          </span>
-                        </span>
-                        <ChevronRightIcon
-                          className="size-4 shrink-0 text-muted-foreground"
-                          aria-hidden="true"
-                        />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          );
+        const ids = found.filter((tr) => tr.group === group).map((tr) => tr.id);
+        if (ids.length === 0) return null;
         return (
-          <section key={group} className="mb-8 space-y-3">
-            <div>
-              <h2 className="font-heading text-lg font-semibold">
-                {t(`workshop.groups.${group}.title`)}
-              </h2>
-              <p className="text-sm text-muted-foreground">{t(`workshop.groups.${group}.intro`)}</p>
-            </div>
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {tricks.map(({ id }) => {
-                const Icon = ICONS[id] ?? ScanSearchIcon;
-                return (
-                  <li key={id}>
-                    <button
-                      type="button"
-                      onClick={() => openTrick(id)}
-                      className="flex h-full w-full items-start gap-3 rounded-xl border bg-card p-4 text-left shadow-xs transition-colors hover:border-primary/50 hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                    >
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Icon className="size-5" aria-hidden="true" />
-                      </span>
-                      <span className="space-y-1">
-                        <span className="block font-medium">
-                          {t(`workshop.tricks.${id}.title`)}
-                        </span>
-                        <span className="block text-sm text-muted-foreground">
-                          {t(`workshop.tricks.${id}.teaser`)}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
+          <TrickSection
+            key={group}
+            title={t(`workshop.groups.${group}.title`)}
+            intro={t(`workshop.groups.${group}.intro`)}
+            ids={ids}
+            layout={layout}
+            onOpen={openTrick}
+            testId={layout === 'list' ? 'workshop-list' : undefined}
+          />
         );
       })}
     </div>

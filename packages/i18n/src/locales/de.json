@@ -7283,6 +7283,15 @@
       "download_one": "PDF herunterladen",
       "download_other": "PDF herunterladen ({{count}} Seiten)",
       "fileName": "Brief.pdf"
+    },
+    "favorites": {
+      "title": "Favoriten",
+      "intro": "Deine angehefteten Werkzeuge. Mit dem Stern heftest du Werkzeuge an oder löst sie wieder.",
+      "hint": "Tipp: Mit dem Stern an einem Werkzeug heftest du es hier oben an.",
+      "add": "„{{name}}“ zu den Favoriten",
+      "remove": "„{{name}}“ aus den Favoriten entfernen",
+      "makeFavorite": "Zu Favoriten",
+      "isFavorite": "Favorit"
     }
   },
   "feeds": {

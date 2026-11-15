@@ -31,6 +31,8 @@ export interface SettingsState {
   tourSeen: boolean;
   /** Shows the booru area (off by default – not everyone wants anime image boards). */
   booruEnabled: boolean;
+  /** Workshop tools pinned at the top of the workshop, in the order they were added. */
+  workshopFavorites: string[];
 }
 
 export interface SettingsActions {
@@ -44,6 +46,7 @@ export interface SettingsActions {
   setDownloaderSleepSeconds: (seconds: number) => void;
   setTourSeen: (seen: boolean) => void;
   setBooruEnabled: (enabled: boolean) => void;
+  toggleWorkshopFavorite: (id: string) => void;
   reset: () => void;
 }
 
@@ -58,6 +61,7 @@ export const DEFAULT_SETTINGS: SettingsState = {
   downloaderSleepSeconds: DEFAULT_SLEEP_SECONDS,
   tourSeen: false,
   booruEnabled: false,
+  workshopFavorites: [],
 };
 
 export const SETTINGS_STORAGE_KEY = 'conbert-settings';
@@ -75,6 +79,7 @@ export function pickSettings(s: SettingsState): SettingsState {
     downloaderSleepSeconds: s.downloaderSleepSeconds,
     tourSeen: s.tourSeen,
     booruEnabled: s.booruEnabled,
+    workshopFavorites: s.workshopFavorites,
   };
 }
 
@@ -91,6 +96,7 @@ const remoteSettingsSchema = z
     downloaderSleepSeconds: z.number().min(MIN_SLEEP_SECONDS).max(MAX_SLEEP_SECONDS),
     tourSeen: z.boolean(),
     booruEnabled: z.boolean(),
+    workshopFavorites: z.array(z.string().regex(/^[a-z0-9-]{1,40}$/)).max(200),
   })
   .partial();
 
@@ -153,8 +159,19 @@ export const useSettings = create<SettingsState & SettingsActions>()(
         }),
       setTourSeen: (tourSeen) => set({ tourSeen }),
       setBooruEnabled: (booruEnabled) => set({ booruEnabled }),
-      // Resetting the settings shouldn't bring the tour back.
-      reset: () => set((s) => ({ ...DEFAULT_SETTINGS, tourSeen: s.tourSeen })),
+      toggleWorkshopFavorite: (id) =>
+        set((s) => ({
+          workshopFavorites: s.workshopFavorites.includes(id)
+            ? s.workshopFavorites.filter((f) => f !== id)
+            : [...s.workshopFavorites, id],
+        })),
+      // Resetting the settings shouldn't bring the tour back or drop the favourites.
+      reset: () =>
+        set((s) => ({
+          ...DEFAULT_SETTINGS,
+          tourSeen: s.tourSeen,
+          workshopFavorites: s.workshopFavorites,
+        })),
     }),
     {
       name: SETTINGS_STORAGE_KEY,
