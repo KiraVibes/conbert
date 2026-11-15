@@ -242,6 +242,8 @@ export interface MorseHeard {
   unitMs: number;
   /** How many tones were heard. */
   tones: number;
+  /** Sound was there, but no steady beep (e.g. speech or music). */
+  notMorse?: boolean;
 }
 
 export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHeard {
@@ -283,11 +285,11 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
   // threshold would glue a whole letter into one tone.
   const step = Math.min(6, (high - low) * 0.25);
   const floorLine = low + (high - low) * 0.3;
-  const runs: { on: boolean; len: number }[] = [];
+  const runs: { on: boolean; len: number; at: number }[] = [];
   let on = false;
   let peak = -Infinity;
   let dip = Infinity;
-  for (const v of env) {
+  for (const [at, v] of env.entries()) {
     if (on) {
       peak = Math.max(peak, v);
       if (v < peak - step || v < floorLine) {
@@ -303,10 +305,10 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
     }
     const last = runs.at(-1);
     if (last && last.on === on) last.len++;
-    else runs.push({ on, len: 1 });
+    else runs.push({ on, len: 1, at });
   }
   // Blips under 15 ms are noise: they join their neighbours.
-  const merged: { on: boolean; len: number }[] = [];
+  const merged: { on: boolean; len: number; at: number }[] = [];
   for (const r of runs) {
     const last = merged.at(-1);
     if (last && (last.on === r.on || r.len < 3)) last.len += r.len;
@@ -316,6 +318,35 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
   while (merged.at(-1) && !merged.at(-1)?.on) merged.pop();
   const ons = merged.filter((r) => r.on).map((r) => r.len);
   if (ons.length === 0) return none;
+  // A Morse beep is one pure tone, always at the same pitch. Speech, music
+  // and noise have overtones and a pitch that keeps moving – not Morse.
+  let steady = 0;
+  for (const r of merged) {
+    if (!r.on) continue;
+    const from = r.at * hop;
+    const to = Math.min(x.length, (r.at + r.len) * hop + win);
+    const half = Math.floor((from + to) / 2);
+    const strongest = (a: number, b: number) => {
+      let f0 = 0;
+      let v0 = 0;
+      for (let f = 300; f <= 1500; f += 10) {
+        const v = goertzel(x, a, b, f, sr);
+        if (v > v0) {
+          v0 = v;
+          f0 = f;
+        }
+      }
+      return { f: f0, v: v0 };
+    };
+    const whole = strongest(from, to);
+    const side =
+      (goertzel(x, from, to, whole.f - 120, sr) + goertzel(x, from, to, whole.f + 120, sr)) / 2;
+    const first = strongest(from, half).f;
+    const second = strongest(half, to).f;
+    if (Math.abs(whole.f - pitch) <= 30 && whole.v > side * 4 && Math.abs(first - second) <= 30)
+      steady++;
+  }
+  if (steady < ons.length * 0.7) return { ...none, tones: ons.length, pitch, notMorse: true };
   const offs = merged.filter((r) => !r.on).map((r) => r.len);
   // Echo and the threshold make every tone a bit longer and every gap a bit
   // shorter by the same amount – tone + gap stays right. So: unit = (dot +

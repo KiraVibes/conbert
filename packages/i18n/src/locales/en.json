@@ -6506,7 +6506,7 @@
       "download": "Download sound as WAV",
       "code": "Morse code",
       "codeHint": "Dots and dashes, separate letters with spaces, words with “/”.",
-      "listenIntro": "Upload a recording with Morse tones or record with the microphone – e.g. the sound your phone plays from “Text → Morse”.",
+      "listenIntro": "Upload a recording with Morse beeps or record them with the microphone – e.g. the sound “Text → Morse” plays. The Morse reader doesn't understand spoken words, only beeps.",
       "record": "Record with microphone",
       "recordStop": "Stop recording",
       "listening": "Listening …",
@@ -6515,7 +6515,8 @@
       "listenTip": "Tip: it works best with a clear tone and little background noise. With a lot of echo in the room, a slower speed helps (15 words per minute or less).",
       "heard": "Heard: {{seconds}} s of recording · beep at {{pitch}} Hz · {{tones}} tones · one dot ≈ {{ms}} ms",
       "heardNothing": "Heard: {{seconds}} s of recording – but no steady beep. Play louder or hold the microphone closer to the speaker.",
-      "fewTones": "Only a few tones recognised. Did the sound play during the whole recording? Tip: first “Record with microphone”, then play it in the “Text → Morse” tab and stop the recording here afterwards – both keep running when switching tabs."
+      "fewTones": "Only a few tones recognised. Did the sound play during the whole recording? Tip: first “Record with microphone”, then play it in the “Text → Morse” tab and stop the recording here afterwards – both keep running when switching tabs.",
+      "notMorse": "This doesn't sound like Morse beeps but like speech, music or noise. The Morse reader only understands beeps (short and long, always the same pitch) – e.g. the sound from “Text → Morse”, played on another device or through the speakers. It doesn't recognise spoken words."
     },
     "sstv": {
       "tabs": {

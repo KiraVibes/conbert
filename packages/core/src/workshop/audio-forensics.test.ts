@@ -111,6 +111,37 @@ describe('Morse', () => {
     expect(decodeMorseAudio(rec, rate).text).toBe('PARIS HALLO 2026');
   });
 
+  it('does not read speech as Morse', () => {
+    // Syllables like "Gu-ten Mor-gen": a gliding voice pitch with overtones.
+    const rate = 16_000;
+    const x = new Float32Array(rate * 3);
+    const syllables = [
+      [0.2, 0.45, 140, 170],
+      [0.55, 0.8, 170, 130],
+      [1.2, 1.5, 150, 190],
+      [1.6, 1.9, 190, 120],
+    ];
+    let phase = 0;
+    for (let i = 0; i < x.length; i++) {
+      const t = i / rate;
+      const s = syllables.find(([a, b]) => t >= (a ?? 0) && t < (b ?? 0));
+      if (!s) {
+        x[i] = 0.01 * noise();
+        continue;
+      }
+      const [a = 0, b = 1, f1 = 150, f2 = 150] = s;
+      const f0 = f1 + ((f2 - f1) * (t - a)) / (b - a);
+      phase += (2 * Math.PI * f0) / rate;
+      let v = 0;
+      // Harmonics, the 3rd to 6th loudest (vowel formants around 500–900 Hz).
+      for (let h = 1; h <= 12; h++) v += Math.sin(h * phase) * (h >= 3 && h <= 6 ? 0.3 : 0.08);
+      x[i] = 0.3 * v + 0.01 * noise();
+    }
+    const r = decodeMorseAudio(x, rate);
+    expect(r.text).toBe('');
+    expect(r.notMorse).toBe(true);
+  });
+
   it('reads its own sound back, also with noise', () => {
     const code = toMorse('Hallo Welt 42');
     const audio = morseAudio(code, RATE, 20);

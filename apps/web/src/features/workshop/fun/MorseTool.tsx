@@ -289,6 +289,11 @@ function ListenMorse() {
       )}
       {result && (
         <div className="space-y-2" data-testid="morse-heard">
+          {result.notMorse && (
+            <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+              {t('workshop.morse.notMorse')}
+            </p>
+          )}
           <p className="rounded-lg border bg-muted/40 p-3 font-mono break-words">
             {result.code || '–'}
           </p>
@@ -296,7 +301,7 @@ function ListenMorse() {
             {result.text || t('workshop.morse.nothing')}
           </p>
           <p className="text-xs text-muted-foreground" data-testid="morse-stats">
-            {result.tones > 0
+            {result.tones > 0 && !result.notMorse
               ? t('workshop.morse.heard', {
                   seconds: secs(result.seconds),
                   pitch: result.pitch,
@@ -305,7 +310,7 @@ function ListenMorse() {
                 })
               : t('workshop.morse.heardNothing', { seconds: secs(result.seconds) })}
           </p>
-          {result.tones > 0 && result.tones <= 4 && (
+          {result.tones > 0 && result.tones <= 4 && !result.notMorse && (
             <p className="text-xs text-amber-700 dark:text-amber-300">
               {t('workshop.morse.fewTones')}
             </p>

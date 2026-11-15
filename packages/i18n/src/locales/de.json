@@ -6506,7 +6506,7 @@
       "download": "Ton als WAV herunterladen",
       "code": "Morse-Zeichen",
       "codeHint": "Punkte und Striche, Buchstaben mit Leerzeichen trennen, Wörter mit „/“.",
-      "listenIntro": "Lade eine Aufnahme mit Morse-Tönen hoch oder nimm mit dem Mikrofon auf – z. B. den Ton, den dein Handy aus „Text → Morse“ abspielt.",
+      "listenIntro": "Lade eine Aufnahme mit Morse-Pieptönen hoch oder nimm sie mit dem Mikrofon auf – z. B. den Ton, den „Text → Morse“ abspielt. Gesprochene Wörter versteht der Morse-Erkenner nicht, nur Pieptöne.",
       "record": "Mit Mikrofon aufnehmen",
       "recordStop": "Aufnahme beenden",
       "listening": "Höre zu …",
@@ -6515,7 +6515,8 @@
       "listenTip": "Tipp: Am besten klappt es mit einem klaren Ton und wenig Hintergrundlärm. Bei viel Hall im Raum hilft ein langsameres Tempo (15 Wörter pro Minute oder weniger).",
       "heard": "Gehört: {{seconds}} s Aufnahme · Piepton bei {{pitch}} Hz · {{tones}} Töne · ein Punkt ≈ {{ms}} ms",
       "heardNothing": "Gehört: {{seconds}} s Aufnahme – aber kein gleichmäßiger Piepton. Spiel lauter ab oder halte das Mikrofon näher an den Lautsprecher.",
-      "fewTones": "Nur wenige Töne erkannt. Lief der Ton während der ganzen Aufnahme? Tipp: erst „Mit Mikrofon aufnehmen“, dann im Tab „Text → Morse“ abspielen und danach hier die Aufnahme beenden – beides läuft beim Wechseln der Tabs weiter."
+      "fewTones": "Nur wenige Töne erkannt. Lief der Ton während der ganzen Aufnahme? Tipp: erst „Mit Mikrofon aufnehmen“, dann im Tab „Text → Morse“ abspielen und danach hier die Aufnahme beenden – beides läuft beim Wechseln der Tabs weiter.",
+      "notMorse": "Das klingt nicht nach Morse-Pieptönen, sondern nach Sprache, Musik oder Geräuschen. Der Morse-Erkenner versteht nur Pieptöne (kurz und lang, immer gleiche Tonhöhe) – z. B. den Ton aus „Text → Morse“, abgespielt auf einem anderen Gerät oder über die Lautsprecher. Gesprochene Wörter erkennt er nicht."
     },
     "sstv": {
       "tabs": {
