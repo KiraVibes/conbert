@@ -53,6 +53,20 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   );
 }
 const MODES = ['write', 'read', 'listen', 'speak'] as const;
+
+/** "morse-guten-morgen.wav": the first words of the text in the file name. */
+function morseFileName(text: string): string {
+  const words = text
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40)
+    .replace(/-+$/, '');
+  return words ? `morse-${words}.wav` : 'morse.wav';
+}
 type Mode = (typeof MODES)[number];
 
 /** Morse code: text ↔ dots and dashes, as sound and light, and back from a recording. */
@@ -173,6 +187,12 @@ function WriteMorse({ text, setText }: { text: string; setText: (t: string) => v
         />
       </div>
       {url && <audio src={url} controls className="w-full" />}
+      {wav && (
+        <Button variant="outline" onClick={() => saveBlob(wav, morseFileName(text))}>
+          <DownloadIcon aria-hidden="true" />
+          {t('workshop.morse.download')}
+        </Button>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <Button
           variant="outline"
@@ -191,12 +211,6 @@ function WriteMorse({ text, setText }: { text: string; setText: (t: string) => v
           )}
           aria-hidden="true"
         />
-        {wav && (
-          <Button variant="outline" onClick={() => saveBlob(wav, 'morse.wav')}>
-            <DownloadIcon aria-hidden="true" />
-            {t('workshop.morse.download')}
-          </Button>
-        )}
       </div>
     </div>
   );
@@ -481,10 +495,22 @@ function SpeakMorse({ onUse }: { onUse: (text: string) => void }) {
                 <CopyButton text={code} label={t('workshop.morse.copy')} />
               </div>
               {url && <audio src={url} controls className="w-full" />}
-              <Button variant="outline" size="sm" onClick={() => onUse(spoken)}>
-                <ArrowRightIcon aria-hidden="true" />
-                {t('workshop.morse.speakUse')}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {wav && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => saveBlob(wav, morseFileName(spoken))}
+                  >
+                    <DownloadIcon aria-hidden="true" />
+                    {t('workshop.morse.download')}
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={() => onUse(spoken)}>
+                  <ArrowRightIcon aria-hidden="true" />
+                  {t('workshop.morse.speakUse')}
+                </Button>
+              </div>
             </>
           )}
         </div>
