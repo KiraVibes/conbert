@@ -15,6 +15,7 @@ import {
   morseAudio,
   morseTiming,
   toMorse,
+  type MorseHeard,
 } from '@conbert/core';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -66,9 +67,17 @@ export function MorseTool() {
           </button>
         ))}
       </div>
-      {mode === 'write' && <WriteMorse />}
-      {mode === 'read' && <ReadMorse />}
-      {mode === 'listen' && <ListenMorse />}
+      {/* All three stay on the page (only hidden): a sound playing in "Text →
+          Morse" or a running recording keeps going while switching tabs. */}
+      <div hidden={mode !== 'write'}>
+        <WriteMorse />
+      </div>
+      <div hidden={mode !== 'read'}>
+        <ReadMorse />
+      </div>
+      <div hidden={mode !== 'listen'}>
+        <ListenMorse />
+      </div>
     </div>
   );
 }
@@ -195,9 +204,10 @@ function ReadMorse() {
 }
 
 function ListenMorse() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const secs = (v: number) => v.toLocaleString(i18n.language, { maximumFractionDigits: 1 });
   const [file, setFile] = useState<File | null>(null);
-  const [result, setResult] = useState<{ code: string; text: string } | null>(null);
+  const [result, setResult] = useState<(MorseHeard & { seconds: number }) | null>(null);
   const [busy, setBusy] = useState(false);
   const [recording, setRecording] = useState<MediaRecorder | null>(null);
   const [failed, setFailed] = useState(false);
@@ -207,7 +217,10 @@ function ListenMorse() {
     setFailed(false);
     try {
       const sound = await decodeSound(blob);
-      setResult(decodeMorseAudio(sound.samples, sound.sampleRate));
+      setResult({
+        ...decodeMorseAudio(sound.samples, sound.sampleRate),
+        seconds: sound.samples.length / sound.sampleRate,
+      });
     } catch (e) {
       console.error(e);
       setFailed(true);
@@ -282,6 +295,21 @@ function ListenMorse() {
           <p className="rounded-lg border p-3 text-lg">
             {result.text || t('workshop.morse.nothing')}
           </p>
+          <p className="text-xs text-muted-foreground" data-testid="morse-stats">
+            {result.tones > 0
+              ? t('workshop.morse.heard', {
+                  seconds: secs(result.seconds),
+                  pitch: result.pitch,
+                  tones: result.tones,
+                  ms: Math.round(result.unitMs),
+                })
+              : t('workshop.morse.heardNothing', { seconds: secs(result.seconds) })}
+          </p>
+          {result.tones > 0 && result.tones <= 4 && (
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              {t('workshop.morse.fewTones')}
+            </p>
+          )}
         </div>
       )}
       <p className="text-xs text-muted-foreground">

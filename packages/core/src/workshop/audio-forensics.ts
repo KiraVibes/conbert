@@ -233,11 +233,19 @@ export function morseAudio(code: string, rate: number, wpm = 18, freq = 650): Fl
  * off are told apart in decibels with a little hysteresis, so echo tails
  * don't swallow the gaps; dots and dashes are told apart by their lengths.
  */
-export function decodeMorseAudio(
-  samples: Float32Array,
-  rate: number,
-): { code: string; text: string } {
-  const none = { code: '', text: '' };
+export interface MorseHeard {
+  code: string;
+  text: string;
+  /** The beep's pitch in Hz (0 when no beep was found). */
+  pitch: number;
+  /** Length of one dot in milliseconds. */
+  unitMs: number;
+  /** How many tones were heard. */
+  tones: number;
+}
+
+export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHeard {
+  const none: MorseHeard = { code: '', text: '', pitch: 0, unitMs: 0, tones: 0 };
   // About 8000 samples per second are plenty for a beep up to 1500 Hz.
   const factor = Math.max(1, Math.floor(rate / 8000));
   const sr = rate / factor;
@@ -269,14 +277,30 @@ export function decodeMorseAudio(
   const low = sorted[Math.floor(sorted.length * 0.1)] ?? 0;
   const high = sorted[Math.floor(sorted.length * 0.95)] ?? 0;
   if (high - low < 8) return none;
-  const mid = (low + high) / 2;
-  const band = (high - low) * 0.08;
-  // On/off with hysteresis: a wobbling level doesn't flicker.
+  // Edges, not a fixed line: "off" once the level falls clearly below the
+  // current tone's peak, "on" once it rises clearly above the dip before.
+  // With echo the level never reaches the floor in short gaps – a fixed
+  // threshold would glue a whole letter into one tone.
+  const step = Math.min(6, (high - low) * 0.25);
+  const floorLine = low + (high - low) * 0.3;
   const runs: { on: boolean; len: number }[] = [];
   let on = false;
+  let peak = -Infinity;
+  let dip = Infinity;
   for (const v of env) {
-    if (!on && v > mid + band) on = true;
-    else if (on && v < mid - band) on = false;
+    if (on) {
+      peak = Math.max(peak, v);
+      if (v < peak - step || v < floorLine) {
+        on = false;
+        dip = v;
+      }
+    } else {
+      dip = Math.min(dip, v);
+      if (v > dip + step && v > floorLine) {
+        on = true;
+        peak = v;
+      }
+    }
     const last = runs.at(-1);
     if (last && last.on === on) last.len++;
     else runs.push({ on, len: 1 });
@@ -292,33 +316,59 @@ export function decodeMorseAudio(
   while (merged.at(-1) && !merged.at(-1)?.on) merged.pop();
   const ons = merged.filter((r) => r.on).map((r) => r.len);
   if (ons.length === 0) return none;
-  const median = (v: number[]) => [...v].sort((a, b) => a - b)[Math.floor(v.length / 2)] ?? 1;
-  // Dots and dashes: split the tone lengths at the biggest jump between them.
-  const lengths = [...ons].sort((a, b) => a - b);
-  let split = -1;
-  let ratio = 1;
-  for (let i = 1; i < lengths.length; i++) {
-    const r = (lengths[i] ?? 1) / Math.max(1, lengths[i - 1] ?? 1);
-    if (r > ratio) {
-      ratio = r;
-      split = i;
-    }
-  }
+  const offs = merged.filter((r) => !r.on).map((r) => r.len);
+  // Echo and the threshold make every tone a bit longer and every gap a bit
+  // shorter by the same amount – tone + gap stays right. So: unit = (dot +
+  // short gap) / 2, and the difference is taken off again before deciding.
+  const onGroups = twoGroups(ons);
+  const offGroups = twoGroups(offs);
+  const dot = onGroups.low;
+  const shortGap = offGroups.low;
   let unit: number;
-  if (ratio > 1.7 && split > 0) unit = median(lengths.slice(0, split));
-  else {
-    // Only one kind of tone: the gaps tell whether they are dots or dashes.
-    const gaps = merged.filter((r) => !r.on).map((r) => r.len);
-    const shortGap = gaps.length ? Math.min(...gaps) : median(ons);
-    unit = median(ons) > shortGap * 2 ? median(ons) / 3 : median(ons);
-  }
+  let bias = 0;
+  if (offs.length > 0 && shortGap < dot * 2.5 && dot < shortGap * 6) {
+    unit = (dot + shortGap) / 2;
+    bias = (dot - shortGap) / 2;
+  } else if (onGroups.split) unit = dot;
+  else unit = offs.length && dot > shortGap * 2 ? dot / 3 : dot;
+  // Only one kind of tone and the gaps say they are dashes.
+  if (!onGroups.split && offs.length && dot - bias > unit * 2) unit = (dot - bias) / 3;
   let code = '';
   for (const r of merged) {
-    if (r.on) code += r.len > unit * 2 ? '-' : '.';
-    else if (r.len > unit * 5) code += ' / ';
-    else if (r.len > unit * 2) code += ' ';
+    const len = r.on ? r.len - bias : r.len + bias;
+    if (r.on) code += len > unit * 2 ? '-' : '.';
+    else if (len > unit * 5) code += ' / ';
+    else if (len > unit * 2) code += ' ';
   }
-  return { code, text: fromMorse(code) };
+  return {
+    code,
+    text: fromMorse(code),
+    pitch,
+    unitMs: (unit * hop * 1000) / sr,
+    tones: ons.length,
+  };
+}
+
+/**
+ * Splits lengths into a short and a long group (2-means on the logarithm).
+ * `split` is false when they are all about the same.
+ */
+function twoGroups(values: number[]): { low: number; high: number; split: boolean } {
+  if (values.length === 0) return { low: 1, high: 1, split: false };
+  const logs = values.map((v) => Math.log(Math.max(1, v)));
+  let lo = Math.min(...logs);
+  let hi = Math.max(...logs);
+  for (let i = 0; i < 20; i++) {
+    const mid = (lo + hi) / 2;
+    const a = logs.filter((v) => v <= mid);
+    const b = logs.filter((v) => v > mid);
+    const nlo = a.length ? a.reduce((s, v) => s + v, 0) / a.length : lo;
+    const nhi = b.length ? b.reduce((s, v) => s + v, 0) / b.length : hi;
+    if (nlo === lo && nhi === hi) break;
+    lo = nlo;
+    hi = nhi;
+  }
+  return { low: Math.exp(lo), high: Math.exp(hi), split: hi - lo > Math.log(1.8) };
 }
 
 /** Float samples (−1…1) as a 16-bit mono WAV file. */

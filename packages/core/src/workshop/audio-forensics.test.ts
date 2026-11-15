@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { audioCuts, bytesToWav, decodeMorseAudio, morseAudio } from './audio-forensics';
-import { fromMorse, toMorse } from './ciphers';
+import { fromMorse, morseTiming, toMorse } from './ciphers';
 import { parseWav } from './wav';
 
 const RATE = 8000;
@@ -83,6 +83,32 @@ describe('Morse', () => {
         0.15 * Math.sin((2 * Math.PI * 50 * i) / rate);
     }
     expect(decodeMorseAudio(rec, rate).text).toBe('SOS 73 DL');
+  });
+
+  it('reads strong room echo: tones get longer, gaps shorter', () => {
+    const rate = 16_000;
+    const wpm = 20;
+    const code = toMorse('PARIS HALLO 2026');
+    // The on/off pattern as an envelope with a slow fade (about 70 ms) after each tone.
+    const unit = (1.2 / wpm) * rate;
+    const timing = morseTiming(code);
+    const total = Math.ceil(timing.reduce((n, t) => n + t.units, 0) * unit + rate);
+    const env = new Float32Array(total);
+    let pos = Math.round(rate * 0.3);
+    for (const t of timing) {
+      const n = Math.round(t.units * unit);
+      if (t.on) env.fill(1, pos, pos + n);
+      pos += n;
+    }
+    const rec = new Float32Array(total);
+    let level = 0;
+    for (let i = 0; i < total; i++) {
+      const target = env[i] ?? 0;
+      // Fast rise (10 ms), slow fade (70 ms).
+      level += (target - level) / ((target > level ? 0.01 : 0.07) * rate);
+      rec[i] = 0.5 * level * Math.sin((2 * Math.PI * 700 * i) / rate) + 0.03 * noise();
+    }
+    expect(decodeMorseAudio(rec, rate).text).toBe('PARIS HALLO 2026');
   });
 
   it('reads its own sound back, also with noise', () => {
