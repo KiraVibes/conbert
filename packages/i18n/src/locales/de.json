@@ -4462,6 +4462,31 @@
         "title": "Handschrift als Schrift",
         "teaser": "Vorlage ausdrucken, ausfüllen, fotografieren – und deine Handschrift wird eine echte Schrift für Word & Co.",
         "how": "Du druckst eine Vorlage mit einem Kästchen pro Zeichen aus und schreibst jedes Zeichen mit einem dunklen Stift hinein. Dann fotografierst oder scannst du das Blatt. Conbert findet die vier schwarzen Quadrate in den Ecken und zieht das Blatt damit gerade, auch wenn das Foto schräg ist. Danach wird jedes Kästchen ausgeschnitten: Die Tinte wird vom Papier getrennt (die hellblauen Hilfslinien verschwinden dabei), Krümel werden entfernt und die Umrisse werden zu glatten Kurven. Die blaue Linie im Kästchen ist die Grundlinie – darauf „stehen“ die Buchstaben, damit g, p und y später richtig nach unten hängen. Aus allen Zeichen baut Conbert eine OpenType-Schrift (.otf), die du in Windows, macOS, Word oder Canva installieren kannst. Leere Kästchen fehlen in der Schrift; fehlt ein Groß- oder Kleinbuchstabe, springt der andere ein. Alles passiert in deinem Browser."
+      },
+      "clockfix": {
+        "title": "Kamera-Uhr korrigieren",
+        "teaser": "Falsche Aufnahmezeit? Verschiebe das Datum vieler Fotos und Videos auf einmal – z. B. wenn die Kamera-Uhr nach dem Urlaub eine Stunde falsch ging.",
+        "how": "Fotos und Videos speichern, wann sie aufgenommen wurden: JPGs in den EXIF- und XMP-Daten, MP4- und MOV-Videos in mehreren Kästchen der Datei (und bei iPhones zusätzlich als Text). Ging die Uhr der Kamera falsch, landen die Bilder in Galerie-Apps an der falschen Stelle – vor allem, wenn Fotos von zwei Kameras oder Handys gemischt werden. Conbert sucht alle diese Zeitangaben und verschiebt sie um denselben Betrag. Den Betrag gibst du direkt ein („+1 Stunde 12 Minuten“) oder du nennst bei einem Foto die richtige Uhrzeit, und Conbert rechnet den Unterschied für alle aus. Mit dem Kamera-Filter änderst du nur die Fotos einer Kamera. Es werden nur die Ziffern des Datums ausgetauscht – Bild, Ton und alle anderen Angaben bleiben Byte für Byte gleich. Deine Originale werden nicht verändert, du bekommst korrigierte Kopien. Alles läuft in deinem Browser."
+      },
+      "mailcheck": {
+        "title": "E-Mail-Prüfer",
+        "teaser": "Ist diese Mail echt? Zeigt, woher sie wirklich kommt, ob der Absender bestätigt ist und wohin die Links in Wahrheit führen.",
+        "how": "Speichere die E-Mail als .eml-Datei und lade sie hier. Conbert liest den „Umschlag“, den man im Mailprogramm sonst nicht sieht: den Weg der Mail über die Server, die echte Absenderadresse hinter dem angezeigten Namen, eine abweichende Antwortadresse und das Ergebnis der Absender-Prüfungen SPF, DKIM und DMARC, die dein Mailanbieter beim Empfang gemacht hat. Dann schaut es sich Links (zeigt der Text eine andere Adresse als das Ziel?) und Anhänge (Programme, Makros, getarnte Endungen) an und sucht typische Drängel-Wörter. Jeder Fund ist in Klartext erklärt. Die Mail wird dabei nie geöffnet oder angezeigt: Bilder werden nicht geladen, Links sind nicht anklickbar. Alles läuft in deinem Browser."
+      },
+      "soundposter": {
+        "title": "Klangbild",
+        "teaser": "Eine Sprachnachricht, ein Lied oder das erste „Mama“ als schönes Wellenform-Poster zum Ausdrucken.",
+        "how": "Conbert hört sich die Aufnahme an und misst in vielen kleinen Abschnitten, wie laut sie ist. Daraus wird ein Bild: Balken, eine gespiegelte Welle, eine Linie wie auf einem Messgerät oder ein Ring. Dazu kommen ein Titel, eine Zeile darunter (z. B. ein Datum) und auf Wunsch ein QR-Code. Der QR-Code kann den Ton nicht selbst enthalten – dafür ist er viel zu klein. Lade die Aufnahme irgendwo hoch, wo man sie anhören kann (z. B. in deine Cloud mit Teilen-Link) und trage diesen Link ein. Das Poster bekommst du als SVG (Vektor, beliebig groß druckbar) oder als PNG in Druckqualität (300 dpi). Alles läuft in deinem Browser."
+      },
+      "stereogram": {
+        "title": "Magic-Eye-Bild",
+        "teaser": "Ein Bild aus bunten Punkten, in dem eine 3D-Form versteckt ist – sichtbar nur mit dem richtigen Blick.",
+        "how": "Ein Magic-Eye-Bild (Autostereogramm) wiederholt sein Muster immer im selben Abstand. Schaust du „durch“ das Bild hindurch, als wäre es eine Fensterscheibe, sieht jedes Auge einen anderen Teil des Musters – und das Gehirn setzt beides zu einer Tiefe zusammen. Conbert verschiebt das Muster dort, wo die versteckte Form näher sein soll, ein kleines Stück: Je näher, desto kürzer der Abstand. Die Form kommt aus einem Text oder einem Bild (helle Stellen kommen nach vorne). Die zwei Punkte oben helfen: Lass sie zu drei Punkten verschwimmen, dann erscheint die Form. Wer lieber schielt, schaltet „Hell und dunkel tauschen“ ein. Alles läuft in deinem Browser."
+      },
+      "handletter": {
+        "title": "Brief in Handschrift",
+        "teaser": "Schreib einen Brief mit deiner eigenen Handschrift-Schrift – mit kleinen Unregelmäßigkeiten, damit er echt aussieht.",
+        "how": "Eine Schrift zeigt jeden Buchstaben immer exakt gleich – das sieht man sofort. Conbert setzt deinen Text deshalb Buchstabe für Buchstabe und verändert jeden ein bisschen: etwas höher oder tiefer, minimal gekippt, ein Hauch größer oder kleiner, die Abstände nicht ganz gleich. Jede Zeile beginnt leicht versetzt und läuft ein wenig bergauf oder bergab. Mit „Unregelmäßigkeit“ stellst du ein, wie stark; „Neu würfeln“ erzeugt eine andere Variante. Als Schrift nimmst du die aus „Handschrift als Schrift“ (wird direkt übernommen) oder lädst eine .otf/.ttf-Datei. Heraus kommt ein PDF, in dem die Buchstaben als Formen stehen – scharf in jeder Größe, zum Ausdrucken. Alles läuft in deinem Browser."
       }
     },
     "identify": {
@@ -6977,7 +7002,8 @@
         "frame": "Immer innerhalb des hellblauen Rahmens bleiben"
       },
       "exampleAlt": "Beispiel-Kästchen: ein großes H reicht von der blauen Linie fast bis oben, x und g enden an der gestrichelten Linie, das g hängt unter die blaue Linie.",
-      "clipped": "Diese Zeichen berühren den hellblauen Rahmen und sind vielleicht abgeschnitten (orange umrandet): {{chars}}. Schreib sie etwas kleiner neu und fotografiere das Blatt noch einmal."
+      "clipped": "Diese Zeichen berühren den hellblauen Rahmen und sind vielleicht abgeschnitten (orange umrandet): {{chars}}. Schreib sie etwas kleiner neu und fotografiere das Blatt noch einmal.",
+      "writeLetter": "Einen Brief damit schreiben"
     },
     "layout": {
       "label": "Ansicht der Werkzeuge",
@@ -6993,6 +7019,270 @@
       "hits_one": "{{count}} Werkzeug gefunden.",
       "hits_other": "{{count}} Werkzeuge gefunden.",
       "none": "Kein Werkzeug passt zu „{{query}}“. Versuch ein anderes Wort, z. B. was du mit der Datei machen möchtest."
+    },
+    "clockfix": {
+      "reading": "Dateien werden gelesen …",
+      "mode": "Wie soll verschoben werden?",
+      "modes": {
+        "shift": "Um einen festen Betrag",
+        "reference": "Ein Foto hat die richtige Zeit"
+      },
+      "direction": "Richtung",
+      "later": "Später machen (+)",
+      "earlier": "Früher machen (−)",
+      "units": {
+        "days": "Tage",
+        "hours": "Stunden",
+        "minutes": "Minuten",
+        "seconds": "Sekunden"
+      },
+      "refFile": "Dieses Foto …",
+      "refTime": "… wurde in Wahrheit aufgenommen um",
+      "noDates": "Keine der Dateien hat eine Aufnahmezeit.",
+      "camera": "Nur Fotos dieser Kamera ändern",
+      "allCameras": "Alle Kameras",
+      "cameraHelp": "Praktisch, wenn Fotos von zwei Geräten gemischt sind und nur eins falsch ging.",
+      "noShift": "Noch keine Verschiebung eingestellt.",
+      "shiftLater": "Alle passenden Dateien werden {{days}} Tage, {{hours}} Std., {{minutes}} Min. und {{seconds}} Sek. später gestellt.",
+      "shiftEarlier": "Alle passenden Dateien werden {{days}} Tage, {{hours}} Std., {{minutes}} Min. und {{seconds}} Sek. früher gestellt.",
+      "noDate": "keine Aufnahmezeit gefunden – bleibt, wie sie ist",
+      "remove": "{{name}} entfernen",
+      "save_one": "Korrigierte Datei speichern",
+      "save_other": "{{count}} korrigierte Dateien speichern (ZIP)",
+      "zipName": "korrigierte-zeiten.zip",
+      "note": "Geändert werden JPG-Fotos (EXIF und XMP) und MP4/MOV-Videos. Andere Dateien (z. B. HEIC, RAW, PNG) werden nicht gefunden. Deine Originale bleiben unverändert."
+    },
+    "mailcheck": {
+      "howToSave": "So speicherst du eine Mail als .eml: Thunderbird – Nachricht in einen Ordner ziehen oder „Speichern unter“; Outlook im Web und Gmail – im Menü der Nachricht „Herunterladen“ bzw. „Original anzeigen > Herunterladen“; Apple Mail – „Ablage > Sichern als“ mit „Rohformat“. Outlook für Windows speichert .msg – das kann Conbert nicht lesen.",
+      "failed": "Das sieht nicht nach einer gespeicherten E-Mail (.eml) aus.",
+      "verdict": {
+        "danger": "Vorsicht! Diese Mail hat deutliche Merkmale eines Betrugsversuchs (Phishing). Klick auf keine Links, öffne keine Anhänge und antworte nicht – frag im Zweifel beim angeblichen Absender auf einem anderen Weg nach.",
+        "caution": "Ein paar Dinge an dieser Mail sind ungewöhnlich. Das kann harmlos sein – schau dir die Hinweise unten an, bevor du auf Links klickst oder Anhänge öffnest.",
+        "ok": "Nichts Auffälliges gefunden. Das ist ein gutes Zeichen, aber keine Garantie: Auch echte Konten können gekapert werden."
+      },
+      "fields": {
+        "from": "Von",
+        "replyTo": "Antwort geht an",
+        "to": "An",
+        "subject": "Betreff",
+        "date": "Datum"
+      },
+      "findings": "Was Conbert aufgefallen ist",
+      "nothing": "Keine Warnungen.",
+      "severity": {
+        "high": "ernst",
+        "medium": "auffällig",
+        "info": "Hinweis"
+      },
+      "warnings": {
+        "dmarcFail": {
+          "title": "Absender nicht bestätigt (DMARC fehlgeschlagen)",
+          "help": "Die Mail behauptet, von {{domain}} zu kommen, aber dein Mailanbieter konnte das nicht bestätigen. Echte Firmen-Mails bestehen diese Prüfung fast immer – das ist ein starkes Zeichen für eine Fälschung."
+        },
+        "spfFail": {
+          "title": "Absender-Server nicht erlaubt (SPF)",
+          "help": "Der Server, der die Mail geschickt hat, steht nicht auf der Liste der Server, die für diese Absenderadresse senden dürfen."
+        },
+        "dkimFail": {
+          "title": "Unterschrift ungültig (DKIM)",
+          "help": "Die digitale Unterschrift der Mail passt nicht – sie wurde unterwegs verändert oder nicht vom angegebenen Absender unterschrieben."
+        },
+        "noAuth": {
+          "title": "Keine Absender-Prüfung gefunden",
+          "help": "In der Mail steht kein Prüfergebnis deines Mailanbieters (z. B. weil sie aus einem anderen Programm exportiert wurde). Die Echtheit lässt sich so nicht bestätigen."
+        },
+        "displayNameAddress": {
+          "title": "Der angezeigte Name täuscht eine andere Adresse vor",
+          "help": "Im Namen steht „{{shown}}“, die Mail kommt aber in Wahrheit von {{real}}. Ein typischer Trick: Viele Mailprogramme zeigen nur den Namen."
+        },
+        "replyToOther": {
+          "title": "Antworten gehen an eine andere Adresse",
+          "help": "Wenn du antwortest, geht deine Antwort nicht an {{from}}, sondern an {{replyTo}}. Bei Betrügern landet sie so bei ihnen."
+        },
+        "returnPathOther": {
+          "title": "Rückläufer gehen woandershin",
+          "help": "Unzustellbare Mails gehen an {{returnPath}}. Das ist bei Newslettern und Versanddiensten normal, bei persönlichen Mails ungewöhnlich."
+        },
+        "linkMismatch": {
+          "title": "Ein Link zeigt eine andere Adresse, als er öffnet",
+          "help": "Sichtbar steht „{{shown}}“ da, der Link führt aber zu {{real}}. Das ist eine klassische Phishing-Masche."
+        },
+        "punycodeLink": {
+          "title": "Link mit verwechselbaren Zeichen",
+          "help": "Die Adresse {{domain}} enthält Sonderzeichen, die echten Buchstaben zum Verwechseln ähnlich sehen (z. B. ein kyrillisches „а“ statt „a“)."
+        },
+        "ipLink": {
+          "title": "Link auf eine nackte IP-Adresse",
+          "help": "Der Link führt zu {{domain}} statt zu einem Namen wie „bank.de“. Seriöse Firmen machen das praktisch nie."
+        },
+        "shortLink": {
+          "title": "Gekürzter Link",
+          "help": "{{domain}} ist ein Link-Verkürzer – wohin er wirklich führt, sieht man erst nach dem Klick."
+        },
+        "scriptLink": {
+          "title": "Link, der Code ausführt",
+          "help": "Ein Link beginnt mit „javascript:“ oder „data:“. Solche Links führen Code aus, statt eine Seite zu öffnen."
+        },
+        "dangerousAttachment": {
+          "title": "Gefährlicher Anhang",
+          "help": "„{{name}}“ ist ein Programm oder trägt eine getarnte doppelte Endung. Nicht öffnen!"
+        },
+        "macroAttachment": {
+          "title": "Office-Datei mit Makros",
+          "help": "„{{name}}“ kann Makros enthalten – kleine Programme, die beim Öffnen laufen. Über solche Anhänge kommt oft Schadsoftware."
+        },
+        "htmlAttachment": {
+          "title": "Webseite als Anhang",
+          "help": "„{{name}}“ öffnet sich im Browser. Betrüger bauen so falsche Anmeldeseiten, die deine Daten abgreifen."
+        },
+        "archiveAttachment": {
+          "title": "Gepackter Anhang",
+          "help": "„{{name}}“ ist ein Archiv. Darin kann sich alles verstecken – prüf den Inhalt z. B. mit dem Gefahren-Check, bevor du etwas öffnest."
+        },
+        "pressureWords": {
+          "title": "Druck und Eile",
+          "help": "Die Mail enthält Wörter wie {{words}}. Betrüger setzen dich gern unter Zeitdruck, damit du nicht nachdenkst."
+        },
+        "messageIdOther": {
+          "title": "Kennung von einem anderen Server",
+          "help": "Die Nachrichten-Kennung stammt von {{domain}}. Bei Versanddiensten normal, sonst ein kleiner Hinweis auf einen anderen Absender."
+        },
+        "dateFuture": {
+          "title": "Datum in der Zukunft",
+          "help": "Die Mail ist auf einen Zeitpunkt in der Zukunft datiert – oft, damit sie in der Liste oben bleibt."
+        }
+      },
+      "authTitle": "Prüfung des Absenders",
+      "authResult": {
+        "pass": "bestanden",
+        "fail": "fehlgeschlagen",
+        "softfail": "fraglich",
+        "neutral": "keine Aussage",
+        "none": "nicht vorhanden",
+        "other": "unklar",
+        "missing": "nicht geprüft"
+      },
+      "authHelp": {
+        "spf": "Darf dieser Server für die Absender-Domain senden?",
+        "dkim": "Ist die Mail digital unterschrieben und unverändert?",
+        "dmarc": "Passt der sichtbare Absender zu SPF/DKIM? Die wichtigste Prüfung."
+      },
+      "authBy": "Geprüft von: {{by}}",
+      "routeTitle": "Weg der E-Mail",
+      "routeHelp": "Von oben (Absender) nach unten (dein Postfach). Die oberen Einträge kann ein Betrüger fälschen, die unteren stammen von deinem Anbieter.",
+      "delay_one": "nach {{count}} Sekunde",
+      "delay_other": "nach {{count}} Sekunden",
+      "linksTitle_one": "{{count}} Link",
+      "linksTitle_other": "{{count}} Links",
+      "linksHelp": "Nur zum Ansehen – die Links sind absichtlich nicht anklickbar.",
+      "attachmentsTitle": "Anhänge",
+      "textTitle": "Text der Mail (nur als Text, ohne Bilder)",
+      "limits": "Grenzen: Conbert prüft, was in der Mail steht – nicht, ob eine Webseite gerade gefährlich ist. Eine Mail ohne Warnung kann trotzdem Betrug sein, wenn z. B. ein echtes Konto gehackt wurde."
+    },
+    "soundposter": {
+      "failed": "Diese Datei konnte nicht als Ton gelesen werden.",
+      "reading": "Die Aufnahme wird gelesen …",
+      "preview": "Vorschau des Posters",
+      "style": "Form",
+      "styles": {
+        "bars": "Balken",
+        "mirror": "Gespiegelte Welle",
+        "line": "Linie",
+        "ring": "Ring"
+      },
+      "format": "Größe",
+      "formats": {
+        "a4": "A4 hoch (21 × 29,7 cm)",
+        "a3": "A3 hoch (29,7 × 42 cm)",
+        "square": "Quadrat (30 × 30 cm)",
+        "wide": "Quer (42 × 21 cm)"
+      },
+      "theme": "Farben",
+      "themes": {
+        "classic": "Klassisch",
+        "night": "Nacht",
+        "rose": "Rosé",
+        "forest": "Wald",
+        "ocean": "Meer"
+      },
+      "colors": {
+        "background": "Hintergrund",
+        "wave": "Welle",
+        "text": "Text"
+      },
+      "title": "Titel (z. B. ein Name)",
+      "subtitle": "Zeile darunter (z. B. ein Datum)",
+      "font": "Schrift",
+      "fonts": {
+        "serif": "Klassisch",
+        "sans": "Modern",
+        "script": "Schreibschrift"
+      },
+      "link": "Link für den QR-Code (optional)",
+      "linkHelp": "Wer den Code scannt, landet bei diesem Link – z. B. dem Teilen-Link der Aufnahme in deiner Cloud.",
+      "linkTooLong": "Der Link ist zu lang für einen QR-Code.",
+      "png": "PNG herunterladen (300 dpi)",
+      "svg": "SVG herunterladen (Vektor)",
+      "printTip": "Für den Druck im Copyshop oder Fotolabor am besten das SVG oder das PNG in Originalgröße nehmen. Die Schriftart kommt von deinem Gerät – sieht sie anders aus als erwartet, wähle eine andere."
+    },
+    "stereogram": {
+      "solutionAlt": "Die versteckte Form als Graubild",
+      "pictureAlt": "Magic-Eye-Bild mit versteckter 3D-Form",
+      "empty": "Gib einen Text ein oder wähle ein Bild, dann erscheint hier das Magic-Eye-Bild.",
+      "howToSee": "So siehst du die Form: Halte das Gesicht nah vor das Bild und schau „hindurch“, als wäre dahinter etwas weit Entferntes. Entferne dich dann langsam, ohne scharf zu stellen. Wenn die zwei Punkte oben zu drei werden, taucht die Form auf. Das braucht oft etwas Geduld.",
+      "source": "Was soll versteckt werden?",
+      "sources": {
+        "text": "Text",
+        "image": "Bild"
+      },
+      "text": "Text (kurz und fett wirkt am besten)",
+      "imageHelp": "Helle Stellen kommen nach vorne, dunkle bleiben hinten. Am besten wirken einfache Formen und Logos.",
+      "failed": "Das Bild konnte nicht gelesen werden.",
+      "pattern": "Muster",
+      "patterns": {
+        "color": "Bunte Punkte",
+        "mono": "Schwarz-Weiß",
+        "image": "Eigenes Muster"
+      },
+      "patternHelp": "Ein Foto mit vielen kleinen Details (Blätter, Steine, Stoff) eignet sich gut. Es wird in Streifen wiederholt.",
+      "depth": "Tiefe: {{value}} %",
+      "depthHelp": "Mehr Tiefe springt stärker heraus, ist aber schwerer zu sehen.",
+      "width": "Breite: {{value}} Pixel",
+      "invert": "Hell und dunkel tauschen (für den Schielblick)",
+      "reroll": "Neue Punkte",
+      "showSolution": "Lösung zeigen",
+      "hideSolution": "Lösung verstecken",
+      "download": "PNG herunterladen"
+    },
+    "handletter": {
+      "sample": "Liebe Oma,\n\nvielen Dank für das schöne Paket! Ich habe mich riesig gefreut.\n\nViele Grüße",
+      "usingRemembered": "Es wird deine eben erstellte Schrift „{{name}}“ verwendet. Du kannst auch eine andere Schriftdatei laden.",
+      "needFont": "Lade eine Schriftdatei (.otf, .ttf oder .woff) – am besten die aus „Handschrift als Schrift“.",
+      "failed": "Diese Schriftdatei konnte nicht gelesen werden (unterstützt: .otf, .ttf, .woff).",
+      "preview": "Vorschau der Briefseite",
+      "page": "Seite {{page}}",
+      "text": "Dein Text",
+      "missing": "Diese Zeichen fehlen in der Schrift und bleiben leer: {{chars}}",
+      "size": "Schriftgröße: {{value}} mm",
+      "spacing": "Zeilenabstand: {{value}}",
+      "wobble": "Unregelmäßigkeit: {{value}} %",
+      "ink": "Tinte",
+      "inks": {
+        "blue": "Blau",
+        "black": "Schwarz",
+        "royal": "Königsblau",
+        "sepia": "Sepia"
+      },
+      "paper": "Papier",
+      "papers": {
+        "plain": "Blanko",
+        "lined": "Liniert",
+        "squared": "Kariert"
+      },
+      "reroll": "Neu würfeln",
+      "download_one": "PDF herunterladen",
+      "download_other": "PDF herunterladen ({{count}} Seiten)",
+      "fileName": "Brief.pdf"
     }
   },
   "feeds": {

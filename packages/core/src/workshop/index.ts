@@ -53,3 +53,8 @@ export * from './hidden-text';
 export * from './lithophane';
 export * from './password-package';
 export * from './handwriting';
+export * from './date-shift';
+export * from './email-check';
+export * from './sound-poster';
+export * from './stereogram';
+export * from './handwritten-letter';

@@ -4462,6 +4462,31 @@
         "title": "Handwriting as a font",
         "teaser": "Print a sheet, fill it in, take a photo – and your handwriting becomes a real font for Word & co.",
         "how": "You print a sheet with one box per character and write each character into it with a dark pen. Then you photograph or scan the sheet. Conbert finds the four black squares in the corners and uses them to straighten the sheet, even if the photo is at an angle. Then every box is cut out: the ink is separated from the paper (the light blue guide lines disappear), specks are removed and the outlines become smooth curves. The blue line in the box is the baseline – letters “stand” on it, so g, p and y hang down correctly later. From all characters Conbert builds an OpenType font (.otf) you can install in Windows, macOS, Word or Canva. Empty boxes are missing from the font; if an upper- or lowercase letter is missing, the other one stands in. Everything happens in your browser."
+      },
+      "clockfix": {
+        "title": "Fix the camera clock",
+        "teaser": "Wrong capture time? Shift the date of many photos and videos at once – e.g. when the camera clock was an hour off on holiday.",
+        "how": "Photos and videos store when they were taken: JPGs in their EXIF and XMP data, MP4 and MOV videos in several boxes of the file (and iPhones also as text). If the camera clock was wrong, the pictures end up in the wrong place in gallery apps – especially when photos from two cameras or phones are mixed. Conbert finds all these times and shifts them by the same amount. You enter the amount directly (“+1 hour 12 minutes”) or tell Conbert the right time for one photo, and it works out the difference for all of them. With the camera filter you change only one camera's photos. Only the digits of the date are swapped – picture, sound and all other data stay identical byte for byte. Your originals aren't changed, you get corrected copies. Everything runs in your browser."
+      },
+      "mailcheck": {
+        "title": "Email check",
+        "teaser": "Is this email real? Shows where it really comes from, whether the sender is verified and where the links actually lead.",
+        "how": "Save the email as an .eml file and load it here. Conbert reads the “envelope” your mail program normally hides: the email's route over the servers, the real sender address behind the displayed name, a different reply address and the result of the sender checks SPF, DKIM and DMARC that your mail provider made on arrival. Then it looks at links (does the text show a different address than the target?) and attachments (programs, macros, disguised extensions) and looks for typical pressure words. Every finding is explained in plain words. The email is never opened or displayed: pictures aren't loaded, links can't be clicked. Everything runs in your browser."
+      },
+      "soundposter": {
+        "title": "Sound poster",
+        "teaser": "A voice message, a song or a first “mama” as a beautiful waveform poster to print.",
+        "how": "Conbert listens to the recording and measures how loud it is in many small slices. That becomes a picture: bars, a mirrored wave, a line like on a measuring device or a ring. Add a title, a line below (e.g. a date) and, if you like, a QR code. The QR code can't hold the sound itself – it's far too small for that. Upload the recording somewhere it can be played (e.g. your cloud with a share link) and enter that link. You get the poster as SVG (vector, printable at any size) or as PNG in print quality (300 dpi). Everything runs in your browser."
+      },
+      "stereogram": {
+        "title": "Magic Eye picture",
+        "teaser": "A picture of colourful dots with a 3D shape hidden in it – visible only with the right look.",
+        "how": "A Magic Eye picture (autostereogram) repeats its pattern at a fixed distance. If you look “through” the picture as if it were a window pane, each eye sees a different part of the pattern – and the brain combines both into depth. Conbert shifts the pattern a little where the hidden shape should be nearer: the nearer, the shorter the distance. The shape comes from a text or a picture (bright parts come forward). The two dots at the top help: let them blur into three dots and the shape appears. If you prefer crossing your eyes, switch on “Swap light and dark”. Everything runs in your browser."
+      },
+      "handletter": {
+        "title": "Letter in handwriting",
+        "teaser": "Write a letter in your own handwriting font – with small irregularities so it looks real.",
+        "how": "A font shows every letter exactly the same every time – you notice that at once. So Conbert sets your text letter by letter and changes each a little: slightly higher or lower, tilted a tiny bit, a touch bigger or smaller, the gaps not quite even. Every line starts slightly offset and runs a little uphill or downhill. “Irregularity” sets how much; “Shuffle” makes another variant. As the font you use the one from “Handwriting as a font” (taken over directly) or load an .otf/.ttf file. The result is a PDF with the letters as shapes – sharp at any size, ready to print. Everything runs in your browser."
       }
     },
     "identify": {
@@ -6977,7 +7002,8 @@
         "frame": "Always stay inside the light blue frame"
       },
       "exampleAlt": "Example box: a capital H reaches from the blue line almost to the top, x and g end at the dashed line, the g hangs below the blue line.",
-      "clipped": "These characters touch the light blue frame and may be cut off (orange frame): {{chars}}. Write them a little smaller and photograph the sheet again."
+      "clipped": "These characters touch the light blue frame and may be cut off (orange frame): {{chars}}. Write them a little smaller and photograph the sheet again.",
+      "writeLetter": "Write a letter with it"
     },
     "layout": {
       "label": "How the tools are shown",
@@ -6993,6 +7019,270 @@
       "hits_one": "Found {{count}} tool.",
       "hits_other": "Found {{count}} tools.",
       "none": "No tool matches “{{query}}”. Try another word, e.g. what you want to do with the file."
+    },
+    "clockfix": {
+      "reading": "Reading files …",
+      "mode": "How should it be shifted?",
+      "modes": {
+        "shift": "By a fixed amount",
+        "reference": "One photo has the right time"
+      },
+      "direction": "Direction",
+      "later": "Make later (+)",
+      "earlier": "Make earlier (−)",
+      "units": {
+        "days": "Days",
+        "hours": "Hours",
+        "minutes": "Minutes",
+        "seconds": "Seconds"
+      },
+      "refFile": "This photo …",
+      "refTime": "… was really taken at",
+      "noDates": "None of the files has a capture time.",
+      "camera": "Only change this camera's photos",
+      "allCameras": "All cameras",
+      "cameraHelp": "Handy when photos from two devices are mixed and only one was wrong.",
+      "noShift": "No shift set yet.",
+      "shiftLater": "All matching files are set {{days}} days, {{hours}} h, {{minutes}} min and {{seconds}} s later.",
+      "shiftEarlier": "All matching files are set {{days}} days, {{hours}} h, {{minutes}} min and {{seconds}} s earlier.",
+      "noDate": "no capture time found – stays as it is",
+      "remove": "Remove {{name}}",
+      "save_one": "Save corrected file",
+      "save_other": "Save {{count}} corrected files (ZIP)",
+      "zipName": "corrected-times.zip",
+      "note": "Changed are JPG photos (EXIF and XMP) and MP4/MOV videos. Other files (e.g. HEIC, RAW, PNG) aren't found. Your originals stay unchanged."
+    },
+    "mailcheck": {
+      "howToSave": "How to save an email as .eml: Thunderbird – drag the message into a folder or use “Save as”; Outlook on the web and Gmail – “Download” or “Show original > Download” in the message menu; Apple Mail – “File > Save As” with “Raw Message Source”. Outlook for Windows saves .msg – Conbert can't read that.",
+      "failed": "This doesn't look like a saved email (.eml).",
+      "verdict": {
+        "danger": "Careful! This email shows clear signs of a scam (phishing). Don't click any links, don't open attachments and don't reply – if in doubt, ask the supposed sender through another channel.",
+        "caution": "A few things about this email are unusual. That can be harmless – look at the notes below before clicking links or opening attachments.",
+        "ok": "Nothing unusual found. That's a good sign but no guarantee: real accounts can be hijacked too."
+      },
+      "fields": {
+        "from": "From",
+        "replyTo": "Replies go to",
+        "to": "To",
+        "subject": "Subject",
+        "date": "Date"
+      },
+      "findings": "What Conbert noticed",
+      "nothing": "No warnings.",
+      "severity": {
+        "high": "serious",
+        "medium": "unusual",
+        "info": "note"
+      },
+      "warnings": {
+        "dmarcFail": {
+          "title": "Sender not verified (DMARC failed)",
+          "help": "The email claims to come from {{domain}}, but your mail provider couldn't confirm that. Real company emails almost always pass this check – a strong sign of a fake."
+        },
+        "spfFail": {
+          "title": "Sending server not allowed (SPF)",
+          "help": "The server that sent the email isn't on the list of servers allowed to send for this sender address."
+        },
+        "dkimFail": {
+          "title": "Signature invalid (DKIM)",
+          "help": "The email's digital signature doesn't match – it was changed on the way or not signed by the stated sender."
+        },
+        "noAuth": {
+          "title": "No sender check found",
+          "help": "The email holds no check result from your mail provider (e.g. because it was exported from another program). Its authenticity can't be confirmed this way."
+        },
+        "displayNameAddress": {
+          "title": "The displayed name pretends another address",
+          "help": "The name says “{{shown}}”, but the email really comes from {{real}}. A typical trick: many mail programs show only the name."
+        },
+        "replyToOther": {
+          "title": "Replies go to another address",
+          "help": "If you reply, your answer doesn't go to {{from}} but to {{replyTo}}. With scammers it ends up with them."
+        },
+        "returnPathOther": {
+          "title": "Bounces go elsewhere",
+          "help": "Undeliverable mail goes to {{returnPath}}. Normal for newsletters and mailing services, unusual for personal mail."
+        },
+        "linkMismatch": {
+          "title": "A link shows a different address than it opens",
+          "help": "It visibly says “{{shown}}”, but the link leads to {{real}}. A classic phishing trick."
+        },
+        "punycodeLink": {
+          "title": "Link with look-alike characters",
+          "help": "The address {{domain}} contains special characters that look just like real letters (e.g. a Cyrillic “а” instead of “a”)."
+        },
+        "ipLink": {
+          "title": "Link to a bare IP address",
+          "help": "The link leads to {{domain}} instead of a name like “bank.com”. Reputable companies practically never do that."
+        },
+        "shortLink": {
+          "title": "Shortened link",
+          "help": "{{domain}} is a link shortener – where it really leads you only see after clicking."
+        },
+        "scriptLink": {
+          "title": "Link that runs code",
+          "help": "A link starts with “javascript:” or “data:”. Such links run code instead of opening a page."
+        },
+        "dangerousAttachment": {
+          "title": "Dangerous attachment",
+          "help": "“{{name}}” is a program or carries a disguised double extension. Don't open it!"
+        },
+        "macroAttachment": {
+          "title": "Office file with macros",
+          "help": "“{{name}}” can contain macros – small programs that run when opened. Malware often comes through such attachments."
+        },
+        "htmlAttachment": {
+          "title": "Web page as attachment",
+          "help": "“{{name}}” opens in the browser. Scammers build fake login pages this way to steal your data."
+        },
+        "archiveAttachment": {
+          "title": "Packed attachment",
+          "help": "“{{name}}” is an archive. Anything can hide in it – check the content e.g. with the danger check before opening anything."
+        },
+        "pressureWords": {
+          "title": "Pressure and haste",
+          "help": "The email contains words like {{words}}. Scammers like to rush you so you don't stop to think."
+        },
+        "messageIdOther": {
+          "title": "ID from another server",
+          "help": "The message ID comes from {{domain}}. Normal for mailing services, otherwise a small hint at a different sender."
+        },
+        "dateFuture": {
+          "title": "Date in the future",
+          "help": "The email is dated in the future – often so it stays at the top of the list."
+        }
+      },
+      "authTitle": "Sender check",
+      "authResult": {
+        "pass": "passed",
+        "fail": "failed",
+        "softfail": "doubtful",
+        "neutral": "no verdict",
+        "none": "not present",
+        "other": "unclear",
+        "missing": "not checked"
+      },
+      "authHelp": {
+        "spf": "May this server send for the sender domain?",
+        "dkim": "Is the email digitally signed and unchanged?",
+        "dmarc": "Does the visible sender match SPF/DKIM? The most important check."
+      },
+      "authBy": "Checked by: {{by}}",
+      "routeTitle": "The email's route",
+      "routeHelp": "From the top (sender) to the bottom (your mailbox). A scammer can fake the upper entries; the lower ones come from your provider.",
+      "delay_one": "after {{count}} second",
+      "delay_other": "after {{count}} seconds",
+      "linksTitle_one": "{{count}} link",
+      "linksTitle_other": "{{count}} links",
+      "linksHelp": "For looking only – the links are deliberately not clickable.",
+      "attachmentsTitle": "Attachments",
+      "textTitle": "The email's text (text only, no pictures)",
+      "limits": "Limits: Conbert checks what's in the email – not whether a website is dangerous right now. An email without warnings can still be a scam, e.g. when a real account was hacked."
+    },
+    "soundposter": {
+      "failed": "This file couldn't be read as sound.",
+      "reading": "Reading the recording …",
+      "preview": "Poster preview",
+      "style": "Shape",
+      "styles": {
+        "bars": "Bars",
+        "mirror": "Mirrored wave",
+        "line": "Line",
+        "ring": "Ring"
+      },
+      "format": "Size",
+      "formats": {
+        "a4": "A4 portrait (21 × 29.7 cm)",
+        "a3": "A3 portrait (29.7 × 42 cm)",
+        "square": "Square (30 × 30 cm)",
+        "wide": "Landscape (42 × 21 cm)"
+      },
+      "theme": "Colours",
+      "themes": {
+        "classic": "Classic",
+        "night": "Night",
+        "rose": "Rosé",
+        "forest": "Forest",
+        "ocean": "Ocean"
+      },
+      "colors": {
+        "background": "Background",
+        "wave": "Wave",
+        "text": "Text"
+      },
+      "title": "Title (e.g. a name)",
+      "subtitle": "Line below (e.g. a date)",
+      "font": "Font",
+      "fonts": {
+        "serif": "Classic",
+        "sans": "Modern",
+        "script": "Handwritten"
+      },
+      "link": "Link for the QR code (optional)",
+      "linkHelp": "Whoever scans the code lands at this link – e.g. the recording's share link in your cloud.",
+      "linkTooLong": "The link is too long for a QR code.",
+      "png": "Download PNG (300 dpi)",
+      "svg": "Download SVG (vector)",
+      "printTip": "For printing at a copy shop or photo lab, the SVG or the full-size PNG works best. The font comes from your device – if it looks different than expected, pick another one."
+    },
+    "stereogram": {
+      "solutionAlt": "The hidden shape as a grey picture",
+      "pictureAlt": "Magic Eye picture with a hidden 3D shape",
+      "empty": "Enter a text or choose a picture, and the Magic Eye picture appears here.",
+      "howToSee": "How to see the shape: hold your face close to the picture and look “through” it, as if something far away were behind it. Then slowly move back without focusing. When the two dots at the top become three, the shape appears. It often takes a little patience.",
+      "source": "What should be hidden?",
+      "sources": {
+        "text": "Text",
+        "image": "Picture"
+      },
+      "text": "Text (short and bold works best)",
+      "imageHelp": "Bright parts come forward, dark parts stay back. Simple shapes and logos work best.",
+      "failed": "The picture couldn't be read.",
+      "pattern": "Pattern",
+      "patterns": {
+        "color": "Colourful dots",
+        "mono": "Black and white",
+        "image": "Own pattern"
+      },
+      "patternHelp": "A photo with lots of small detail (leaves, stones, fabric) works well. It is repeated in strips.",
+      "depth": "Depth: {{value}} %",
+      "depthHelp": "More depth pops out more but is harder to see.",
+      "width": "Width: {{value}} pixels",
+      "invert": "Swap light and dark (for crossing your eyes)",
+      "reroll": "New dots",
+      "showSolution": "Show solution",
+      "hideSolution": "Hide solution",
+      "download": "Download PNG"
+    },
+    "handletter": {
+      "sample": "Dear Grandma,\n\nthank you so much for the lovely parcel! I was really delighted.\n\nLove",
+      "usingRemembered": "Your font “{{name}}” you just made is used. You can also load another font file.",
+      "needFont": "Load a font file (.otf, .ttf or .woff) – ideally the one from “Handwriting as a font”.",
+      "failed": "This font file couldn't be read (supported: .otf, .ttf, .woff).",
+      "preview": "Preview of the letter page",
+      "page": "Page {{page}}",
+      "text": "Your text",
+      "missing": "These characters are missing from the font and stay empty: {{chars}}",
+      "size": "Font size: {{value}} mm",
+      "spacing": "Line spacing: {{value}}",
+      "wobble": "Irregularity: {{value}} %",
+      "ink": "Ink",
+      "inks": {
+        "blue": "Blue",
+        "black": "Black",
+        "royal": "Royal blue",
+        "sepia": "Sepia"
+      },
+      "paper": "Paper",
+      "papers": {
+        "plain": "Plain",
+        "lined": "Lined",
+        "squared": "Squared"
+      },
+      "reroll": "Shuffle",
+      "download_one": "Download PDF",
+      "download_other": "Download PDF ({{count}} pages)",
+      "fileName": "Letter.pdf"
     }
   },
   "feeds": {

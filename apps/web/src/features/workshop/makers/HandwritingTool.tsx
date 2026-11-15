@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DownloadIcon, FileDownIcon, Loader2Icon } from 'lucide-react';
+import { DownloadIcon, FileDownIcon, Loader2Icon, PenLineIcon } from 'lucide-react';
 import { cellBox, cellWritingArea, cleanFontName, HANDWRITING_CHARS, SHEET } from '@conbert/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { withForensics } from '../forensics/forensics-worker';
 import { HowItWorks, SingleFile } from '../SingleFile';
 import { saveBlob } from '../save-blob';
 import { buildFont, makeHandwritingSheet, type BuiltFont } from './handwriting-font';
+import { rememberHandFont } from './hand-font-store';
 
 const RULES = ['capital', 'small', 'descender', 'frame'] as const;
 
@@ -137,7 +138,12 @@ export function HandwritingTool() {
     if (!current) return;
     let active = true;
     buildFont(current.glyphs, name)
-      .then((f) => active && setFont(f))
+      .then((f) => {
+        if (!active) return;
+        setFont(f);
+        // "Brief in Handschrift" can use it right away.
+        rememberHandFont({ name: cleanFontName(name), otf: f.otf });
+      })
       .catch((e: unknown) => console.error(e));
     return () => {
       active = false;
@@ -296,6 +302,16 @@ export function HandwritingTool() {
             >
               <DownloadIcon aria-hidden="true" />
               {t('workshop.handfont.download')}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!font}
+              onClick={() => {
+                window.location.hash = '#/workshop/handletter';
+              }}
+            >
+              <PenLineIcon aria-hidden="true" />
+              {t('workshop.handfont.writeLetter')}
             </Button>
             <p className="text-sm text-muted-foreground">{t('workshop.handfont.install')}</p>
           </div>

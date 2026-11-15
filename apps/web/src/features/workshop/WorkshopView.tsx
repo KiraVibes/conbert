@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  Clock3Icon,
+  MailWarningIcon,
+  Music4Icon,
+  GlassesIcon,
+  SignatureIcon,
   XIcon,
   ChevronRightIcon,
   ListIcon,
@@ -123,6 +128,11 @@ import { FileMapTool } from './insight/FileMapTool';
 import { SizeCheckTool } from './insight/SizeCheckTool';
 import { HiddenTextTool } from './forensics/HiddenTextTool';
 import { PasswordPackageTool } from './package/PasswordPackageTool';
+import { ClockFixTool } from './makers/ClockFixTool';
+import { MailCheckTool } from './forensics/MailCheckTool';
+import { SoundPosterTool } from './fun/SoundPosterTool';
+import { StereogramTool } from './fun/StereogramTool';
+import { HandLetterTool } from './fun/HandLetterTool';
 import { RedactCheckTool } from './forensics/RedactCheckTool';
 import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
@@ -169,6 +179,11 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   sizecheck: SizeCheckTool,
   hiddentext: HiddenTextTool,
   passwordpack: PasswordPackageTool,
+  clockfix: ClockFixTool,
+  mailcheck: MailCheckTool,
+  soundposter: SoundPosterTool,
+  stereogram: StereogramTool,
+  handletter: HandLetterTool,
   thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
@@ -260,6 +275,11 @@ const ICONS: Record<string, LucideIcon> = {
   sizecheck: ChartPieIcon,
   hiddentext: ScanTextIcon,
   passwordpack: PackageIcon,
+  clockfix: Clock3Icon,
+  mailcheck: MailWarningIcon,
+  soundposter: Music4Icon,
+  stereogram: GlassesIcon,
+  handletter: SignatureIcon,
 };
 
 /** How the overview shows the tricks: big tiles or a compact list. */
