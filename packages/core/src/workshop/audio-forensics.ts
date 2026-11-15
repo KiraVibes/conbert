@@ -288,7 +288,18 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
   // With echo the level never reaches the floor in short gaps – a fixed
   // threshold would glue a whole letter into one tone.
   const step = Math.min(6, (high - low) * 0.25);
-  const floorLine = low + (high - low) * 0.3;
+  // The hiss between the beeps (a phone speaker hisses while it plays and is
+  // dead silent before and after): its typical level, measured only between
+  // the first and the last beep. Random peaks in it reach about 8 dB higher.
+  const first = env.findIndex((v) => v > high - 12);
+  let last = env.length - 1;
+  while (last > first && (env[last] ?? 0) <= high - 12) last--;
+  const between = env
+    .slice(first, last + 1)
+    .filter((v) => v <= high - 12)
+    .sort((a, b) => a - b);
+  const hiss = between[Math.floor(between.length / 2)] ?? low;
+  const floorLine = Math.min(high - 8, Math.max(low + (high - low) * 0.3, hiss + 10));
   const runs: { on: boolean; len: number; at: number }[] = [];
   let on = false;
   let peak = -Infinity;
@@ -310,6 +321,11 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
     const last = runs.at(-1);
     if (last && last.on === on) last.len++;
     else runs.push({ on, len: 1, at });
+  }
+  // A real beep gets close to the usual beep volume (fades allowed). A wobble in the hiss or
+  // in the near-silence before the first beep stays far below – it's a gap.
+  for (const r of runs) {
+    if (r.on && Math.max(...env.slice(r.at, r.at + r.len)) < high - 22) r.on = false;
   }
   // Blips under 15 ms are noise: they join their neighbours.
   const merged: { on: boolean; len: number; at: number }[] = [];

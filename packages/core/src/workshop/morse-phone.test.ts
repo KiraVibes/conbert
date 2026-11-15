@@ -49,4 +49,18 @@ describe('Morse from a phone through a microphone', () => {
         // Noise at the very end may add a stray letter.
         expect(r.text.startsWith('CQ CQ DE DL1ABC')).toBe(true);
       });
+
+  it('ignores the speaker hiss that only exists while the phone plays', () => {
+    // Like a real recording: fast (30 wpm), the hiss is 30 dB below the beep
+    // and only there while the app plays – before and after it's near silence.
+    const rate = 48_000;
+    const dry = morseAudio(toMorse('HALLO WIE GEHT ES DIR'), rate, 30, 650);
+    const quiet = rate;
+    const out = new Float32Array(dry.length + 2 * quiet);
+    for (let i = 0; i < out.length; i++) {
+      const playing = i >= quiet && i < quiet + dry.length;
+      out[i] = playing ? 0.03 * (dry[i - quiet] ?? 0) + 0.001 * noise() : 0.00003 * noise();
+    }
+    expect(decodeMorseAudio(out, rate).text).toBe('HALLO WIE GEHT ES DIR');
+  });
 });
