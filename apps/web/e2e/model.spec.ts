@@ -52,7 +52,8 @@ test('compresses a GLB with Meshopt in the browser', async ({ page }) => {
   await page.goto('/#/compress');
   await page.getByTestId('file-input').setInputFiles(fixture('sample.glb'));
   const card = page.getByTestId('compress-card');
-  await expect(card.getByRole('radio', { name: 'Zielgröße' })).toHaveCount(0);
+  // Every format can aim for a target size now, 3D models too.
+  await expect(card.getByRole('radio', { name: 'Zielgröße' })).toBeVisible();
   await card.getByRole('radio', { name: 'Auf diesem Gerät' }).click();
   await card.getByRole('radio', { name: 'Ausgewogen' }).click();
   await card.getByRole('button', { name: 'Komprimieren', exact: true }).click();

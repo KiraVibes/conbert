@@ -52,17 +52,11 @@ export function Dropzone({ onFiles, compact = false }: DropzoneProps) {
   return (
     <div
       data-tour="dropzone"
-      role="button"
-      tabIndex={0}
+      role="group"
       aria-label={t('dropzone.label')}
       data-dragging={dragging || undefined}
+      // Clicking anywhere opens the picker; keyboard users get the buttons inside.
       onClick={() => fileInput.current?.click()}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          fileInput.current?.click();
-        }
-      }}
       onDragEnter={(event) => {
         event.preventDefault();
         dragDepth.current++;
@@ -84,7 +78,7 @@ export function Dropzone({ onFiles, compact = false }: DropzoneProps) {
       }}
       className={cn(
         'group flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed text-center transition-colors',
-        'hover:border-primary/50 hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none',
+        'hover:border-primary/50 hover:bg-muted/40 focus-within:border-primary/50',
         dragging && 'border-primary bg-primary/5',
         compact ? 'px-4 py-6' : 'px-6 py-16',
       )}

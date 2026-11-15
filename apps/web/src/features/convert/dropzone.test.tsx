@@ -30,7 +30,7 @@ describe('Dropzone', () => {
     const opened = spyOnPickers();
     renderWithProviders(<Dropzone onFiles={() => undefined} />);
     fireEvent.click(screen.getByRole('button', { name: 'Dateien auswählen' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Dateien hinzufügen' }));
+    fireEvent.click(screen.getByRole('group', { name: 'Dateien hinzufügen' }));
     expect(opened).toEqual(['files', 'files']);
   });
 });

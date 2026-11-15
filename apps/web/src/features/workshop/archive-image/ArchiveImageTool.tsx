@@ -21,6 +21,8 @@ import { archiveNames } from './list-archive';
 export type ArchiveMode = 'append' | 'polyglot';
 
 const TEXT = 'workshop.archiveImage';
+/** Long labels: wrap on phones instead of pushing the page sideways. */
+const WRAP = 'h-auto min-h-8 flex-1 py-1.5 whitespace-normal sm:flex-none';
 
 /** The real type of a file, from its first bytes. */
 function useRealExt(file: File | null): string | null | undefined {
@@ -163,9 +165,12 @@ function Hide({ mode }: { mode: ArchiveMode }) {
           reset();
         }}
         aria-label={t(`${TEXT}.what`)}
+        className="w-full sm:w-fit"
       >
-        <ToggleGroupItem value="files">{t(`${TEXT}.kindFiles`)}</ToggleGroupItem>
-        <ToggleGroupItem value="archive">
+        <ToggleGroupItem value="files" className={WRAP}>
+          {t(`${TEXT}.kindFiles`)}
+        </ToggleGroupItem>
+        <ToggleGroupItem value="archive" className={WRAP}>
           {t(polyglot ? `${TEXT}.kindZip` : `${TEXT}.kindArchive`)}
         </ToggleGroupItem>
       </ToggleGroup>

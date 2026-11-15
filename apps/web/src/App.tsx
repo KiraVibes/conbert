@@ -127,6 +127,8 @@ function Shell() {
           <Button
             variant="ghost"
             size="icon"
+            // On phones the logo already leads home and the header is full.
+            className="hidden sm:inline-flex"
             onClick={() => navigate('home')}
             aria-label={t('settings.back')}
           >
