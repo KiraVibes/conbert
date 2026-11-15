@@ -1,0 +1,15 @@
+# Build Conbert from this source code instead of downloading the image:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d
+# Everything else (ports, volumes, settings) comes from docker-compose.yml.
+services:
+  conbert:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+      target: runtime
+      args:
+        # "standard" (default) or "full" – full adds Calibre for e-books
+        # (MOBI, AZW3, FB2 …) and makes the image about 850 MB larger.
+        TOOLS_STAGE: tools-${CONBERT_EDITION:-standard}
+    image: conbert:local
+    pull_policy: build

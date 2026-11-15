@@ -7,10 +7,10 @@ zum Abtippen. Rechne mit etwa 15 Minuten (plus Downloadzeit).
 **Kurzfassung für Eilige:**
 
 ```bash
-git clone <Adresse-des-Conbert-Repositorys> conbert
-cd conbert
-cp .env.example .env        # optional anpassen, z. B. CONBERT_SECRET
-docker compose up --build -d
+mkdir conbert && cd conbert
+curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
+curl -fsSL -o .env https://raw.githubusercontent.com/OWNER/conbert/main/.env.example
+docker compose up -d
 docker compose logs conbert  # zeigt den Einrichtungscode
 ```
 
@@ -43,15 +43,28 @@ sollte eine Versionsnummer erscheinen.
 
 ## 2. Conbert herunterladen
 
-Entweder mit Git:
+Du brauchst nur zwei kleine Dateien. Das eigentliche Programm (das
+„Docker-Image“) lädt Docker beim Start selbst – fertig gebaut, für normale
+PCs und NAS (amd64) genauso wie für ARM-Geräte wie den Raspberry Pi.
+
+Leg einen Ordner an und lade die Dateien hinein:
 
 ```bash
-git clone <Adresse-des-Conbert-Repositorys> conbert
-cd conbert
+mkdir conbert && cd conbert
+curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
+curl -fsSL -o .env.example https://raw.githubusercontent.com/OWNER/conbert/main/.env.example
 ```
 
-… oder das Repository als ZIP herunterladen, entpacken und im Terminal in den
-entpackten Ordner wechseln (`cd Pfad/zum/Ordner`).
+Ohne Terminal geht es auch: Öffne die beiden Adressen im Browser, speichere
+die Dateien unter genau diesen Namen (`docker-compose.yml`, `.env.example`)
+und leg sie zusammen in einen Ordner. Auf einer NAS kannst du den Ordner
+z. B. über die Dateifreigabe anlegen.
+
+> **Selbst bauen statt herunterladen?** Wer den Quellcode ändern möchte,
+> klont das Repository (`git clone https://github.com/OWNER/conbert.git`) und
+> startet mit
+> `docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d`.
+> Das dauert beim ersten Mal 10 bis 30 Minuten.
 
 ## 3. Einstellungen in der Datei `.env` (optional, aber empfohlen)
 
@@ -70,7 +83,7 @@ Punkte:
 | `CONBERT_SECRET`        | Schlüssel für gespeicherte Passwörter – siehe unten.                     |
 | `CONBERT_MAX_UPLOAD_MB` | Größte Datei, die du hochladen darfst (Standard 2048 = 2 GB).            |
 | `CONBERT_MEMORY_LIMIT`  | Wie viel Arbeitsspeicher Conbert höchstens nutzt (z. B. `4g`).           |
-| `CONBERT_EDITION`       | `full` für E-Book-Formate wie MOBI und AZW3 (Image wird ~850 MB größer). |
+| `CONBERT_IMAGE_TAG`     | `full` für E-Book-Formate wie MOBI und AZW3 (Image wird ~850 MB größer). |
 
 Eine Zeile, die mit `#` beginnt, ist ausgeschaltet. Zum Einschalten das `#`
 entfernen.
@@ -110,11 +123,13 @@ dafür ist `CONBERT_SECRET`.
 ## 4. Starten
 
 ```bash
-docker compose up --build -d
+docker compose up -d
 ```
 
-Beim ersten Mal lädt und baut Docker alles – das dauert je nach Rechner und
-Internet **10 bis 30 Minuten**. Danach startet Conbert in wenigen Sekunden.
+Beim ersten Mal lädt Docker das Programm herunter. Es ist groß (entpackt
+rund 3,5 GB), weil viele Umwandlungs-Werkzeuge dabei sind – je nach Internet
+dauert das **ein paar Minuten**. Danach
+startet Conbert in wenigen Sekunden.
 
 Läuft es? `docker compose ps` zeigt bei `conbert` den Zustand `healthy`.
 
@@ -206,9 +221,17 @@ In `docker-compose.yml` stehen auskommentierte Beispiele für Intel/AMD
 ## 10. Aktualisieren
 
 ```bash
-git pull
-docker compose up --build -d
+docker compose pull
+docker compose up -d
 ```
+
+Docker lädt dabei nur, was sich geändert hat. Willst du bei einer bestimmten
+Version bleiben, trag sie in `.env` ein, z. B. `CONBERT_IMAGE_TAG=0.1.0`.
+Welche Versionen es gibt und was neu ist, steht auf der Release-Seite des
+Projekts auf GitHub.
+
+Hast du selbst gebaut: `git pull`, dann wieder
+`docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d`.
 
 Deine Konten, Einstellungen und Speicherorte bleiben erhalten (sie liegen im
 Docker-Volume `conbert-data`).

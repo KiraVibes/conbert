@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Conbert – FileWizard. Build from the repository root:
-#   docker compose up --build
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up --build
 # or
 #   docker build -f apps/server/Dockerfile -t conbert .
 # Server tests with all native tools (ffmpeg, ImageMagick, pandoc, vtracer):

@@ -2160,7 +2160,7 @@
     "ocrMissing": {
       "what": "Text recognition isn’t fully set up on the server.",
       "cause": "A required program (Tesseract or a language pack) is missing.",
-      "action": "Ask the admin to rebuild the Conbert image (docker compose up --build)."
+      "action": "Ask the admin to update the Conbert image (docker compose pull, then docker compose up -d)."
     },
     "whisperFailed": {
       "what": "Speech recognition didn’t work.",

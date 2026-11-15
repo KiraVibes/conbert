@@ -2160,7 +2160,7 @@
     "ocrMissing": {
       "what": "Die Texterkennung ist auf dem Server nicht vollständig eingerichtet.",
       "cause": "Ein benötigtes Programm (Tesseract oder ein Sprachpaket) fehlt.",
-      "action": "Bitte den Admin, das Conbert-Image neu zu bauen (docker compose up --build)."
+      "action": "Bitte den Admin, das Conbert-Image zu aktualisieren (docker compose pull, danach docker compose up -d)."
     },
     "whisperFailed": {
       "what": "Die Spracherkennung hat nicht geklappt.",

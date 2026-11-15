@@ -7,10 +7,10 @@ don't need any programming skills – just a few commands to type in. Allow abou
 **Short version for the impatient:**
 
 ```bash
-git clone <address-of-the-Conbert-repository> conbert
-cd conbert
-cp .env.example .env        # adjust if you like, e.g. CONBERT_SECRET
-docker compose up --build -d
+mkdir conbert && cd conbert
+curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
+curl -fsSL -o .env https://raw.githubusercontent.com/OWNER/conbert/main/.env.example
+docker compose up -d
 docker compose logs conbert  # shows the setup code
 ```
 
@@ -43,15 +43,28 @@ number should appear.
 
 ## 2. Downloading Conbert
 
-Either with Git:
+You only need two small files. Docker downloads the actual program (the
+“Docker image”) by itself when it starts – ready-built, for ordinary PCs and
+NAS devices (amd64) as well as ARM devices like the Raspberry Pi.
+
+Create a folder and download the files into it:
 
 ```bash
-git clone <address-of-the-Conbert-repository> conbert
-cd conbert
+mkdir conbert && cd conbert
+curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
+curl -fsSL -o .env.example https://raw.githubusercontent.com/OWNER/conbert/main/.env.example
 ```
 
-… or download the repository as a ZIP, unpack it and change into the unpacked
-folder in the terminal (`cd path/to/the/folder`).
+It also works without a terminal: open both addresses in your browser, save
+the files under exactly these names (`docker-compose.yml`, `.env.example`)
+and put them together in one folder. On a NAS you can create the folder via
+its file sharing, for example.
+
+> **Build it yourself instead of downloading?** If you want to change the
+> source code, clone the repository (`git clone https://github.com/OWNER/conbert.git`)
+> and start with
+> `docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d`.
+> The first time this takes 10 to 30 minutes.
 
 ## 3. Settings in the `.env` file (optional, but recommended)
 
@@ -70,7 +83,7 @@ important points:
 | `CONBERT_SECRET`        | Key for stored passwords – see below.                                     |
 | `CONBERT_MAX_UPLOAD_MB` | Largest file you may upload (default 2048 = 2 GB).                        |
 | `CONBERT_MEMORY_LIMIT`  | How much RAM Conbert may use at most (e.g. `4g`).                         |
-| `CONBERT_EDITION`       | `full` for e-book formats such as MOBI and AZW3 (image grows by ~850 MB). |
+| `CONBERT_IMAGE_TAG`     | `full` for e-book formats such as MOBI and AZW3 (image grows by ~850 MB). |
 
 A line starting with `#` is switched off. To switch it on, remove the `#`.
 
@@ -108,12 +121,13 @@ Conbert, Conbert saves the passwords **encrypted**. The key for this is
 ## 4. Starting
 
 ```bash
-docker compose up --build -d
+docker compose up -d
 ```
 
-The first time, Docker downloads and builds everything – depending on your
-computer and internet connection this takes **10 to 30 minutes**. After that,
-Conbert starts in a few seconds.
+The first time, Docker downloads the program. It is big (about 3.5 GB
+unpacked) because it includes many conversion tools – depending on your
+internet connection this takes **a few minutes**. After that, Conbert starts
+in a few seconds.
 
 Is it running? `docker compose ps` shows the state `healthy` for `conbert`.
 
@@ -205,9 +219,16 @@ card.
 ## 10. Updating
 
 ```bash
-git pull
-docker compose up --build -d
+docker compose pull
+docker compose up -d
 ```
+
+Docker only downloads what has changed. To stay on a specific version, put
+it in `.env`, e.g. `CONBERT_IMAGE_TAG=0.1.0`. The project's release page on
+GitHub lists the versions and what's new.
+
+If you built it yourself: `git pull`, then again
+`docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d`.
 
 Your accounts, settings and storage locations are kept (they live in the
 Docker volume `conbert-data`).

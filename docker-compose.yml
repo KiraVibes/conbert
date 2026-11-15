@@ -1,6 +1,7 @@
 # Conbert – FileWizard
-# Start:  docker compose up --build -d
+# Start:  docker compose up -d
 # Open:   http://localhost:3313
+# Update: docker compose pull && docker compose up -d
 # First start: the setup page asks for a one-time setup code. Find it with
 #   docker compose logs conbert
 #
@@ -10,15 +11,12 @@
 
 services:
   conbert:
-    build:
-      context: .
-      dockerfile: apps/server/Dockerfile
-      target: runtime
-      args:
-        # "standard" (default) or "full" – full adds Calibre for e-books
-        # (MOBI, AZW3, FB2 …) and makes the image about 850 MB larger.
-        TOOLS_STAGE: tools-${CONBERT_EDITION:-standard}
-    image: conbert:latest
+    # The finished image from GitHub (amd64 and arm64, e.g. Raspberry Pi).
+    # CONBERT_IMAGE_TAG: "latest" (default), "full" (adds Calibre for e-books
+    # like MOBI, AZW3, FB2; about 850 MB larger) or a fixed version such as
+    # "0.1.0" / "0.1.0-full". To build from the source code instead, see
+    # docker-compose.build.yml.
+    image: ghcr.io/OWNER/conbert:${CONBERT_IMAGE_TAG:-latest}
     container_name: conbert
     restart: unless-stopped
     # A tiny init process that cleans up finished helper programs (zombies).

@@ -3,7 +3,7 @@
 Self-hosted web app to convert and compress files – right in your browser or
 on your own server. Every option is explained in plain language.
 
-> **Status:** Phase 12 (polish) is in progress. Conbert converts, in the
+> **Status:** 0.1.0, the first public release. Conbert converts, in the
 > browser or on the server, with user accounts:
 >
 > - **Images** – PNG, JPG, WebP, AVIF, GIF, TIFF, JPEG XL, BMP, ICO, TGA,
@@ -44,8 +44,13 @@ on your own server. Every option is explained in plain language.
 
 ## Quick start with Docker
 
+Conbert comes as a ready-built image for amd64 and arm64 (e.g. Raspberry Pi
+4/5). You only need [`docker-compose.yml`](docker-compose.yml):
+
 ```bash
-docker compose up --build -d
+mkdir conbert && cd conbert
+curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
+docker compose up -d
 ```
 
 Then open <http://localhost:3313>. On first start, Conbert asks for a
@@ -67,20 +72,30 @@ the other browser engines or to the server and tells you why. The first
 conversion of a kind downloads its engine once (up to ~60 MB for documents);
 after that the browser caches it.
 
-The Docker build downloads the GeneralUser GS soundfont (~32 MB, used for
-MIDI) from its official repository, pinned and checksum-verified.
+Updating: `docker compose pull && docker compose up -d`. Your data stays.
 
-### Editions
+### Image tags
 
-The standard image covers everything except Kindle/FB2 e-books. For those,
-Conbert can include Calibre (about 850 MB more). Put this in your `.env` and
-rebuild:
+| Tag                      | What you get                                                        |
+| ------------------------ | ------------------------------------------------------------------- |
+| `latest`                 | Newest release, standard edition                                    |
+| `full`                   | Newest release plus Calibre for Kindle/FB2 e-books (~850 MB larger) |
+| `0.1.0`, `0.1`           | A fixed version (standard)                                          |
+| `0.1.0-full`, `0.1-full` | A fixed version (full)                                              |
 
-```ini
-CONBERT_EDITION=full
+Choose one in your `.env`, e.g. `CONBERT_IMAGE_TAG=full`. What changed in each
+version: [CHANGELOG.md](CHANGELOG.md).
+
+### Building the image yourself
+
+```bash
+git clone https://github.com/OWNER/conbert.git && cd conbert
+docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d
 ```
 
-Then run `docker compose up --build -d` again. Your data stays.
+`CONBERT_EDITION=full` in `.env` builds the full edition. The build downloads
+the GeneralUser GS soundfont (~32 MB, used for MIDI) from its official
+repository, pinned and checksum-verified.
 
 ## Development
 

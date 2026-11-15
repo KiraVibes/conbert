@@ -1,0 +1,178 @@
+# Builds the Docker image for amd64 and arm64 and publishes it to the GitHub
+# Container Registry (ghcr.io/<owner>/conbert).
+#
+# Start a release: push a version tag, e.g.
+#   git tag -a v0.1.0 -m "Conbert 0.1.0" && git push origin v0.1.0
+# Tags per edition:
+#   standard: latest, 0.1.0, 0.1
+#   full (with Calibre): full, 0.1.0-full, 0.1-full
+# "Run workflow" in the Actions tab builds the current branch as
+# <branch> / <branch>-full without touching latest.
+name: Release image
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build:
+    name: Build ${{ matrix.edition }} (${{ matrix.arch }})
+    # Each architecture builds on its own native runner – emulating arm64
+    # would take hours for LibreOffice, whisper.cpp and the web build.
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [standard, full]
+        arch: [amd64, arm64]
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Image name
+        # Registry paths must be lowercase; the owner name may not be.
+        run: echo "IMAGE=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/conbert" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          labels: |
+            org.opencontainers.image.title=Conbert – FileWizard
+            org.opencontainers.image.description=Self-hosted web app to convert and compress files, in the browser or on your own server.
+            org.opencontainers.image.licenses=AGPL-3.0-or-later
+
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/server/Dockerfile
+          target: runtime
+          platforms: linux/${{ matrix.arch }}
+          build-args: TOOLS_STAGE=tools-${{ matrix.edition }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Pushed without a tag; the merge job puts both architectures under the tags.
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+
+      - name: Remember the digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.edition }}-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    name: Publish ${{ matrix.edition }}
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        edition: [standard, full]
+    steps:
+      - name: Image name
+        run: echo "IMAGE=${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}/conbert" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-${{ matrix.edition }}-*
+          merge-multiple: true
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          flavor: latest=false
+          tags: |
+            type=raw,value=latest,enable=${{ matrix.edition == 'standard' && startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,value=full,enable=${{ matrix.edition == 'full' && startsWith(github.ref, 'refs/tags/v') }}
+            type=semver,pattern={{version}},suffix=${{ matrix.edition == 'full' && '-full' || '' }}
+            type=semver,pattern={{major}}.{{minor}},suffix=${{ matrix.edition == 'full' && '-full' || '' }}
+            type=ref,event=branch,suffix=${{ matrix.edition == 'full' && '-full' || '' }}
+
+      - name: Put both architectures under the tags
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          # shellcheck disable=SC2046
+          docker buildx imagetools create \
+            $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf "${IMAGE}@sha256:%s " *)
+
+      - name: Check the result
+        run: docker buildx imagetools inspect "$(jq -r '.tags[0]' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+
+  release:
+    name: GitHub release
+    needs: merge
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Release notes from CHANGELOG.md
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: |
+          # The section between "## [x.y.z]" and the next "## [" heading.
+          awk -v v="${VERSION#v}" '
+            index($0, "## [" v "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          if [ ! -s "$RUNNER_TEMP/notes.md" ]; then
+            echo "CHANGELOG.md has no section for ${VERSION#v}" >&2
+            exit 1
+          fi
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ github.ref_name }}
+        run: gh release create "$VERSION" --title "Conbert $VERSION" --notes-file "$RUNNER_TEMP/notes.md" --verify-tag
