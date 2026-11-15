@@ -343,7 +343,12 @@ function ListenMorse() {
                   tones: result.tones,
                   ms: Math.round(result.unitMs),
                 })
-              : t('workshop.morse.heardNothing', { seconds: secs(result.seconds) })}
+              : result.notMorse
+                ? t('workshop.morse.heardNotMorse', {
+                    seconds: secs(result.seconds),
+                    pitch: result.pitch,
+                  })
+                : t('workshop.morse.heardNothing', { seconds: secs(result.seconds) })}
           </p>
           {result.tones > 0 && result.tones <= 4 && !result.notMorse && (
             <p className="text-xs text-amber-700 dark:text-amber-300">

@@ -6513,7 +6513,7 @@
       "listening": "Listening …",
       "failed": "The recording couldn't be read (or the microphone isn't allowed).",
       "nothing": "No Morse tone recognised.",
-      "listenTip": "Tip: it works best with a clear tone and little background noise. With a lot of echo in the room, a slower speed helps (15 words per minute or less).",
+      "listenTip": "Tip: it works best with a clear tone (300–2500 Hz) and little background noise. With a lot of echo in the room, a slower speed helps.",
       "heard": "Heard: {{seconds}} s of recording · beep at {{pitch}} Hz · {{tones}} tones · one dot ≈ {{ms}} ms",
       "heardNothing": "Heard: {{seconds}} s of recording – but no steady beep. Play louder or hold the microphone closer to the speaker.",
       "fewTones": "Only a few tones recognised. Did the sound play during the whole recording? Tip: first “Record with microphone”, then play it in the “Text → Morse” tab and stop the recording here afterwards – both keep running when switching tabs.",
@@ -6525,7 +6525,8 @@
       "speakFailed": "Speech recognition didn't work (or the microphone isn't allowed).",
       "speakNothing": "No words were recognised.",
       "speakUse": "Carry over to “Text → Morse” (speed, flashing)",
-      "speakUnavailable": "This needs the speech recognition (Whisper) on your server – it's not available right now or not allowed for your account (AI features). An admin can set it up or allow it in the administration."
+      "speakUnavailable": "This needs the speech recognition (Whisper) on your server – it's not available right now or not allowed for your account (AI features). An admin can set it up or allow it in the administration.",
+      "heardNotMorse": "Heard: {{seconds}} s of recording · loudest tone at {{pitch}} Hz, but not steady enough for Morse beeps."
     },
     "sstv": {
       "tabs": {

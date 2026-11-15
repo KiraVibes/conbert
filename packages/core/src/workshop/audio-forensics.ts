@@ -233,6 +233,10 @@ export function morseAudio(code: string, rate: number, wpm = 18, freq = 650): Fl
  * off are told apart in decibels with a little hysteresis, so echo tails
  * don't swallow the gaps; dots and dashes are told apart by their lengths.
  */
+/** Beep pitches the reader looks for (Morse apps use roughly 400–2000 Hz). */
+const MIN_PITCH = 300;
+const MAX_PITCH = 2500;
+
 export interface MorseHeard {
   code: string;
   text: string;
@@ -248,7 +252,7 @@ export interface MorseHeard {
 
 export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHeard {
   const none: MorseHeard = { code: '', text: '', pitch: 0, unitMs: 0, tones: 0 };
-  // About 8000 samples per second are plenty for a beep up to 1500 Hz.
+  // About 8000 samples per second are plenty for a beep up to 2500 Hz.
   const factor = Math.max(1, Math.floor(rate / 8000));
   const sr = rate / factor;
   const x = new Float32Array(Math.floor(samples.length / factor));
@@ -262,7 +266,7 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
   // The beep's pitch: the loudest frequency summed over all frames.
   let best = 0;
   let pitch = 0;
-  for (let f = 300; f <= 1500; f += 10) {
+  for (let f = MIN_PITCH; f <= MAX_PITCH; f += 10) {
     let sum = 0;
     for (let i = 0; i + frame <= x.length; i += frame) sum += goertzel(x, i, i + frame, f, sr);
     if (sum > best) {
@@ -320,16 +324,18 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
   if (ons.length === 0) return none;
   // A Morse beep is one pure tone, always at the same pitch. Speech, music
   // and noise have overtones and a pitch that keeps moving – not Morse.
-  let steady = 0;
-  for (const r of merged) {
-    if (!r.on) continue;
+  const pure = (r: { at: number; len: number }) => {
     const from = r.at * hop;
     const to = Math.min(x.length, (r.at + r.len) * hop + win);
     const half = Math.floor((from + to) / 2);
     const strongest = (a: number, b: number) => {
       let f0 = 0;
       let v0 = 0;
-      for (let f = 300; f <= 1500; f += 10) {
+      for (
+        let f = Math.max(MIN_PITCH, pitch - 200);
+        f <= Math.min(MAX_PITCH, pitch + 200);
+        f += 10
+      ) {
         const v = goertzel(x, a, b, f, sr);
         if (v > v0) {
           v0 = v;
@@ -340,32 +346,58 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
     };
     const whole = strongest(from, to);
     const side =
-      (goertzel(x, from, to, whole.f - 120, sr) + goertzel(x, from, to, whole.f + 120, sr)) / 2;
-    const first = strongest(from, half).f;
-    const second = strongest(half, to).f;
-    if (Math.abs(whole.f - pitch) <= 30 && whole.v > side * 4 && Math.abs(first - second) <= 30)
-      steady++;
+      (goertzel(x, from, to, whole.f - 150, sr) + goertzel(x, from, to, whole.f + 150, sr)) / 2;
+    return (
+      Math.abs(whole.f - pitch) <= 40 &&
+      whole.v > side * 3 &&
+      Math.abs(strongest(from, half).f - strongest(half, to).f) <= 40
+    );
+  };
+  let pureTime = 0;
+  let toneTime = 0;
+  const checked = merged.map((r) => {
+    if (!r.on) return r;
+    const ok = pure(r);
+    toneTime += r.len;
+    if (ok) pureTime += r.len;
+    // A click or a noise burst is no tone – it counts as part of the gap.
+    return ok ? r : { ...r, on: false };
+  });
+  if (pureTime < toneTime * 0.6) return { ...none, tones: ons.length, pitch, notMorse: true };
+  const clean: typeof merged = [];
+  for (const r of checked) {
+    const last = clean.at(-1);
+    if (last && last.on === r.on) last.len += r.len;
+    else clean.push({ ...r });
   }
-  if (steady < ons.length * 0.7) return { ...none, tones: ons.length, pitch, notMorse: true };
-  const offs = merged.filter((r) => !r.on).map((r) => r.len);
-  // Echo and the threshold make every tone a bit longer and every gap a bit
-  // shorter by the same amount – tone + gap stays right. So: unit = (dot +
-  // short gap) / 2, and the difference is taken off again before deciding.
-  const onGroups = twoGroups(ons);
-  const offGroups = twoGroups(offs);
-  const dot = onGroups.low;
-  const shortGap = offGroups.low;
+  while (clean[0] && !clean[0].on) clean.shift();
+  while (clean.at(-1) && !clean.at(-1)?.on) clean.pop();
+  const tones = clean.filter((r) => r.on).map((r) => r.len);
+  const gaps = clean.filter((r) => !r.on).map((r) => r.len);
+  if (tones.length === 0) return none;
+  // Echo (and the threshold) make every tone longer and every gap shorter by
+  // the same amount. The *difference* dash − dot stays exactly 2 units, and
+  // tone + gap stays right – both don't care about the echo.
+  const groups = splitLengths(tones);
   let unit: number;
-  let bias = 0;
-  if (offs.length > 0 && shortGap < dot * 2.5 && dot < shortGap * 6) {
-    unit = (dot + shortGap) / 2;
-    bias = (dot - shortGap) / 2;
-  } else if (onGroups.split) unit = dot;
-  else unit = offs.length && dot > shortGap * 2 ? dot / 3 : dot;
-  // Only one kind of tone and the gaps say they are dashes.
-  if (!onGroups.split && offs.length && dot - bias > unit * 2) unit = (dot - bias) / 3;
+  let bias: number;
+  if (groups.split) {
+    unit = (groups.high - groups.low) / 2;
+    bias = groups.low - unit;
+  } else {
+    // Only one kind of tone: dot + shortest kind of gap = 2 units.
+    const shortGap = gaps.length ? splitLengths(gaps).low : groups.low;
+    unit = (groups.low + shortGap) / 2;
+    bias = groups.low - unit;
+    // Long tones with short gaps between them: dashes.
+    if (gaps.length && groups.low - bias > unit * 2) {
+      unit = (groups.low + shortGap) / 4;
+      bias = groups.low - 3 * unit;
+    }
+  }
+  unit = Math.max(unit, 1);
   let code = '';
-  for (const r of merged) {
+  for (const r of clean) {
     const len = r.on ? r.len - bias : r.len + bias;
     if (r.on) code += len > unit * 2 ? '-' : '.';
     else if (len > unit * 5) code += ' / ';
@@ -376,30 +408,34 @@ export function decodeMorseAudio(samples: Float32Array, rate: number): MorseHear
     text: fromMorse(code),
     pitch,
     unitMs: (unit * hop * 1000) / sr,
-    tones: ons.length,
+    tones: tones.length,
   };
 }
 
 /**
- * Splits lengths into a short and a long group (2-means on the logarithm).
- * `split` is false when they are all about the same.
+ * Splits lengths into a short and a long group (2-means). They count as two
+ * groups when the groups lie clearly apart compared with their spread.
  */
-function twoGroups(values: number[]): { low: number; high: number; split: boolean } {
+function splitLengths(values: number[]): { low: number; high: number; split: boolean } {
   if (values.length === 0) return { low: 1, high: 1, split: false };
-  const logs = values.map((v) => Math.log(Math.max(1, v)));
-  let lo = Math.min(...logs);
-  let hi = Math.max(...logs);
-  for (let i = 0; i < 20; i++) {
+  let lo = Math.min(...values);
+  let hi = Math.max(...values);
+  let a: number[] = values;
+  let b: number[] = [];
+  for (let i = 0; i < 30; i++) {
     const mid = (lo + hi) / 2;
-    const a = logs.filter((v) => v <= mid);
-    const b = logs.filter((v) => v > mid);
+    a = values.filter((v) => v <= mid);
+    b = values.filter((v) => v > mid);
     const nlo = a.length ? a.reduce((s, v) => s + v, 0) / a.length : lo;
     const nhi = b.length ? b.reduce((s, v) => s + v, 0) / b.length : hi;
     if (nlo === lo && nhi === hi) break;
     lo = nlo;
     hi = nhi;
   }
-  return { low: Math.exp(lo), high: Math.exp(hi), split: hi - lo > Math.log(1.8) };
+  const spread = (g: number[], m: number) =>
+    g.length ? Math.sqrt(g.reduce((s, v) => s + (v - m) ** 2, 0) / g.length) : 0;
+  const noise = Math.max(spread(a, lo), spread(b, hi), 1);
+  return { low: lo, high: hi, split: b.length > 0 && hi - lo > 3 * noise && hi > lo * 1.4 };
 }
 
 /** Float samples (−1…1) as a 16-bit mono WAV file. */

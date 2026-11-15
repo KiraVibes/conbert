@@ -6513,7 +6513,7 @@
       "listening": "Höre zu …",
       "failed": "Die Aufnahme ließ sich nicht lesen (oder das Mikrofon ist nicht erlaubt).",
       "nothing": "Kein Morse-Ton erkannt.",
-      "listenTip": "Tipp: Am besten klappt es mit einem klaren Ton und wenig Hintergrundlärm. Bei viel Hall im Raum hilft ein langsameres Tempo (15 Wörter pro Minute oder weniger).",
+      "listenTip": "Tipp: Am besten klappt es mit einem klaren Ton (300–2500 Hz) und wenig Hintergrundlärm. Bei viel Hall im Raum hilft ein langsameres Tempo.",
       "heard": "Gehört: {{seconds}} s Aufnahme · Piepton bei {{pitch}} Hz · {{tones}} Töne · ein Punkt ≈ {{ms}} ms",
       "heardNothing": "Gehört: {{seconds}} s Aufnahme – aber kein gleichmäßiger Piepton. Spiel lauter ab oder halte das Mikrofon näher an den Lautsprecher.",
       "fewTones": "Nur wenige Töne erkannt. Lief der Ton während der ganzen Aufnahme? Tipp: erst „Mit Mikrofon aufnehmen“, dann im Tab „Text → Morse“ abspielen und danach hier die Aufnahme beenden – beides läuft beim Wechseln der Tabs weiter.",
@@ -6525,7 +6525,8 @@
       "speakFailed": "Die Spracherkennung hat nicht geklappt (oder das Mikrofon ist nicht erlaubt).",
       "speakNothing": "Es wurden keine Wörter erkannt.",
       "speakUse": "In „Text → Morse“ übernehmen (Tempo, Lichtblinken)",
-      "speakUnavailable": "Dafür braucht es die Spracherkennung (Whisper) auf deinem Server – sie ist gerade nicht verfügbar oder für dein Konto nicht freigegeben (KI-Funktionen). Ein Admin kann sie in der Verwaltung einrichten bzw. freigeben."
+      "speakUnavailable": "Dafür braucht es die Spracherkennung (Whisper) auf deinem Server – sie ist gerade nicht verfügbar oder für dein Konto nicht freigegeben (KI-Funktionen). Ein Admin kann sie in der Verwaltung einrichten bzw. freigeben.",
+      "heardNotMorse": "Gehört: {{seconds}} s Aufnahme · lautester Ton bei {{pitch}} Hz, aber nicht gleichmäßig genug für Morse-Pieptöne."
     },
     "sstv": {
       "tabs": {
