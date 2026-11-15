@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ChevronRightIcon,
+  ListIcon,
   PaletteIcon,
   LampIcon,
   PenLineIcon,
@@ -126,6 +129,7 @@ import { StegoTool } from './stego/StegoTool';
 import { TreasureTool } from './treasure/TreasureTool';
 import { VaultTool } from './vault/VaultTool';
 import { XrayTool } from './xray/XrayTool';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 /** Tricks with a page of their own (the X-ray tricks share one). */
 const TOOLS: Record<string, () => React.ReactNode> = {
@@ -255,10 +259,33 @@ const ICONS: Record<string, LucideIcon> = {
   passwordpack: PackageIcon,
 };
 
+/** How the overview shows the tricks: big tiles or a compact list. */
+const LAYOUTS = ['tiles', 'list'] as const;
+type Layout = (typeof LAYOUTS)[number];
+const LAYOUT_KEY = 'conbert-workshop-layout';
+const LAYOUT_ICONS: Record<Layout, LucideIcon> = { tiles: LayoutGridIcon, list: ListIcon };
+
+function rememberedLayout(): Layout {
+  try {
+    return localStorage.getItem(LAYOUT_KEY) === 'list' ? 'list' : 'tiles';
+  } catch {
+    return 'tiles';
+  }
+}
+
 /** The FileWizard workshop: an overview of the tricks, or the open trick. */
 export function WorkshopView() {
   const { t } = useTranslation();
   const [trick, openTrick] = useWorkshopTrick();
+  const [layout, setLayoutState] = useState<Layout>(rememberedLayout);
+  const setLayout = (next: Layout) => {
+    setLayoutState(next);
+    try {
+      localStorage.setItem(LAYOUT_KEY, next);
+    } catch {
+      // Only a convenience.
+    }
+  };
 
   const Tool = trick ? TOOLS[trick] : undefined;
   const group = WORKSHOP_TRICKS.find((tr) => tr.id === trick)?.group;
@@ -297,9 +324,68 @@ export function WorkshopView() {
       <ViewIntro title={t('workshop.title')} help="workshop">
         {t('workshop.intro')}
       </ViewIntro>
+      <div className="mb-4 flex justify-end">
+        <ToggleGroup
+          type="single"
+          variant="outline"
+          size="sm"
+          value={layout}
+          onValueChange={(v) => v && setLayout(v as Layout)}
+          aria-label={t('workshop.layout.label')}
+        >
+          {LAYOUTS.map((l) => {
+            const Icon = LAYOUT_ICONS[l];
+            return (
+              <ToggleGroupItem key={l} value={l} className="gap-1.5 px-3">
+                <Icon aria-hidden="true" />
+                {t(`workshop.layout.${l}`)}
+              </ToggleGroupItem>
+            );
+          })}
+        </ToggleGroup>
+      </div>
       {WORKSHOP_GROUPS.map((group) => {
         const tricks = WORKSHOP_TRICKS.filter((tr) => tr.group === group);
         if (tricks.length === 0) return null;
+        if (layout === 'list')
+          return (
+            <section key={group} className="mb-6 space-y-2" data-testid="workshop-list">
+              <h2 className="flex items-baseline gap-2 font-heading text-base font-semibold">
+                {t(`workshop.groups.${group}.title`)}
+                <span className="text-xs font-normal text-muted-foreground">
+                  {t('workshop.layout.count', { count: tricks.length })}
+                </span>
+              </h2>
+              <ul className="divide-y overflow-hidden rounded-xl border bg-card">
+                {tricks.map(({ id }) => {
+                  const Icon = ICONS[id] ?? ScanSearchIcon;
+                  return (
+                    <li key={id}>
+                      <button
+                        type="button"
+                        onClick={() => openTrick(id)}
+                        className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-muted/50 focus-visible:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset"
+                      >
+                        <Icon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                        <span className="min-w-0 flex-1 sm:flex sm:items-baseline sm:gap-3">
+                          <span className="block font-medium sm:w-60 sm:shrink-0">
+                            {t(`workshop.tricks.${id}.title`)}
+                          </span>
+                          <span className="block truncate text-sm text-muted-foreground">
+                            {t(`workshop.tricks.${id}.teaser`)}
+                          </span>
+                        </span>
+                        <ChevronRightIcon
+                          className="size-4 shrink-0 text-muted-foreground"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          );
         return (
           <section key={group} className="mb-8 space-y-3">
             <div>

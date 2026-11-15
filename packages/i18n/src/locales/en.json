@@ -6978,6 +6978,13 @@
       },
       "exampleAlt": "Example box: a capital H reaches from the blue line almost to the top, x and g end at the dashed line, the g hangs below the blue line.",
       "clipped": "These characters touch the light blue frame and may be cut off (orange frame): {{chars}}. Write them a little smaller and photograph the sheet again."
+    },
+    "layout": {
+      "label": "How the tools are shown",
+      "tiles": "Tiles",
+      "list": "List",
+      "count_one": "{{count}} tool",
+      "count_other": "{{count}} tools"
     }
   },
   "feeds": {

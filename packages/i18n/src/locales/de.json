@@ -6978,6 +6978,13 @@
       },
       "exampleAlt": "Beispiel-Kästchen: ein großes H reicht von der blauen Linie fast bis oben, x und g enden an der gestrichelten Linie, das g hängt unter die blaue Linie.",
       "clipped": "Diese Zeichen berühren den hellblauen Rahmen und sind vielleicht abgeschnitten (orange umrandet): {{chars}}. Schreib sie etwas kleiner neu und fotografiere das Blatt noch einmal."
+    },
+    "layout": {
+      "label": "Ansicht der Werkzeuge",
+      "tiles": "Kacheln",
+      "list": "Liste",
+      "count_one": "{{count}} Werkzeug",
+      "count_other": "{{count}} Werkzeuge"
     }
   },
   "feeds": {
