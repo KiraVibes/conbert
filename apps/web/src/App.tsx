@@ -35,6 +35,7 @@ import { ExpertModeToggle } from '@/features/settings/ExpertModeToggle';
 import { useSettings } from '@/features/settings/settings-store';
 import { useApplySettings } from '@/features/settings/use-apply-settings';
 import { useSettingsSync } from '@/features/settings/use-settings-sync';
+import { loadTextPart } from '@/lib/i18n';
 import { useView, type View } from '@/lib/use-view';
 
 /** Which function a view needs (null = always there). */
@@ -73,7 +74,10 @@ const WorkflowsView = lazy(() =>
   import('@/features/workflows/WorkflowsView').then((m) => ({ default: m.WorkflowsView })),
 );
 const WorkshopView = lazy(() =>
-  import('@/features/workshop/WorkshopView').then((m) => ({ default: m.WorkshopView })),
+  // The workshop's texts are a separate download; the page waits for them.
+  Promise.all([import('@/features/workshop/WorkshopView'), loadTextPart('workshop')]).then(
+    ([m]) => ({ default: m.WorkshopView }),
+  ),
 );
 const SubscriptionsView = lazy(() =>
   import('@/features/subscriptions/SubscriptionsView').then((m) => ({

@@ -8,14 +8,36 @@ import {
 } from '@conbert/i18n/languages';
 import { SETTINGS_STORAGE_KEY } from '@/features/settings/settings-store';
 
+type Texts = Record<string, unknown>;
+type TextModule = () => Promise<{ default: Texts }>;
+
+/** Text areas loaded with their page (split off by scripts/locale-parts.ts). */
+export type TextPart = 'workshop';
+
 /**
- * Only the texts of the language in use are loaded (each language is a few
- * hundred KB); the other one comes when someone switches.
+ * Only the texts of the language in use are loaded, and of those only the
+ * start part; the workshop texts (over 40 %) come when the workshop opens.
  */
-const LOCALES: Record<Language, () => Promise<{ default: object }>> = {
-  de: () => import('@conbert/i18n/locales/de.json'),
-  en: () => import('@conbert/i18n/locales/en.json'),
+const LOCALES: Record<Language, Record<'start' | TextPart, TextModule>> = {
+  de: {
+    start: () => import('virtual:conbert-locale/de/start'),
+    workshop: () => import('virtual:conbert-locale/de/workshop'),
+  },
+  en: {
+    start: () => import('virtual:conbert-locale/en/start'),
+    workshop: () => import('virtual:conbert-locale/en/workshop'),
+  },
 };
+
+/** Parts a page has asked for: a language switch loads them right away too. */
+const wanted = new Set<TextPart>();
+
+async function loadLanguage(language: Language): Promise<Texts> {
+  const parts = await Promise.all(
+    (['start', ...wanted] as const).map((part) => LOCALES[language][part]()),
+  );
+  return Object.assign({}, ...parts.map((m) => m.default)) as Texts;
+}
 
 const lazyLocales: BackendModule = {
   type: 'backend',
@@ -25,8 +47,8 @@ const lazyLocales: BackendModule = {
       callback(null, {});
       return;
     }
-    LOCALES[language]().then(
-      (module) => callback(null, module.default as Record<string, unknown>),
+    loadLanguage(language).then(
+      (texts) => callback(null, texts),
       (error: unknown) => callback(error instanceof Error ? error : new Error(String(error)), null),
     );
   },
@@ -69,3 +91,22 @@ export const i18nReady = i18n
   });
 
 export { i18n };
+
+/**
+ * Makes sure a page's texts are there (for every language already loaded);
+ * the page waits for this before it shows.
+ */
+export async function loadTextPart(part: TextPart): Promise<void> {
+  wanted.add(part);
+  await i18nReady;
+  await Promise.all(
+    SUPPORTED_LANGUAGES.filter(
+      (lng) =>
+        i18n.hasResourceBundle(lng, 'translation') &&
+        i18n.getResource(lng, 'translation', part) === undefined,
+    ).map(async (lng) => {
+      const { default: texts } = await LOCALES[lng][part]();
+      i18n.addResourceBundle(lng, 'translation', texts, true, true);
+    }),
+  );
+}
