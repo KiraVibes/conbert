@@ -6526,7 +6526,8 @@
       "speakNothing": "Es wurden keine Wörter erkannt.",
       "speakUse": "In „Text → Morse“ übernehmen (Tempo, Lichtblinken)",
       "speakUnavailable": "Dafür braucht es die Spracherkennung (Whisper) auf deinem Server – sie ist gerade nicht verfügbar oder für dein Konto nicht freigegeben (KI-Funktionen). Ein Admin kann sie in der Verwaltung einrichten bzw. freigeben.",
-      "heardNotMorse": "Gehört: {{seconds}} s Aufnahme · lautester Ton bei {{pitch}} Hz, aber nicht gleichmäßig genug für Morse-Pieptöne."
+      "heardNotMorse": "Gehört: {{seconds}} s Aufnahme · lautester Ton bei {{pitch}} Hz, aber nicht gleichmäßig genug für Morse-Pieptöne.",
+      "saveRecording": "Aufnahme speichern"
     },
     "sstv": {
       "tabs": {

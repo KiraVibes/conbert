@@ -6526,7 +6526,8 @@
       "speakNothing": "No words were recognised.",
       "speakUse": "Carry over to “Text → Morse” (speed, flashing)",
       "speakUnavailable": "This needs the speech recognition (Whisper) on your server – it's not available right now or not allowed for your account (AI features). An admin can set it up or allow it in the administration.",
-      "heardNotMorse": "Heard: {{seconds}} s of recording · loudest tone at {{pitch}} Hz, but not steady enough for Morse beeps."
+      "heardNotMorse": "Heard: {{seconds}} s of recording · loudest tone at {{pitch}} Hz, but not steady enough for Morse beeps.",
+      "saveRecording": "Save recording"
     },
     "sstv": {
       "tabs": {

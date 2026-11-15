@@ -355,6 +355,18 @@ function ListenMorse() {
               {t('workshop.morse.fewTones')}
             </p>
           )}
+          {file && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                saveBlob(file, `morse-aufnahme.${file.name.split('.').pop() ?? 'webm'}`)
+              }
+            >
+              <DownloadIcon aria-hidden="true" />
+              {t('workshop.morse.saveRecording')}
+            </Button>
+          )}
         </div>
       )}
       <p className="text-xs text-muted-foreground">
