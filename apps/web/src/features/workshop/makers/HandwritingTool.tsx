@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadIcon, FileDownIcon, Loader2Icon } from 'lucide-react';
-import { cellWritingArea, cleanFontName, HANDWRITING_CHARS } from '@conbert/core';
+import { cellBox, cellWritingArea, cleanFontName, HANDWRITING_CHARS, SHEET } from '@conbert/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,79 @@ import { withForensics } from '../forensics/forensics-worker';
 import { HowItWorks, SingleFile } from '../SingleFile';
 import { saveBlob } from '../save-blob';
 import { buildFont, makeHandwritingSheet, type BuiltFont } from './handwriting-font';
+
+const RULES = ['capital', 'small', 'descender', 'frame'] as const;
+
+/** One box of the sheet with "Hxg" written the right size, and the rules next to it. */
+function WritingExample() {
+  const { t } = useTranslation();
+  const b = cellBox(0);
+  const a = cellWritingArea(0);
+  const base = a.y + a.h * SHEET.baseline;
+  const xh = a.y + a.h * SHEET.xHeight;
+  // Helvetica/Arial: cap height 0.72, x-height 0.52 of the font size.
+  const cap = (base - a.y - 1) / 0.718;
+  const small = (base - xh) / 0.523;
+  const blue = '#9ec5ff';
+  return (
+    <div className="mt-2 mb-1 flex flex-wrap items-center gap-4">
+      <svg
+        viewBox={`${b.x} ${b.y} ${b.w} ${b.h}`}
+        className="h-32 shrink-0 rounded-sm"
+        role="img"
+        aria-label={t('workshop.handfont.exampleAlt')}
+      >
+        <rect
+          x={b.x}
+          y={b.y}
+          width={b.w}
+          height={b.h}
+          fill="#ffffff"
+          stroke="#c8c8c8"
+          strokeWidth={0.2}
+        />
+        <rect x={b.x} y={b.y} width={b.w} height={SHEET.label} fill="#ededed" />
+        <text
+          x={b.x + 1.2}
+          y={b.y + 3.1}
+          fontSize={2.8}
+          fill="#8c8c8c"
+          fontFamily="Arial, Helvetica, sans-serif"
+        >
+          {t('workshop.handfont.sheet.example')}
+        </text>
+        <rect
+          x={a.x}
+          y={a.y}
+          width={a.w}
+          height={a.h}
+          fill="none"
+          stroke={blue}
+          strokeWidth={0.18}
+        />
+        <line x1={a.x} x2={a.x + a.w} y1={base} y2={base} stroke={blue} strokeWidth={0.22} />
+        <line
+          x1={a.x}
+          x2={a.x + a.w}
+          y1={xh}
+          y2={xh}
+          stroke={blue}
+          strokeWidth={0.15}
+          strokeDasharray="0.7 0.7"
+        />
+        <text x={a.x + 1.5} y={base} fill="#1a237e" fontFamily="Arial, Helvetica, sans-serif">
+          <tspan fontSize={cap}>H</tspan>
+          <tspan fontSize={small}>xg</tspan>
+        </text>
+      </svg>
+      <ul className="space-y-0.5 text-xs text-muted-foreground">
+        {RULES.map((r) => (
+          <li key={r}>• {t(`workshop.handfont.rules.${r}`)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 /** Eigene Handschrift als Schrift – fill in a sheet, photograph it, get a font. */
 export function HandwritingTool() {
@@ -30,6 +103,8 @@ export function HandwritingTool() {
       title: t('workshop.handfont.sheet.title'),
       instructions: t('workshop.handfont.sheet.instructions'),
       footer: t('workshop.handfont.sheet.footer'),
+      example: t('workshop.handfont.sheet.example'),
+      exampleHelp: RULES.map((r) => `• ${t(`workshop.handfont.rules.${r}`)}`).join('\n'),
     });
     saveBlob(
       new Blob([pdf as Uint8Array<ArrayBuffer>], { type: 'application/pdf' }),
@@ -106,7 +181,12 @@ export function HandwritingTool() {
     ctx.lineWidth = 4;
     HANDWRITING_CHARS.forEach((_, i) => {
       const a = cellWritingArea(i);
-      ctx.strokeStyle = current.glyphs[i] ? 'rgba(22,163,74,0.9)' : 'rgba(150,150,150,0.6)';
+      const g = current.glyphs[i];
+      ctx.strokeStyle = !g
+        ? 'rgba(150,150,150,0.6)'
+        : g.clipped
+          ? 'rgba(217,119,6,0.95)'
+          : 'rgba(22,163,74,0.9)';
       ctx.strokeRect(
         (a.x - originMm[0]) * pxPerMm,
         (a.y - originMm[1]) * pxPerMm,
@@ -117,12 +197,16 @@ export function HandwritingTool() {
   }, [current]);
 
   const found = current ? current.glyphs.filter(Boolean).length : 0;
+  const clipped = current ? HANDWRITING_CHARS.filter((_, i) => current.glyphs[i]?.clipped) : [];
   return (
     <div className="space-y-4">
       <HowItWorks trick="handfont" />
       <ol className="list-decimal space-y-1 pl-5 text-sm">
         <li>{t('workshop.handfont.steps.print')}</li>
-        <li>{t('workshop.handfont.steps.write')}</li>
+        <li>
+          {t('workshop.handfont.steps.write')}
+          <WritingExample />
+        </li>
         <li>{t('workshop.handfont.steps.photo')}</li>
       </ol>
       <Button variant="outline" onClick={() => void sheet()}>
@@ -185,6 +269,11 @@ export function HandwritingTool() {
                 data-testid="handfont-sample"
               />
             </div>
+            {clipped.length > 0 && (
+              <p className="text-sm text-amber-700 dark:text-amber-400" role="status">
+                {t('workshop.handfont.clipped', { chars: clipped.join(' ') })}
+              </p>
+            )}
             {font && font.missing.length > 0 && (
               <p className="text-sm text-muted-foreground">
                 {t('workshop.handfont.missing', { chars: font.missing.join(' ') })}

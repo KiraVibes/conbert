@@ -6947,13 +6947,14 @@
       "sample": "Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. 0123456789",
       "sheet": {
         "title": "Conbert – Vorlage für deine Handschrift-Schrift",
-        "instructions": "Schreib jedes Zeichen mit einem dunklen Stift (Filzstift oder Fineliner) groß in sein Kästchen und stell es auf die blaue Linie. g, j, p, q und y hängen nach unten. Nicht über den Rand schreiben, die schwarzen Ecken frei lassen.",
+        "instructions": "Schreib jedes Zeichen mit einem dunklen Stift (Filzstift oder Fineliner) in sein Kästchen – nur innerhalb des hellblauen Rahmens, sonst wird es abgeschnitten. Die Größe zeigt das Beispiel unten rechts. Die schwarzen Ecken frei lassen.",
         "footer": "Danach fotografieren (gerade von oben, gutes Licht) oder scannen und in Conbert unter Werkstatt > Handschrift als Schrift laden.",
-        "file": "Handschrift-Vorlage.pdf"
+        "file": "Handschrift-Vorlage.pdf",
+        "example": "Beispiel"
       },
       "steps": {
         "print": "Vorlage herunterladen und auf A4 ausdrucken (Seitengröße „Tatsächliche Größe“ bzw. 100 %).",
-        "write": "Jedes Zeichen mit dunklem Stift in sein Kästchen schreiben, auf die blaue Linie.",
+        "write": "Jedes Zeichen mit dunklem Stift in sein Kästchen schreiben, so groß wie im Beispiel:",
         "photo": "Das Blatt fotografieren oder scannen und hier hochladen. Alle vier schwarzen Ecken müssen zu sehen sein."
       },
       "getSheet": "Vorlage herunterladen (PDF)",
@@ -6968,7 +6969,15 @@
       "missing": "Diese Zeichen fehlen, weil ihr Kästchen leer war: {{chars}}",
       "borrowed": "Hier springt der Groß- bzw. Kleinbuchstabe ein: {{chars}}",
       "download": "Schrift herunterladen (.otf)",
-      "install": "Installieren: Unter Windows die .otf-Datei doppelklicken und „Installieren“ wählen, auf dem Mac doppelklicken und „Schrift installieren“. Danach taucht sie in Word, LibreOffice & Co. in der Schriftliste auf."
+      "install": "Installieren: Unter Windows die .otf-Datei doppelklicken und „Installieren“ wählen, auf dem Mac doppelklicken und „Schrift installieren“. Danach taucht sie in Word, LibreOffice & Co. in der Schriftliste auf.",
+      "rules": {
+        "capital": "Großbuchstaben und Ziffern: von der blauen Linie fast bis zum oberen Rahmen",
+        "small": "Kleine Buchstaben wie a, x, n: bis zur gestrichelten Linie",
+        "descender": "g, j, p, q und y hängen unter die blaue Linie",
+        "frame": "Immer innerhalb des hellblauen Rahmens bleiben"
+      },
+      "exampleAlt": "Beispiel-Kästchen: ein großes H reicht von der blauen Linie fast bis oben, x und g enden an der gestrichelten Linie, das g hängt unter die blaue Linie.",
+      "clipped": "Diese Zeichen berühren den hellblauen Rahmen und sind vielleicht abgeschnitten (orange umrandet): {{chars}}. Schreib sie etwas kleiner neu und fotografiere das Blatt noch einmal."
     }
   },
   "feeds": {

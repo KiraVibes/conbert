@@ -15,7 +15,17 @@ export interface SheetTexts {
   title: string;
   instructions: string;
   footer: string;
+  /** Label of the example box. */
+  example: string;
+  /** Lines next to the example box. */
+  exampleHelp: string;
 }
+
+/** The example box sits in the first free box after the characters. */
+const EXAMPLE = HANDWRITING_CHARS.length;
+/** Helvetica's cap height, x-height and descender (per 1 pt of size). */
+const CAP = 0.718;
+const XH = 0.523;
 
 /** The printable sheet: corner squares, one box per character with guide lines. */
 export async function makeHandwritingSheet(texts: SheetTexts): Promise<Uint8Array> {
@@ -27,8 +37,10 @@ export async function makeHandwritingSheet(texts: SheetTexts): Promise<Uint8Arra
   // pdf-lib counts from the bottom; the sheet layout from the top.
   const X = (mm: number) => mm * PT;
   const Y = (mm: number) => (SHEET.height - mm) * PT;
-  // Standard fonts know Latin-1 (+ €) only.
-  const safe = (s: string) => s.replace(/[^\x20-\x7e\xa0-\xff€]/g, '?');
+  // Standard fonts know only some characters (Windows-1252): ask the font.
+  const known = new Set(font.getCharacterSet());
+  const safe = (s: string) =>
+    [...s].map((c) => (c === '\n' || known.has(c.codePointAt(0) ?? 0) ? c : '?')).join('');
   for (const [x, y] of SHEET.markers)
     page.drawRectangle({
       x: X(x),
@@ -48,8 +60,9 @@ export async function makeHandwritingSheet(texts: SheetTexts): Promise<Uint8Arra
     lineHeight: 9,
   });
   const grey = rgb(0.78, 0.78, 0.78);
+  // Light blue disappears when the ink is read (much brighter than any pen).
   const blue = rgb(0.62, 0.77, 1);
-  HANDWRITING_CHARS.forEach((ch, i) => {
+  const box = (i: number, label: string) => {
     const b = cellBox(i);
     const a = cellWritingArea(i);
     page.drawRectangle({
@@ -60,12 +73,29 @@ export async function makeHandwritingSheet(texts: SheetTexts): Promise<Uint8Arra
       borderColor: grey,
       borderWidth: 0.6,
     });
-    page.drawText(safe(ch), {
+    // The label strip is not for writing: lightly shaded.
+    page.drawRectangle({
+      x: X(b.x),
+      y: Y(b.y + SHEET.label),
+      width: b.w * PT,
+      height: SHEET.label * PT,
+      color: rgb(0.93, 0.93, 0.93),
+    });
+    page.drawText(safe(label), {
       x: X(b.x + 1.2),
       y: Y(b.y + 3.1),
       size: 8,
       font,
       color: rgb(0.55, 0.55, 0.55),
+    });
+    // The writing area: what is outside its frame isn't read.
+    page.drawRectangle({
+      x: X(a.x),
+      y: Y(a.y + a.h),
+      width: a.w * PT,
+      height: a.h * PT,
+      borderColor: blue,
+      borderWidth: 0.5,
     });
     const base = a.y + a.h * SHEET.baseline;
     const xh = a.y + a.h * SHEET.xHeight;
@@ -82,6 +112,36 @@ export async function makeHandwritingSheet(texts: SheetTexts): Promise<Uint8Arra
       color: blue,
       dashArray: [2, 2],
     });
+  };
+  HANDWRITING_CHARS.forEach((ch, i) => box(i, ch));
+  // Example: "Hxg" written the right size – capitals almost to the top,
+  // small letters to the dashed line, g below the baseline.
+  box(EXAMPLE, texts.example);
+  const a = cellWritingArea(EXAMPLE);
+  const base = a.y + a.h * SHEET.baseline;
+  const xh = (base - (a.y + a.h * SHEET.xHeight)) * PT;
+  const cap = (base - a.y - 1) * PT;
+  const ink = rgb(0.1, 0.14, 0.5);
+  const capSize = cap / CAP;
+  const smallSize = xh / XH;
+  let x = X(a.x + 1.5);
+  for (const [c, size] of [
+    ['H', capSize],
+    ['x', smallSize],
+    ['g', smallSize],
+  ] as const) {
+    page.drawText(c, { x, y: Y(base), size, font, color: ink });
+    x += font.widthOfTextAtSize(c, size) + 2;
+  }
+  const help = cellBox(EXAMPLE + 1);
+  page.drawText(safe(texts.exampleHelp), {
+    x: X(help.x + 1.5),
+    y: Y(help.y + 4),
+    size: 7,
+    font,
+    color: rgb(0.25, 0.25, 0.25),
+    maxWidth: X(SHEET.cellW * (SHEET.cols - (EXAMPLE % SHEET.cols) - 1) - 3),
+    lineHeight: 9,
   });
   page.drawText(safe(texts.footer), {
     x: X(24),

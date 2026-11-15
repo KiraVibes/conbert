@@ -361,7 +361,7 @@ describe('handwriting font', () => {
       for (let y = a.y; y < a.y + a.h; y += 1 / PX)
         for (let x = a.x; x < a.x + a.w; x += 1 / PX) {
           const r = Math.hypot(x - cx, (y - cy) * 0.8);
-          if (r > 4 && r < 5.5) set(x, y);
+          if (r > 3 && r < 4.2) set(x, y);
         }
     });
     const c = crop(g, w, 0);
@@ -369,8 +369,22 @@ describe('handwriting font', () => {
     expect(glyph).not.toBeNull();
     expect(glyph?.commands.filter((x) => x.type === 'M')).toHaveLength(2);
     expect(glyph?.advance).toBeGreaterThan(400);
+    expect(glyph?.clipped).toBe(false);
     const empty = crop(g, w, 5);
     expect(glyphFromCell(empty.out, empty.cw, empty.ch, PX)).toBeNull();
+  });
+
+  it('notices a letter written over the edge of its box', () => {
+    const a = cellWritingArea(1);
+    // A "T" whose bar sticks out above the writing area.
+    const { g, w } = sheet((set) => {
+      for (let y = a.y - 2; y < a.y + a.h * 0.68; y += 1 / PX)
+        for (let x = a.x + a.w / 2 - 0.5; x < a.x + a.w / 2 + 0.5; x += 1 / PX) set(x, y);
+      for (let y = a.y - 2; y < a.y - 1; y += 1 / PX)
+        for (let x = a.x + 3; x < a.x + a.w - 3; x += 1 / PX) set(x, y);
+    });
+    const c = crop(g, w, 1);
+    expect(glyphFromCell(c.out, c.cw, c.ch, PX)?.clipped).toBe(true);
   });
 
   it('outer outline and hole run opposite ways', () => {

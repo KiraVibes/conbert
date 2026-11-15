@@ -162,6 +162,8 @@ export interface Glyph {
   commands: GlyphCommand[];
   /** Horizontal advance in font units. */
   advance: number;
+  /** The ink reaches the edge of the writing area – part of it may be cut off. */
+  clipped: boolean;
 }
 
 export const UNITS_PER_EM = 1000;
@@ -393,12 +395,16 @@ export function glyphFromCell(
   let ink = 0;
   let minX = w;
   let maxX = 0;
+  let minY = h;
+  let maxY = 0;
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++)
       if (mask[y * w + x]) {
         ink++;
         if (x < minX) minX = x;
         if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
       }
   if (ink < pxPerMm * pxPerMm * 0.8) return null;
   const scale = unitsPerMm() / pxPerMm;
@@ -432,7 +438,8 @@ export function glyphFromCell(
     }
     commands.push({ type: 'Z' });
   }
-  return { commands, advance: Math.round((maxX - minX + 1) * scale + 2 * side) };
+  const clipped = minX <= edge || minY <= edge || maxX >= w - 1 - edge || maxY >= h - 1 - edge;
+  return { commands, advance: Math.round((maxX - minX + 1) * scale + 2 * side), clipped };
 }
 
 /** A font name usable in the font file (letters, digits, spaces). */

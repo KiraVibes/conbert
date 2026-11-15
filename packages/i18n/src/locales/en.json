@@ -6947,13 +6947,14 @@
       "sample": "The quick brown fox jumps over the lazy dog. 0123456789",
       "sheet": {
         "title": "Conbert – template for your handwriting font",
-        "instructions": "Write each character with a dark pen (felt-tip or fineliner) large into its box and let it stand on the blue line. g, j, p, q and y hang below. Don't write over the border, keep the black corners free.",
+        "instructions": "Write each character with a dark pen (felt-tip or fineliner) into its box – only inside the light blue frame, otherwise it gets cut off. The example at the bottom right shows the size. Keep the black corners free.",
         "footer": "Then take a photo (straight from above, good light) or scan it and load it in Conbert under Workshop > Handwriting as a font.",
-        "file": "Handwriting-template.pdf"
+        "file": "Handwriting-template.pdf",
+        "example": "Example"
       },
       "steps": {
         "print": "Download the template and print it on A4 (page size “actual size” or 100 %).",
-        "write": "Write each character into its box with a dark pen, standing on the blue line.",
+        "write": "Write each character into its box with a dark pen, as big as in the example:",
         "photo": "Photograph or scan the sheet and upload it here. All four black corners must be visible."
       },
       "getSheet": "Download template (PDF)",
@@ -6968,7 +6969,15 @@
       "missing": "These characters are missing because their box was empty: {{chars}}",
       "borrowed": "Here the upper- or lowercase letter stands in: {{chars}}",
       "download": "Download font (.otf)",
-      "install": "Install: on Windows double-click the .otf file and choose “Install”, on a Mac double-click and choose “Install Font”. Then it shows up in the font list of Word, LibreOffice & co."
+      "install": "Install: on Windows double-click the .otf file and choose “Install”, on a Mac double-click and choose “Install Font”. Then it shows up in the font list of Word, LibreOffice & co.",
+      "rules": {
+        "capital": "Capitals and digits: from the blue line almost up to the top of the frame",
+        "small": "Small letters like a, x, n: up to the dashed line",
+        "descender": "g, j, p, q and y hang below the blue line",
+        "frame": "Always stay inside the light blue frame"
+      },
+      "exampleAlt": "Example box: a capital H reaches from the blue line almost to the top, x and g end at the dashed line, the g hangs below the blue line.",
+      "clipped": "These characters touch the light blue frame and may be cut off (orange frame): {{chars}}. Write them a little smaller and photograph the sheet again."
     }
   },
   "feeds": {
