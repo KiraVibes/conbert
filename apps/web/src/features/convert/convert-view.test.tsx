@@ -105,6 +105,7 @@ describe('purpose assistant', () => {
     await userEvent.upload(screen.getByTestId('file-input'), pngFile());
     await waitFor(() => expect(useFiles.getState().files[0]?.status).toBe('idle'));
 
+    await userEvent.click(screen.getByRole('button', { name: /Wofür brauchst du die Datei/ }));
     await userEvent.click(screen.getByRole('button', { name: /Für WhatsApp/ }));
 
     await waitFor(() => expect(useFiles.getState().files[0]?.targetExt).toBe('jpg'));
@@ -114,6 +115,7 @@ describe('purpose assistant', () => {
 
   it('also applies to files added afterwards and keeps hand-made changes', async () => {
     renderWithProviders(<ConvertView />);
+    await userEvent.click(screen.getByRole('button', { name: /Wofür brauchst du die Datei/ }));
     await userEvent.click(screen.getByRole('button', { name: /Auf einer Webseite/ }));
     await userEvent.upload(screen.getByTestId('file-input'), pngFile());
     await waitFor(() => expect(useFiles.getState().files[0]?.targetExt).toBe('webp'));
@@ -129,8 +131,25 @@ describe('purpose assistant', () => {
     renderWithProviders(<ConvertView />);
     await userEvent.upload(screen.getByTestId('file-input'), pngFile());
     await waitFor(() => expect(useFiles.getState().files[0]?.status).toBe('idle'));
+    await userEvent.click(screen.getByRole('button', { name: /Wofür brauchst du die Datei/ }));
     await userEvent.click(screen.getByRole('button', { name: /Platz sparen/ }));
     await waitFor(() => expect(useFiles.getState().files[0]?.task).toBe('compress'));
     expect(useFiles.getState().files[0]?.compress.level).toBe('balanced');
+  });
+});
+
+describe('purpose assistant – folded', () => {
+  it('starts folded, opens on click and shows a chosen purpose when folded', async () => {
+    const { usePurpose } = await import('./purpose-store');
+    usePurpose.setState({ purpose: null });
+    renderWithProviders(<ConvertView />);
+    const toggle = screen.getByRole('button', { name: /Wofür brauchst du die Datei/ });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: /Für WhatsApp/ })).not.toBeInTheDocument();
+    await userEvent.click(toggle);
+    await userEvent.click(screen.getByRole('button', { name: /Für WhatsApp/ }));
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(toggle).toHaveTextContent(/WhatsApp/);
   });
 });

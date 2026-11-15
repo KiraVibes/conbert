@@ -42,6 +42,7 @@ test('the purpose assistant sets up a picture for WhatsApp and converts it', asy
   const card = page.getByTestId('file-card');
   await expect(card.getByText('PNG-Bild')).toBeVisible();
 
+  await page.getByRole('button', { name: /Wofür brauchst du die Datei/ }).click();
   await page.getByRole('button', { name: /Für WhatsApp/ }).click();
   await expect(card.getByRole('combobox', { name: 'Umwandeln in' })).toContainText('JPEG-Bild');
   await expect(card.getByText(/JPG öffnet jedes Handy/)).toBeVisible();

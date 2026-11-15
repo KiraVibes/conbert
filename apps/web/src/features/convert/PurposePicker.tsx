@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { CheckCircle2Icon, InfoIcon, LightbulbIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2Icon, ChevronDownIcon, InfoIcon, LightbulbIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { PURPOSES, choosePurpose, listTargets, type PurposeId } from '@conbert/core';
@@ -50,6 +50,8 @@ function useApplyPurpose(purpose: PurposeId | null) {
 export function PurposePicker() {
   const { t } = useTranslation();
   const purpose = usePurpose((s) => s.purpose);
+  // Folded by default: most people pick the format themselves.
+  const [open, setOpen] = useState(false);
   useApplyPurpose(purpose);
   const choose = (next: PurposeId | null) => usePurpose.setState({ purpose: next });
 
@@ -78,15 +80,40 @@ export function PurposePicker() {
       data-tour="purpose"
       className="rounded-lg border bg-muted/30 p-3"
     >
-      <h2 id="purpose-title" className="flex items-center gap-2 font-medium">
-        <LightbulbIcon className="size-4 text-primary" aria-hidden="true" />
-        {t('purposes.title')}
+      <h2 id="purpose-title" className="font-medium">
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls="purpose-options"
+          onClick={() => setOpen((o) => !o)}
+          className="flex w-full items-center gap-2 rounded-sm text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        >
+          <LightbulbIcon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+          <span>{t('purposes.title')}</span>
+          {/* Folded up, a chosen purpose stays visible – it still applies to new files. */}
+          {purpose && (
+            <span className="min-w-0 truncate text-sm font-normal text-primary">
+              · {t(`purposes.${purpose}.label`)}
+            </span>
+          )}
+          <ChevronDownIcon
+            className={cn(
+              'ml-auto size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none',
+              open && 'rotate-180',
+            )}
+            aria-hidden="true"
+          />
+        </button>
       </h2>
-      <p className="mb-3 text-sm text-muted-foreground">{t('purposes.intro')}</p>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {PURPOSES.map((id) => item(id, t(`purposes.${id}.label`), t(`purposes.${id}.summary`)))}
-        {item(null, t('purposes.none'))}
-      </div>
+      {open && (
+        <div id="purpose-options" className="mt-1">
+          <p className="mb-3 text-sm text-muted-foreground">{t('purposes.intro')}</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {PURPOSES.map((id) => item(id, t(`purposes.${id}.label`), t(`purposes.${id}.summary`)))}
+            {item(null, t('purposes.none'))}
+          </div>
+        </div>
+      )}
     </section>
   );
 }
