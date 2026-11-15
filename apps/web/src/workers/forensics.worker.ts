@@ -30,6 +30,12 @@ import {
   type DangerReport,
   type ProgramInfo,
   type StringsResult,
+  findCornerMarkers,
+  glyphFromCell,
+  cellWritingArea,
+  markerCenters,
+  HANDWRITING_CHARS,
+  type Glyph,
 } from '@conbert/core';
 
 /**
@@ -66,7 +72,83 @@ async function decode(file: Blob, maxSide: number): Promise<Picture> {
 /** The magnifier keeps its picture, the sliders only re-run the filter. */
 let kept: { file: Blob; picture: Picture } | null = null;
 
+/** Straightened handwriting sheets: pixels per mm. */
+const SHEET_PX = 8;
+
+export interface HandwritingResult {
+  /** One per character of the sheet (null = box left empty). */
+  glyphs: (Glyph | null)[];
+  /** The straightened sheet (greyscale) between the corner squares, for a look. */
+  page: {
+    gray: Uint8Array;
+    width: number;
+    height: number;
+    pxPerMm: number;
+    originMm: [number, number];
+  };
+}
+
 const api = {
+  /**
+   * A photo or scan of the filled handwriting sheet → one outline per box.
+   * Null when the four corner squares can't be found.
+   */
+  async handwriting(file: Blob): Promise<HandwritingResult | null> {
+    const photo = await decode(file, 3200);
+    // Look for the squares in a smaller copy (fast), then map back.
+    const f = Math.min(1, 1200 / Math.max(photo.width, photo.height));
+    const sw = Math.max(1, Math.round(photo.width * f));
+    const sh = Math.max(1, Math.round(photo.height * f));
+    const small = new Uint8Array(sw * sh);
+    for (let y = 0; y < sh; y++)
+      for (let x = 0; x < sw; x++) {
+        const o =
+          (Math.min(photo.height - 1, Math.floor(y / f)) * photo.width +
+            Math.min(photo.width - 1, Math.floor(x / f))) *
+          4;
+        small[y * sw + x] =
+          ((photo.pixels[o] ?? 0) * 299 +
+            (photo.pixels[o + 1] ?? 0) * 587 +
+            (photo.pixels[o + 2] ?? 0) * 114) /
+          1000;
+      }
+    const marks = findCornerMarkers(small, sw, sh);
+    if (!marks) return null;
+    const centers = markerCenters();
+    const [c0, , c2] = centers;
+    if (!c0 || !c2) return null;
+    const widthMm = c2[0] - c0[0];
+    const heightMm = c2[1] - c0[1];
+    const width = Math.round(widthMm * SHEET_PX);
+    const height = Math.round(heightMm * SHEET_PX);
+    const quad = marks.map((m) => ({ x: m.x / sw, y: m.y / sh })) as [
+      { x: number; y: number },
+      { x: number; y: number },
+      { x: number; y: number },
+      { x: number; y: number },
+    ];
+    const rgba = warpPerspective(photo.pixels, photo.width, photo.height, quad, width, height);
+    const gray = new Uint8Array(width * height);
+    for (let i = 0; i < gray.length; i++)
+      gray[i] =
+        ((rgba[i * 4] ?? 0) * 299 + (rgba[i * 4 + 1] ?? 0) * 587 + (rgba[i * 4 + 2] ?? 0) * 114) /
+        1000;
+    const glyphs = HANDWRITING_CHARS.map((_, i) => {
+      const a = cellWritingArea(i);
+      const x0 = Math.round((a.x - c0[0]) * SHEET_PX);
+      const y0 = Math.round((a.y - c0[1]) * SHEET_PX);
+      const cw = Math.round(a.w * SHEET_PX);
+      const ch = Math.round(a.h * SHEET_PX);
+      const cell = new Uint8Array(cw * ch);
+      for (let y = 0; y < ch; y++)
+        for (let x = 0; x < cw; x++) cell[y * cw + x] = gray[(y0 + y) * width + x0 + x] ?? 255;
+      return glyphFromCell(cell, cw, ch, SHEET_PX);
+    });
+    return Comlink.transfer(
+      { glyphs, page: { gray, width, height, pxPerMm: SHEET_PX, originMm: c0 } },
+      [gray.buffer],
+    );
+  },
   async copyMove(
     file: Blob,
   ): Promise<{ regions: CopyMoveRegion[]; mask: Uint8Array; width: number; height: number }> {

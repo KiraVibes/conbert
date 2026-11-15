@@ -4427,6 +4427,41 @@
         "title": "Batch rename",
         "teaser": "Rename many files at once – e.g. “2024-07-14_Pixel-8_01.jpg” with the date taken and camera from the EXIF data.",
         "how": "Enter a pattern, e.g. {datum}_{nr}. Conbert fills in the details for every file: date and time taken and the camera from the EXIF data (for photos), otherwise the file's date, plus a running number. Duplicate names get “-2”, “-3”. Since a browser may not rename files on your device, you get the renamed files as a ZIP. Everything runs in your browser."
+      },
+      "palette": {
+        "title": "Colour palette",
+        "teaser": "A picture's main colours as colour codes – to copy, or as a palette for design programs.",
+        "how": "Conbert looks at the picture's pixels and groups similar colours together (a rough split first, then a few rounds of fine-tuning). Each group becomes one colour of the palette, and you see how much of the picture it covers. Transparent parts don't count. You get the colours as hex codes (#RRGGBB – what websites and most programs want), as CSS/SCSS for websites, as JSON or as a GIMP palette (.gpl, also read by Inkscape and Krita). Everything happens in your browser."
+      },
+      "filemap": {
+        "title": "File map",
+        "teaser": "Any file as a colourful picture of its bytes: text, zeros and packed data show up as areas of their own.",
+        "how": "A file is a long row of bytes. Conbert lays that row into a square as a winding line (a so-called Hilbert curve) – bytes that sit next to each other in the file stay close in the picture too. Every dot is coloured by its content: blue for readable text, black for zeros (empty parts), white for FF bytes, green for control characters, red for everything else – mostly packed or encrypted data. In “randomness” mode the colour shows how jumbled the bytes are: calm blue for repetition, red for packed or encrypted parts. So you see at a glance where a file holds pictures, text or hidden attachments. Move the mouse over the picture to see which bytes are at that spot."
+      },
+      "sizecheck": {
+        "title": "Why so big?",
+        "teaser": "Takes a file apart and shows what eats the space – with tips and buttons to make it smaller.",
+        "how": "Conbert looks inside the file and adds up how many bytes belong to which part: in Word, Excel, PowerPoint, OpenDocument files and e-books to pictures, fonts, embedded files and text; in PDFs to pictures, fonts, attachments and page content; in MP4/MOV videos to the video and audio track (with bitrate, i.e. data per second); in photos to picture data, metadata (EXIF, colour profile) and data glued to the end – such as the short video of a “motion photo”. Then you get tips on what really helps. Some things Conbert can do right away: shrink the pictures in an Office document, cut off an attachment or send the file to the Compress area. The analysis runs entirely in your browser."
+      },
+      "hiddentext": {
+        "title": "Hidden text in PDFs",
+        "teaser": "Finds text that people can't see but machines read: white on white, tiny or off the page.",
+        "how": "Some people hide words in PDFs that only computers read – keywords in job applications meant to trick automatic filters or AI tools, or secret instructions for an AI. Conbert draws every page the way you'd see it and checks for each line of text whether anything is visible at its spot. It reports text that is invisible (e.g. white text on a white background), very pale, tiny (under 3 points) or outside the page. Text under black bars is found by “Redaction real?”. Limits: text hidden under a picture isn't always detected. Everything runs in your browser."
+      },
+      "lithophane": {
+        "title": "Lithophane & relief",
+        "teaser": "A photo as a 3D print that shows the picture when held against the light – or a logo as a raised relief.",
+        "how": "A lithophane is a thin plate whose thickness follows the picture: dark spots become thick, bright spots thin. Hold it in front of a lamp or a window and lots of light shines through the thin spots – the photo appears. Conbert turns every pixel into a height (one point every 0.25 mm) and builds a closed 3D model in STL format that every slicer (Cura, PrusaSlicer, Bambu Studio …) opens. In “relief” mode the shape of a logo or drawing (dark or non-transparent parts) is raised from a base plate instead – good for signs, stamp templates or coasters. The preview shows the model to turn around and, for lithophanes, roughly how it looks with light behind it."
+      },
+      "passwordpack": {
+        "title": "Password package",
+        "teaser": "Pack files into one single file that only opens with a password – in any browser, no program needed.",
+        "how": "Conbert encrypts your files (and a message, if you like) with AES-256 – the same encryption banks use. The key is made from your password, which is run through 600,000 rounds (PBKDF2) so guessing takes a very long time. The result is one single HTML file. Send it by email, cloud or USB stick. The receiver opens it in the browser (a double-click is enough), types the password and can save the files. They need no program and no Conbert, and nothing is uploaded – decryption happens in their browser. Without the password nobody gets to the content, not even you: a forgotten password can't be recovered by anyone. Title and password hint are readable without the password, so don't put anything secret there."
+      },
+      "handfont": {
+        "title": "Handwriting as a font",
+        "teaser": "Print a sheet, fill it in, take a photo – and your handwriting becomes a real font for Word & co.",
+        "how": "You print a sheet with one box per character and write each character into it with a dark pen. Then you photograph or scan the sheet. Conbert finds the four black squares in the corners and uses them to straighten the sheet, even if the photo is at an angle. Then every box is cut out: the ink is separated from the paper (the light blue guide lines disappear), specks are removed and the outlines become smooth curves. The blue line in the box is the baseline – letters “stand” on it, so g, p and y hang down correctly later. From all characters Conbert builds an OpenType font (.otf) you can install in Windows, macOS, Word or Canva. Empty boxes are missing from the font; if an upper- or lowercase letter is missing, the other one stands in. Everything happens in your browser."
       }
     },
     "identify": {
@@ -6681,6 +6716,259 @@
       "download_other": "Download {{count}} files as ZIP",
       "clear": "Remove all",
       "zipHint": "Your originals stay unchanged – the browser may not rename them. Unpack the ZIP where you want the files."
+    },
+    "palette": {
+      "failed": "This picture couldn't be read. Try a PNG, JPG or WebP.",
+      "picture": "Your picture",
+      "count": "Number of colours: {{count}}",
+      "bar": "Share of each colour in the picture",
+      "copy": "Copy colour code",
+      "format": "As a file",
+      "formats": {
+        "css": "CSS variables (websites)",
+        "scss": "SCSS variables (websites)",
+        "json": "JSON (programs)",
+        "gpl": "GIMP palette (GIMP, Inkscape, Krita)",
+        "txt": "List of colour codes (text)"
+      },
+      "download": "Download palette",
+      "copyAll": "Copy all"
+    },
+    "filemap": {
+      "failed": "The file couldn't be read.",
+      "mode": "Colouring",
+      "modes": {
+        "kind": "By kind of byte",
+        "entropy": "By randomness"
+      },
+      "picture": "Map of the file",
+      "scale_one": "Each dot is {{bytes}} byte of the file.",
+      "scale_other": "Each dot sums up {{bytes}} bytes of the file (mixed colour).",
+      "cut": "Showing the first {{size}} bytes.",
+      "modeHelp": {
+        "kind": "Each colour stands for a kind of byte. Big single-coloured areas are parts of the file that are alike – e.g. a block of text or an embedded picture.",
+        "entropy": "How jumbled are the bytes at this spot? Blue: lots of repetition (easy to pack). Yellow: mixed, e.g. program code. Red: like randomness – packed (ZIP, JPG, MP4) or encrypted."
+      },
+      "kinds": {
+        "zero": "Zeros (empty parts, padding)",
+        "full": "FF bytes (often padding)",
+        "text": "Readable text",
+        "control": "Control characters and small numbers",
+        "high": "Everything else – mostly packed or encrypted"
+      },
+      "entropyLow": "orderly",
+      "entropyHigh": "like randomness",
+      "at_one": "Position {{offset}} ({{bytes}} byte)",
+      "at_other": "From position {{offset}} ({{bytes}} bytes)",
+      "pointHint": "Point at the picture with the mouse (or tap it) to see which bytes are there.",
+      "reading": "How to read the map: the file starts top left and winds through the whole square to top right. Grey squares at the end aren't part of the file any more."
+    },
+    "sizecheck": {
+      "failed": "This file couldn't be examined.",
+      "working": "Conbert is looking into the file …",
+      "summary": "{{kind}}, {{size}} in total. This is where the space goes:",
+      "kinds": {
+        "office": "Office document",
+        "epub": "E-book (EPUB)",
+        "zip": "ZIP archive",
+        "pdf": "PDF document",
+        "mp4": "Video (MP4/MOV)",
+        "jpeg": "JPG photo",
+        "png": "PNG picture",
+        "wav": "WAV audio",
+        "bmp": "BMP picture",
+        "other": "File"
+      },
+      "bar": "The file split into its parts",
+      "parts": {
+        "images": "Pictures",
+        "picture": "Picture data",
+        "video": "Video track",
+        "audio": "Audio track",
+        "subtitles": "Subtitles",
+        "media": "Videos and music",
+        "fonts": "Fonts",
+        "embedded": "Embedded files",
+        "thumbnail": "Preview picture",
+        "text": "Text and layout",
+        "metadata": "Metadata",
+        "appended": "Glued to the end",
+        "structure": "Housekeeping and packaging",
+        "other": "Other"
+      },
+      "partHelp": {
+        "images": "Photos, graphics and charts in the file.",
+        "picture": "The actual picture.",
+        "video": "The moving pictures. Their size depends mostly on the bitrate (data per second).",
+        "audio": "The sound.",
+        "subtitles": "Subtitle tracks.",
+        "media": "Embedded videos and audio files.",
+        "fonts": "Fonts shipped along so the document looks the same everywhere.",
+        "embedded": "Whole files inside the document – e.g. an Excel sheet in Word or an attachment in a PDF.",
+        "thumbnail": "A small picture of the first page for the preview in your file manager.",
+        "text": "The text and the description of how everything looks (pages, lines, formatting).",
+        "metadata": "Extra info such as camera, location, colour profile or editing history.",
+        "appended": "Data after the file's real end. Programs mostly ignore it – but it takes space.",
+        "structure": "Table of contents, headers and gaps – what every file format needs for housekeeping.",
+        "other": "Everything that didn't fit any of the other groups."
+      },
+      "tipsTitle": "What helps?",
+      "tips": {
+        "shrinkImages": "Pictures make up {{share}} % of the file. They are often much bigger than they appear in the document. Conbert can shrink them to at most 2000 pixels (enough for a whole page in print quality) and pack photos a bit more. Text and layout stay unchanged; you get a copy.",
+        "compressPdf": "Pictures make up {{share}} % of the PDF ({{count}} of them). The Compress area shrinks them – the PDF usually gets much smaller.",
+        "pdfFonts": "A large part is embedded fonts. That's normal when many or unusual fonts are used. When saving as PDF again, the option “embed only the characters used” (subset) helps.",
+        "pdfAttachments": "The PDF contains attached files. Many PDF programs show them in an “Attachments” side panel – if they aren't needed, you can remove them there.",
+        "compressVideo": "The video has {{mbps}} Mbit/s – for this resolution about {{enough}} Mbit/s is usually enough without a visible difference. The Compress area makes it much smaller.",
+        "pcmAudio": "The sound is stored uncompressed (PCM). As AAC it sounds practically the same but needs only a fraction of the space.",
+        "wavToSmaller": "WAV stores sound unpacked. As FLAC (lossless, same quality) it would be about {{flac}} MB, as good-quality MP3 about {{mp3}} MB.",
+        "appended": "There's still data behind the actual picture – the picture doesn't need it. You can cut it off. But check first whether something important is hidden there (e.g. with the detective scan).",
+        "motionPhoto": "This is a “motion photo” or “live photo”: a short video is glued behind the photo. You can save the photo without the video – or take the video out.",
+        "photoAsPng": "This is a photo saved as PNG. PNG is meant for graphics; as JPG or WebP the same photo would usually be 5 to 10 times smaller.",
+        "bigMetadata": "A large part is metadata (e.g. preview pictures, editing history, colour profile). Compressing removes it by default.",
+        "uncompressedImage": "BMP stores every pixel unpacked. As PNG (lossless) the same picture is usually much smaller.",
+        "embeddedObjects": "A large part is embedded files (e.g. Excel sheets or PDFs in the document). If you don't need them, replace them with a picture or a link in the Office program.",
+        "bigThumbnail": "The preview picture is unusually large. When saving in Office you can switch off “save thumbnail”.",
+        "alreadyPacked": "The data is already packed or encrypted – a ZIP would hardly make it smaller.",
+        "packable": "The file has lots of repetition. Packed as ZIP or 7z it would get much smaller.",
+        "nothingBig": "Nothing unusual – the file isn't needlessly big for its content."
+      },
+      "actions": {
+        "shrinkImages": "Shrink the pictures in it",
+        "compress": "Open in the Compress area",
+        "stripAppended": "Save without the attachment",
+        "saveVideo": "Take the video out"
+      },
+      "shrinking": "Shrinking pictures … {{percent}} %",
+      "shrunk_one": "Done: {{count}} picture shrunk, {{saved}} saved. The smaller copy was downloaded.",
+      "shrunk_other": "Done: {{count}} pictures shrunk, {{saved}} saved. The smaller copy was downloaded.",
+      "notShrunk": "The pictures are already so small that shrinking doesn't help.",
+      "shrinkFailed": "Shrinking didn't work – the file may be damaged or encrypted.",
+      "local": "The file stays on your device."
+    },
+    "hiddentext": {
+      "failed": "The PDF couldn't be read (damaged or password-protected?).",
+      "working": "Checking pages …",
+      "found_one": "Found {{count}} spot with hidden text. Search functions, application filters and AI tools read this text – people don't see it.",
+      "found_other": "Found {{count}} spots with hidden text. Search functions, application filters and AI tools read this text – people don't see it.",
+      "clean_one": "No hidden text found ({{count}} page checked).",
+      "clean_other": "No hidden text found ({{count}} pages checked).",
+      "limit": "Checked the first {{checked}} of {{pages}} pages.",
+      "kinds": {
+        "invisible": "Invisible",
+        "faint": "Barely visible",
+        "tiny": "Tiny",
+        "offpage": "Off the page"
+      },
+      "kindHelp": {
+        "invisible": "Nothing can be seen at this spot – the text has the same colour as the background (e.g. white on white) or is written invisibly.",
+        "faint": "The text is so pale you hardly notice it (e.g. light grey on white).",
+        "tiny": "The text is smaller than 3 points – normal text is 9 to 12 points.",
+        "offpage": "The text lies outside the visible page and is neither shown nor printed."
+      },
+      "page": "Page {{page}}",
+      "copy": "Copy text",
+      "copyAll": "Copy all",
+      "limits": "Text under a picture isn't always found. Scanned PDFs often carry deliberately invisible text on top of the scan (text recognition, so you can search) – that isn't reported, because you can see the scanned text."
+    },
+    "lithophane": {
+      "failed": "This picture couldn't be read. Try a PNG, JPG or WebP.",
+      "mode": "Kind",
+      "modes": {
+        "lithophane": "Lithophane (photo against the light)",
+        "relief": "Relief (logo, sign)"
+      },
+      "modeHelp": {
+        "lithophane": "Works best with photos that have clear light and dark areas, e.g. faces or landscapes.",
+        "relief": "Works best with logos or drawings in black on white or with a transparent background."
+      },
+      "width": "Width: {{value}} mm",
+      "frame": "Frame: {{value}} mm",
+      "min": "Thinnest spot (brightest): {{value}} mm",
+      "max": "Thickest spot (darkest): {{value}} mm",
+      "base": "Base plate: {{value}} mm",
+      "raise": "Height of the shape: {{value}} mm",
+      "invert": "Swap light and dark",
+      "backlit": "Roughly how it looks with light behind it",
+      "size": "Model: {{width}} × {{height}} mm, STL file {{file}} (one point every {{step}} mm).",
+      "download": "Download STL",
+      "printTips": {
+        "lithophane": "Print tips: white PLA, print standing upright (picture facing forward), 100 % infill, thin layers (0.1–0.12 mm). Don't scale in the slicer – the size is already right.",
+        "relief": "Print tips: print lying flat. For two colours, add a colour change (pause) in the slicer at the height of the base plate."
+      }
+    },
+    "passwordpack": {
+      "mode": "What would you like to do?",
+      "modes": {
+        "pack": "Pack a package",
+        "open": "Open a package"
+      },
+      "remove": "Remove {{name}}",
+      "total_one": "{{count}} file, {{size}}",
+      "total_other": "{{count}} files, {{size}} in total",
+      "tooBig": "Too big: a package may be at most {{max}}, otherwise the receiver's browser can't open it.",
+      "big": "The package is getting big. On some devices (especially phones) opening it takes long or fails. Email programs usually only allow 20–25 MB.",
+      "title": "Title (optional)",
+      "hint": "Password hint (optional)",
+      "visible": "Readable by anyone, even without the password.",
+      "message": "Message (optional)",
+      "messageHelp": "Encrypted too – only someone with the password can read it.",
+      "password": "Password",
+      "weak": "Short passwords are easy to guess. Better use at least 10 characters, e.g. three random words.",
+      "repeat": "Repeat password",
+      "mismatch": "The two passwords don't match.",
+      "make": "Create package",
+      "making": "Encrypting …",
+      "done": "Done! The package ({{size}}) was downloaded. Send it to the receiver – and the password by another route.",
+      "failed": "The package couldn't be created. Are the files too big for the browser's memory?",
+      "sendTip": "Tip: never send the password in the same message as the package – better by phone call, text message or in person.",
+      "defaultName": "Password package",
+      "errors": {
+        "notPackage": "This isn't a Conbert password package.",
+        "wrong": "The password is wrong (or the file was changed)."
+      },
+      "page": {
+        "heading": "Password package",
+        "intro": "This package is locked with a password. Type the password, then you can save the files. Nothing is uploaded – everything happens in your browser.",
+        "hintLabel": "Hint:",
+        "password": "Password",
+        "open": "Open",
+        "opening": "Opening …",
+        "wrong": "The password is wrong.",
+        "noCrypto": "Your browser can't open this package. Save the file and open it with an up-to-date Chrome, Edge, Firefox or Safari.",
+        "message": "Message",
+        "files": "Files",
+        "save": "Save",
+        "saveAll": "Save all",
+        "footer": "Made with Conbert. Encrypted with AES-256."
+      }
+    },
+    "handfont": {
+      "defaultName": "My Handwriting",
+      "sample": "The quick brown fox jumps over the lazy dog. 0123456789",
+      "sheet": {
+        "title": "Conbert – template for your handwriting font",
+        "instructions": "Write each character with a dark pen (felt-tip or fineliner) large into its box and let it stand on the blue line. g, j, p, q and y hang below. Don't write over the border, keep the black corners free.",
+        "footer": "Then take a photo (straight from above, good light) or scan it and load it in Conbert under Workshop > Handwriting as a font.",
+        "file": "Handwriting-template.pdf"
+      },
+      "steps": {
+        "print": "Download the template and print it on A4 (page size “actual size” or 100 %).",
+        "write": "Write each character into its box with a dark pen, standing on the blue line.",
+        "photo": "Photograph or scan the sheet and upload it here. All four black corners must be visible."
+      },
+      "getSheet": "Download template (PDF)",
+      "working": "Straightening and reading the sheet …",
+      "failed": "The picture couldn't be read. Try a JPG, PNG or PDF.",
+      "noMarkers": "The four black squares in the corners weren't found. Photograph the whole sheet from above, with some margin around it and without strong shadows.",
+      "read": "How Conbert read the sheet",
+      "found_one": "Recognised {{count}} of {{total}} characters (green frame).",
+      "found_other": "Recognised {{count}} of {{total}} characters (green frame).",
+      "name": "Font name",
+      "preview": "Try it out (you can type here)",
+      "missing": "These characters are missing because their box was empty: {{chars}}",
+      "borrowed": "Here the upper- or lowercase letter stands in: {{chars}}",
+      "download": "Download font (.otf)",
+      "install": "Install: on Windows double-click the .otf file and choose “Install”, on a Mac double-click and choose “Install Font”. Then it shows up in the font list of Word, LibreOffice & co."
     }
   },
   "feeds": {

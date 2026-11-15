@@ -1,5 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import {
+  PaletteIcon,
+  LampIcon,
+  PenLineIcon,
+  WaypointsIcon,
+  ChartPieIcon,
+  ScanTextIcon,
+  PackageIcon,
   ActivityIcon,
   BellRingIcon,
   SmileIcon,
@@ -105,6 +112,13 @@ import { StickerTool } from './makers/StickerTool';
 import { ContactSheetTool } from './makers/ContactSheetTool';
 import { ComicTool } from './makers/ComicTool';
 import { RenameTool } from './makers/RenameTool';
+import { PaletteTool } from './makers/PaletteTool';
+import { LithophaneTool } from './makers/LithophaneTool';
+import { HandwritingTool } from './makers/HandwritingTool';
+import { FileMapTool } from './insight/FileMapTool';
+import { SizeCheckTool } from './insight/SizeCheckTool';
+import { HiddenTextTool } from './forensics/HiddenTextTool';
+import { PasswordPackageTool } from './package/PasswordPackageTool';
 import { RedactCheckTool } from './forensics/RedactCheckTool';
 import { ThumbPrankTool } from './thumbs/ThumbPrankTool';
 import { SpectrogramTool } from './spectrogram/SpectrogramTool';
@@ -141,6 +155,13 @@ const TOOLS: Record<string, () => React.ReactNode> = {
   contactsheet: ContactSheetTool,
   comic: ComicTool,
   rename: RenameTool,
+  palette: PaletteTool,
+  lithophane: LithophaneTool,
+  handfont: HandwritingTool,
+  filemap: FileMapTool,
+  sizecheck: SizeCheckTool,
+  hiddentext: HiddenTextTool,
+  passwordpack: PasswordPackageTool,
   thumbprank: ThumbPrankTool,
   treasure: TreasureTool,
   ciphers: CiphersTool,
@@ -225,6 +246,13 @@ const ICONS: Record<string, LucideIcon> = {
   extractimages: ImagesIcon,
   audiovideo: ClapperboardIcon,
   scanner: ScanLineIcon,
+  palette: PaletteIcon,
+  lithophane: LampIcon,
+  handfont: PenLineIcon,
+  filemap: WaypointsIcon,
+  sizecheck: ChartPieIcon,
+  hiddentext: ScanTextIcon,
+  passwordpack: PackageIcon,
 };
 
 /** The FileWizard workshop: an overview of the tricks, or the open trick. */

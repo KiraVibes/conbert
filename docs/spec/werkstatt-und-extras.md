@@ -27,6 +27,8 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 | **Hex-Viewer** | Virtualisierte Hex-/ASCII-Ansicht auch für große Dateien, Header-Strukturen farbig markiert und erklärt (PNG-Chunks, ZIP-Einträge, JPEG-Marker). |
 | **Hashes & Prüfsummen** | MD5, SHA-1, SHA-256, SHA-512, CRC32, BLAKE3; Vergleich mit eingefügtem Hash („✅ Datei ist unverändert“). |
 | **Datei-Entropie** | Grafik, wie „zufällig“ die Datei ist – erklärt, warum komprimierte/verschlüsselte Daten nicht weiter schrumpfen. |
+| **Datei-Landkarte** (ergänzt 2026-11-15) | Bytes entlang einer Hilbert-Kurve als Bild (bis 512 × 512, Mischfarbe bei mehreren Bytes pro Punkt): nach Art (Nullen, FF, Text, Steuerzeichen, Rest) oder nach Zufälligkeit (Entropie über ≥ 256 Bytes); Zeigen auf einen Punkt nennt Stelle und Bytes. |
+| **Warum so groß?** (ergänzt 2026-11-15) | Aufteilung nach Teilen: Office/OpenDocument/EPUB/ZIP (Einträge nach Bilder, Medien, Schriften, Eingebettetes, Vorschaubild, Text), PDF (Streams nach Bild mit Maßen/Filter, Schrift, Anhang, Metadaten, Seiteninhalt), MP4/MOV (Spuren aus `stsz`, Bitrate, Auflösung, PCM-Ton), JPG (APP-Segmente, Bilddaten, Angehängtes inkl. Motion-Photo-Video), PNG (Chunks, Foto als PNG), WAV (FLAC-/MP3-Schätzung), BMP; sonst Entropie-Stichproben. Tipps mit Knöpfen: Bilder in Office/EPUB verkleinern (max. 2000 px, JPEG q 0,82, gleiches Format, EXIF-gedrehte ausgelassen), an „Komprimieren“ übergeben, Anhang abschneiden/Video herausholen. Im Browser. |
 | **Vergleichen** (ergänzt 2026-11-14) | Zwei Dateien: erst Byte für Byte (identisch? erste Abweichung, Anzahl), dann je nach Art: Texte als Zeilen-Diff (Myers, gleiche Abschnitte eingeklappt, bis 10 MB), Bilder mit Schieberegler, Unterschiedsmaske mit Toleranz und Nebeneinander (andere Größe → B wird skaliert, mit Hinweis), sonst Liste der abweichenden Stellen mit Hex-Ausschnitt. Alles im Browser. |
 
 **Datei-Forensik** (ergänzt 2026-11-14 auf Wunsch des Nutzers; der Fälschungs-Detektor ist hierher umgezogen)
@@ -43,6 +45,7 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 | **JPG-Herkunft** | Quantisierungstabellen (Standard-libjpeg vs. eigene, geschätzte Qualität), EXIF-Hersteller/Software, Photoshop-/Adobe-Blöcke, progressiv, Farbunterabtastung, typische Messenger-Größen → Kamera / Bearbeitung / Messenger / Programm. |
 | **Kopierte Bereiche** | Copy-Move-Erkennung: Fingerabdruck je 8×8-Block (16 Mittelwerte, gerundet), gemeinsame Verschiebungen → Quelle blau, Kopie rot; flache Blöcke ausgelassen. |
 | **Forensik-Lupe** | Rauschen (Bild minus Median), Kanten (Sobel), Helligkeitsband (schmaler Bereich gedehnt) mit Reglern. |
+| **Versteckter Text im PDF** (ergänzt 2026-11-15) | Seiten mit pdf.js zeichnen, je Textzeile Helligkeitsumfang an ihrer Stelle: unsichtbar (flach, kein schwarzer Balken – das ist die Schwärzungsprüfung), kaum sichtbar, winzig (< 3 pt); Text ganz außerhalb der Seite über eine Kopie mit vergrößerter Seitenbox (pdf.js lässt ihn sonst weg). OCR-Ebenen über Scans werden nicht gemeldet. |
 | **Schnitt-Detektor** | Aufnahmen: Hintergrundrauschen (leisestes Zehntel über je 2 s links/rechts), Klicks (Knick in der Wellenform), Netzbrummen 50/60 Hz (Goertzel) – Diagramm, Liste, Sprung im Player. |
 
 **Schutz, Prüfen & Reparieren** (ergänzt 2026-10-30 auf Wunsch des Nutzers)
@@ -65,6 +68,8 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 - **Audio zu Video** (ergänzt 2026-11-14): Tondatei + optionales Cover + optionaler Liedtext (LRC/SRT/VTT/ASS oder automatisch per Whisper) → MP4/WebM mit Wellenform, Frequenz-Säulen, Spektrum oder nur Bild (Engine `audio-video`, nur Server; auch über „Umwandeln“ und in Workflows).
 - **Vorschau-Streich** (ergänzt 2026-11-14): JPEG, dessen EXIF-Vorschaubild ein anderes Bild zeigt (Explorer-Symbole, Galerie-Apps); Vorschau auf das Seitenverhältnis zugeschnitten. Harmlos (nur Bilder), der Vorschau-Prüfer entlarvt ihn.
 - **Datei anhören**, **Morse-Code** (Text ↔ Zeichen, Ton/WAV, Lichtblinken, Aufnahme/Mikrofon → Text) und **SSTV** (Martin M1, Robot 36 mit VIS-Kopf; Senden als WAV für SSTV-Apps, Empfangen aus Aufnahmen über Hilbert-Frequenzschätzung) (ergänzt 2026-11-14).
+- **Lithophanie & Relief** (ergänzt 2026-11-15): Bild → Höhenfeld (alle 0,25 mm, höchstens 500 Punkte je Seite) → geschlossenes binäres STL (Oberfläche, Wände, Boden als Fächer); Lithophanie (dunkel = dick, Vorschau mit Licht dahinter) oder Relief (dunkle/deckende Stellen erhaben), Rahmen, Umkehren; Vorschau im 3D-Viewer.
+- **Handschrift als Schrift** (ergänzt 2026-11-15): A4-Vorlage (pdf-lib) mit 92 Kästchen, Grund- und x-Höhen-Linie in Hellblau und vier schwarzen Eckquadraten; Foto/Scan → Quadrate finden (Zusammenhangskomponenten), Homografie, je Kästchen Tinte (unter 62 % des Papiers), Krümel weg, Marching Squares auf geglätteter Maske, Douglas-Peucker, quadratische Kurven → OpenType (CFF) mit opentype.js. Fehlende Groß-/Kleinbuchstaben werden vom Gegenstück ersetzt. Im Browser (Worker).
 - **Sticker-Macher** (ergänzt 2026-11-14): freistellen (einfarbiger Hintergrund im Browser, sonst KI auf dem Server), Rand, 512 × 512, WebP < 100 KB und PNG.
 - **Audio rückwärts**, Tonhöhe/Tempo ändern („Chipmunk“), Klingelton-Maker (Ausschnitt + Fade + M4R/MP3).
 - **Icon- & Favicon-Generator**: ein Bild → ICO, ICNS, alle Favicon-Größen + `manifest.json`.
@@ -73,6 +78,8 @@ Ein eigener Bereich **„Werkstatt“** mit verspielten, aber nützlichen Datei-
 **Datei-Werkzeuge**
 - **Datei-Splitter/Joiner** (z. B. für Upload-Limits, auch als gesplittetes 7Z/ZIP).
 - **Passwortgeschützte Archive** erstellen (7Z/ZIP mit AES-256).
+- **Passwort-Paket** (ergänzt 2026-11-15): Dateien + Nachricht in eine einzige HTML-Datei, AES-256-GCM, Schlüssel per PBKDF2-SHA-256 (600 000 Runden); die Seite entschlüsselt beim Empfänger im Browser (kein Netz: CSP `default-src 'none'`), Titel und Hinweis bleiben lesbar. Conbert öffnet solche Pakete auch selbst. Höchstens 500 MB, Warnung ab 100 MB.
+- **Farbpalette** (ergänzt 2026-11-15): Hauptfarben (Median-Cut + k-Means, durchsichtige Pixel zählen nicht) mit Anteil; Export als CSS, SCSS, JSON, GIMP-Palette, Text.
 - **Base64 / Hex / URL-Encoding** für Dateien und Text, **Data-URI-Generator**.
 - **Text-Werkzeuge**: Zeichenkodierung erkennen und umwandeln (z. B. kaputte Umlaute „FÃ¼r“ → „Für“ reparieren), Zeilenenden CRLF ↔ LF.
 - **Bilder herausholen** (ergänzt 2026-11-14): alle Bilder aus ZIP-basierten Dokumenten (DOCX/PPTX/XLSX, ODT/ODP/ODS, EPUB, CBZ, Pages/Keynote/Numbers, ZIP) unverändert auspacken; aus PDFs JPEG/JPEG 2000 unverändert, Flate-Rohpixel (Grau/RGB/CMYK, 8 Bit, auch mit PNG-Prädiktor) als PNG. Masken, Paletten-/Sonderfarbräume, CCITT/JBIG2 werden übersprungen und gezählt; Vorschaubilder der App sind abgewählt; Auswahl als ZIP. Im Browser.

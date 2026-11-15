@@ -4427,6 +4427,41 @@
         "title": "Stapel-Umbenennen",
         "teaser": "Viele Dateien auf einmal umbenennen – z. B. „2024-07-14_Pixel-8_01.jpg“ mit Aufnahmedatum und Kamera aus den EXIF-Daten.",
         "how": "Gib ein Muster ein, z. B. {datum}_{nr}. Conbert setzt für jede Datei die Angaben ein: Datum und Uhrzeit der Aufnahme und die Kamera aus den EXIF-Daten (bei Fotos), sonst das Datum der Datei, dazu eine fortlaufende Nummer. Doppelte Namen bekommen „-2“, „-3“. Weil ein Browser Dateien auf deinem Gerät nicht umbenennen darf, bekommst du die umbenannten Dateien als ZIP. Alles läuft in deinem Browser."
+      },
+      "palette": {
+        "title": "Farbpalette",
+        "teaser": "Die Hauptfarben eines Bildes als Farbcodes – zum Kopieren oder als Palette für Design-Programme.",
+        "how": "Conbert schaut sich die Pixel des Bildes an und fasst ähnliche Farben zu Gruppen zusammen (erst grob aufteilen, dann ein paar Runden nachschärfen). Jede Gruppe wird eine Farbe der Palette; dazu siehst du, wie viel vom Bild sie ausmacht. Durchsichtige Stellen zählen nicht mit. Du bekommst die Farben als Hex-Code (#RRGGBB, so wie Webseiten und die meisten Programme sie wollen), als CSS/SCSS für Webseiten, als JSON oder als GIMP-Palette (.gpl, liest auch Inkscape und Krita). Alles passiert in deinem Browser."
+      },
+      "filemap": {
+        "title": "Datei-Landkarte",
+        "teaser": "Jede Datei als buntes Bild ihrer Bytes: Text, Nullen und gepackte Daten sieht man als eigene Gebiete.",
+        "how": "Eine Datei ist eine lange Reihe von Bytes. Conbert legt diese Reihe als Schlangenlinie (eine sogenannte Hilbert-Kurve) in ein Quadrat – dabei bleiben Bytes, die in der Datei nebeneinander liegen, auch im Bild nah beieinander. Jeder Punkt wird nach seinem Inhalt gefärbt: blau für lesbaren Text, schwarz für Nullen (leere Stellen), weiß für FF-Bytes, grün für Steuerzeichen, rot für alles andere – meist gepackte oder verschlüsselte Daten. Im Modus „Zufälligkeit“ zeigt die Farbe, wie durcheinander die Bytes sind: ruhiges Blau für Wiederholungen, Rot für gepackte oder verschlüsselte Teile. So erkennst du auf einen Blick, wo in einer Datei Bilder, Text oder versteckte Anhänge stecken. Fahr mit der Maus über das Bild, um zu sehen, welche Bytes an der Stelle stehen."
+      },
+      "sizecheck": {
+        "title": "Warum so groß?",
+        "teaser": "Zerlegt eine Datei und zeigt, was den Platz frisst – mit Tipps und Knöpfen zum Verkleinern.",
+        "how": "Conbert schaut in die Datei hinein und rechnet zusammen, wie viele Bytes auf welchen Teil entfallen: Bei Word, Excel, PowerPoint, OpenDocument und E-Books auf Bilder, Schriften, eingebettete Dateien und Text; bei PDFs auf Bilder, Schriften, Anhänge und Seiteninhalt; bei MP4/MOV-Videos auf Bild- und Tonspur (mit Bitrate, also Daten pro Sekunde); bei Fotos auf Bilddaten, Metadaten (EXIF, Farbprofil) und Daten, die hinten angehängt wurden – zum Beispiel das kurze Video eines „Motion Photo“. Danach bekommst du Tipps, was wirklich hilft. Manches kann Conbert direkt erledigen: die Bilder in einem Office-Dokument verkleinern, einen Anhang abschneiden oder die Datei in den Komprimieren-Bereich schicken. Die Analyse läuft komplett in deinem Browser."
+      },
+      "hiddentext": {
+        "title": "Versteckter Text im PDF",
+        "teaser": "Findet Text, den Menschen nicht sehen, Maschinen aber lesen: weiß auf weiß, winzig oder neben der Seite.",
+        "how": "Manche verstecken Wörter in PDFs, die nur Computer lesen – etwa Stichwörter in Bewerbungen, die automatische Filter oder KI-Programme austricksen sollen, oder heimliche Anweisungen an eine KI. Conbert zeichnet jede Seite so, wie du sie sehen würdest, und prüft für jede Textzeile, ob an ihrer Stelle überhaupt etwas zu sehen ist. Gemeldet wird Text, der unsichtbar ist (z. B. weiße Schrift auf weißem Grund), nur ganz blass, winzig klein (unter 3 Punkt) oder außerhalb der Seite liegt. Text unter schwarzen Balken findest du mit „Schwärzung echt?“. Grenzen: Text, der unter einem Bild versteckt ist, wird nicht immer erkannt. Alles läuft in deinem Browser."
+      },
+      "lithophane": {
+        "title": "Lithophanie & Relief",
+        "teaser": "Ein Foto als 3D-Druck, der gegen das Licht gehalten das Bild zeigt – oder ein Logo als erhabenes Relief.",
+        "how": "Eine Lithophanie ist eine dünne Platte, deren Dicke dem Bild folgt: Dunkle Stellen werden dick, helle dünn. Hältst du sie vor eine Lampe oder ein Fenster, scheint an dünnen Stellen viel Licht durch und das Foto erscheint. Conbert macht aus jedem Bildpunkt eine Höhe (alle 0,25 mm ein Punkt) und baut daraus ein geschlossenes 3D-Modell im STL-Format, das jedes Slicer-Programm (Cura, PrusaSlicer, Bambu Studio …) öffnet. Im Modus „Relief“ wird stattdessen die Form eines Logos oder einer Zeichnung (dunkle oder nicht durchsichtige Stellen) von einer Grundplatte hochgezogen – gut für Schilder, Stempel-Vorlagen oder Untersetzer. Die Vorschau zeigt das Modell zum Drehen und, bei Lithophanien, wie es mit Licht dahinter ungefähr aussieht."
+      },
+      "passwordpack": {
+        "title": "Passwort-Paket",
+        "teaser": "Dateien in eine einzige Datei packen, die sich beim Empfänger nur mit Passwort öffnet – in jedem Browser, ohne Programm.",
+        "how": "Conbert verschlüsselt deine Dateien (und eine Nachricht, wenn du willst) mit AES-256 – das ist dieselbe Verschlüsselung, die auch Banken nutzen. Der Schlüssel entsteht aus deinem Passwort; dabei wird es 600 000-mal durchgerechnet (PBKDF2), damit Raten sehr lange dauert. Heraus kommt eine einzige HTML-Datei. Die schickst du per Mail, Cloud oder USB-Stick. Der Empfänger öffnet sie im Browser (Doppelklick genügt), gibt das Passwort ein und kann die Dateien speichern. Dafür braucht er weder ein Programm noch Conbert, und nichts wird hochgeladen – das Entschlüsseln passiert in seinem Browser. Ohne Passwort kommt niemand an den Inhalt, auch du nicht: Ein vergessenes Passwort kann niemand wiederherstellen. Titel und Passwort-Hinweis sind ohne Passwort lesbar, schreib dort also nichts Geheimes hin."
+      },
+      "handfont": {
+        "title": "Handschrift als Schrift",
+        "teaser": "Vorlage ausdrucken, ausfüllen, fotografieren – und deine Handschrift wird eine echte Schrift für Word & Co.",
+        "how": "Du druckst eine Vorlage mit einem Kästchen pro Zeichen aus und schreibst jedes Zeichen mit einem dunklen Stift hinein. Dann fotografierst oder scannst du das Blatt. Conbert findet die vier schwarzen Quadrate in den Ecken und zieht das Blatt damit gerade, auch wenn das Foto schräg ist. Danach wird jedes Kästchen ausgeschnitten: Die Tinte wird vom Papier getrennt (die hellblauen Hilfslinien verschwinden dabei), Krümel werden entfernt und die Umrisse werden zu glatten Kurven. Die blaue Linie im Kästchen ist die Grundlinie – darauf „stehen“ die Buchstaben, damit g, p und y später richtig nach unten hängen. Aus allen Zeichen baut Conbert eine OpenType-Schrift (.otf), die du in Windows, macOS, Word oder Canva installieren kannst. Leere Kästchen fehlen in der Schrift; fehlt ein Groß- oder Kleinbuchstabe, springt der andere ein. Alles passiert in deinem Browser."
       }
     },
     "identify": {
@@ -6681,6 +6716,259 @@
       "download_other": "{{count}} Dateien als ZIP herunterladen",
       "clear": "Alle entfernen",
       "zipHint": "Deine Originale bleiben unverändert – der Browser darf sie nicht umbenennen. Entpacke das ZIP, wo du die Dateien haben willst."
+    },
+    "palette": {
+      "failed": "Dieses Bild konnte nicht gelesen werden. Versuch es mit einem PNG, JPG oder WebP.",
+      "picture": "Dein Bild",
+      "count": "Anzahl Farben: {{count}}",
+      "bar": "Anteil jeder Farbe am Bild",
+      "copy": "Farbcode kopieren",
+      "format": "Als Datei",
+      "formats": {
+        "css": "CSS-Variablen (Webseiten)",
+        "scss": "SCSS-Variablen (Webseiten)",
+        "json": "JSON (Programme)",
+        "gpl": "GIMP-Palette (GIMP, Inkscape, Krita)",
+        "txt": "Liste der Farbcodes (Text)"
+      },
+      "download": "Palette herunterladen",
+      "copyAll": "Alles kopieren"
+    },
+    "filemap": {
+      "failed": "Die Datei konnte nicht gelesen werden.",
+      "mode": "Färbung",
+      "modes": {
+        "kind": "Nach Art der Bytes",
+        "entropy": "Nach Zufälligkeit"
+      },
+      "picture": "Landkarte der Datei",
+      "scale_one": "Jeder Punkt ist {{bytes}} Byte der Datei.",
+      "scale_other": "Jeder Punkt fasst {{bytes}} Bytes der Datei zusammen (Mischfarbe).",
+      "cut": "Gezeigt werden die ersten {{size}} Bytes.",
+      "modeHelp": {
+        "kind": "Jede Farbe steht für eine Art von Bytes. Große einfarbige Flächen sind gleichartige Teile der Datei – etwa ein Textblock oder ein eingebettetes Bild.",
+        "entropy": "Wie durcheinander sind die Bytes an dieser Stelle? Blau: viel Wiederholung (leicht zu packen). Gelb: gemischt, z. B. Programmcode. Rot: wie Zufall – gepackt (ZIP, JPG, MP4) oder verschlüsselt."
+      },
+      "kinds": {
+        "zero": "Nullen (leere Stellen, Füllbytes)",
+        "full": "FF-Bytes (oft Füllung)",
+        "text": "Lesbarer Text",
+        "control": "Steuerzeichen und kleine Zahlen",
+        "high": "Alles andere – meist gepackt oder verschlüsselt"
+      },
+      "entropyLow": "geordnet",
+      "entropyHigh": "wie Zufall",
+      "at_one": "Stelle {{offset}} ({{bytes}} Byte)",
+      "at_other": "Ab Stelle {{offset}} ({{bytes}} Bytes)",
+      "pointHint": "Zeig mit der Maus (oder tipp) auf das Bild, um zu sehen, welche Bytes dort stehen.",
+      "reading": "So liest du die Karte: Die Datei beginnt oben links und schlängelt sich durch das ganze Quadrat bis oben rechts. Graue Kästchen am Ende sind kein Teil der Datei mehr."
+    },
+    "sizecheck": {
+      "failed": "Diese Datei konnte nicht untersucht werden.",
+      "working": "Conbert schaut in die Datei …",
+      "summary": "{{kind}}, insgesamt {{size}}. So verteilt sich der Platz:",
+      "kinds": {
+        "office": "Office-Dokument",
+        "epub": "E-Book (EPUB)",
+        "zip": "ZIP-Archiv",
+        "pdf": "PDF-Dokument",
+        "mp4": "Video (MP4/MOV)",
+        "jpeg": "JPG-Foto",
+        "png": "PNG-Bild",
+        "wav": "WAV-Audio",
+        "bmp": "BMP-Bild",
+        "other": "Datei"
+      },
+      "bar": "Aufteilung der Datei nach Teilen",
+      "parts": {
+        "images": "Bilder",
+        "picture": "Bilddaten",
+        "video": "Videospur",
+        "audio": "Tonspur",
+        "subtitles": "Untertitel",
+        "media": "Videos und Musik",
+        "fonts": "Schriften",
+        "embedded": "Eingebettete Dateien",
+        "thumbnail": "Vorschaubild",
+        "text": "Text und Aufbau",
+        "metadata": "Metadaten",
+        "appended": "Hinten angehängt",
+        "structure": "Verwaltung und Verpackung",
+        "other": "Sonstiges"
+      },
+      "partHelp": {
+        "images": "Fotos, Grafiken und Diagramme in der Datei.",
+        "picture": "Das eigentliche Bild.",
+        "video": "Die bewegten Bilder. Wie groß sie sind, hängt vor allem an der Bitrate (Daten pro Sekunde).",
+        "audio": "Der Ton.",
+        "subtitles": "Untertitel-Spuren.",
+        "media": "Eingebettete Videos und Tondateien.",
+        "fonts": "Schriften, die mitgeliefert werden, damit das Dokument überall gleich aussieht.",
+        "embedded": "Ganze Dateien im Dokument – z. B. eine Excel-Tabelle in Word oder ein Anhang im PDF.",
+        "thumbnail": "Ein kleines Bild der ersten Seite für die Vorschau im Datei-Explorer.",
+        "text": "Der Text und die Beschreibung, wie alles aussieht (Seiten, Linien, Formatierung).",
+        "metadata": "Zusatzinfos wie Kamera, Ort, Farbprofil oder Bearbeitungsverlauf.",
+        "appended": "Daten nach dem eigentlichen Ende der Datei. Programme ignorieren sie meistens – sie kosten aber Platz.",
+        "structure": "Inhaltsverzeichnis, Kopfdaten und Lücken – was jedes Dateiformat zum Verwalten braucht.",
+        "other": "Alles, was keiner der anderen Gruppen zugeordnet werden konnte."
+      },
+      "tipsTitle": "Was hilft?",
+      "tips": {
+        "shrinkImages": "Bilder machen {{share}} % der Datei aus. Oft sind sie viel größer, als man im Dokument sieht. Conbert kann sie auf höchstens 2000 Pixel verkleinern (reicht für eine ganze Seite in Druckqualität) und Fotos etwas stärker packen. Text und Layout bleiben unverändert; du bekommst eine Kopie.",
+        "compressPdf": "Bilder machen {{share}} % des PDFs aus ({{count}} Stück). Im Bereich „Komprimieren“ werden sie verkleinert – meist schrumpft das PDF dabei deutlich.",
+        "pdfFonts": "Ein großer Teil sind eingebettete Schriften. Das ist normal, wenn viele oder ausgefallene Schriften benutzt werden. Beim erneuten Speichern als PDF hilft die Option „nur verwendete Zeichen einbetten“ (Teilmenge).",
+        "pdfAttachments": "Im PDF stecken angehängte Dateien. Die siehst du in vielen PDF-Programmen in der Seitenleiste „Anhänge“ – wenn sie nicht gebraucht werden, kannst du sie dort entfernen.",
+        "compressVideo": "Das Video hat {{mbps}} Mbit/s – für diese Auflösung reichen meist rund {{enough}} Mbit/s, ohne dass man einen Unterschied sieht. Im Bereich „Komprimieren“ wird es deutlich kleiner.",
+        "pcmAudio": "Der Ton ist unkomprimiert gespeichert (PCM). Als AAC klingt er praktisch genauso, braucht aber nur einen Bruchteil des Platzes.",
+        "wavToSmaller": "WAV speichert Ton ungepackt. Als FLAC (verlustfrei, gleiche Qualität) wären es etwa {{flac}} MB, als MP3 in guter Qualität etwa {{mp3}} MB.",
+        "appended": "Hinter dem eigentlichen Bild hängen noch Daten – das Bild braucht sie nicht. Du kannst sie abschneiden. Schau aber vorher, ob dort etwas Wichtiges versteckt ist (z. B. mit dem Detektiv-Scan).",
+        "motionPhoto": "Das ist ein „Motion Photo“ oder „Live-Foto“: Hinter dem Foto hängt ein kurzes Video. Du kannst das Foto ohne Video speichern – oder das Video herausholen.",
+        "photoAsPng": "Das ist ein Foto, das als PNG gespeichert wurde. PNG ist für Grafiken gedacht; als JPG oder WebP wäre dasselbe Foto meist 5- bis 10-mal kleiner.",
+        "bigMetadata": "Ein großer Teil sind Metadaten (z. B. Vorschaubilder, Bearbeitungsverlauf, Farbprofil). Beim Komprimieren werden sie standardmäßig entfernt.",
+        "uncompressedImage": "BMP speichert jeden Pixel ungepackt. Als PNG (verlustfrei) ist dasselbe Bild meist viel kleiner.",
+        "embeddedObjects": "Ein großer Teil sind eingebettete Dateien (z. B. Excel-Tabellen oder PDFs im Dokument). Wenn du sie nicht brauchst, ersetze sie im Office-Programm durch ein Bild oder einen Link.",
+        "bigThumbnail": "Das Vorschaubild ist ungewöhnlich groß. Beim Speichern in Office kannst du „Vorschaubild speichern“ abschalten.",
+        "alreadyPacked": "Die Daten sind schon gepackt oder verschlüsselt – ein ZIP würde sie kaum kleiner machen.",
+        "packable": "Die Datei enthält viel Wiederholung. Als ZIP oder 7z gepackt würde sie deutlich kleiner.",
+        "nothingBig": "Nichts Auffälliges – die Datei ist für ihren Inhalt nicht unnötig groß."
+      },
+      "actions": {
+        "shrinkImages": "Bilder darin verkleinern",
+        "compress": "Im Bereich „Komprimieren“ öffnen",
+        "stripAppended": "Ohne Anhang speichern",
+        "saveVideo": "Video herausholen"
+      },
+      "shrinking": "Bilder werden verkleinert … {{percent}} %",
+      "shrunk_one": "Fertig: {{count}} Bild verkleinert, {{saved}} gespart. Die kleinere Kopie wurde heruntergeladen.",
+      "shrunk_other": "Fertig: {{count}} Bilder verkleinert, {{saved}} gespart. Die kleinere Kopie wurde heruntergeladen.",
+      "notShrunk": "Die Bilder sind schon so klein, dass Verkleinern nichts bringt.",
+      "shrinkFailed": "Das Verkleinern hat nicht geklappt – die Datei ist vielleicht beschädigt oder verschlüsselt.",
+      "local": "Die Datei bleibt dabei auf deinem Gerät."
+    },
+    "hiddentext": {
+      "failed": "Das PDF konnte nicht gelesen werden (beschädigt oder mit Passwort geschützt?).",
+      "working": "Seiten werden geprüft …",
+      "found_one": "{{count}} Stelle mit verstecktem Text gefunden. Diesen Text lesen Suchfunktionen, Bewerbungsfilter und KI-Programme mit – Menschen sehen ihn nicht.",
+      "found_other": "{{count}} Stellen mit verstecktem Text gefunden. Diesen Text lesen Suchfunktionen, Bewerbungsfilter und KI-Programme mit – Menschen sehen ihn nicht.",
+      "clean_one": "Kein versteckter Text gefunden ({{count}} Seite geprüft).",
+      "clean_other": "Kein versteckter Text gefunden ({{count}} Seiten geprüft).",
+      "limit": "Geprüft wurden die ersten {{checked}} von {{pages}} Seiten.",
+      "kinds": {
+        "invisible": "Unsichtbar",
+        "faint": "Kaum sichtbar",
+        "tiny": "Winzig",
+        "offpage": "Neben der Seite"
+      },
+      "kindHelp": {
+        "invisible": "An dieser Stelle ist nichts zu sehen – der Text hat dieselbe Farbe wie der Hintergrund (z. B. weiß auf weiß) oder ist unsichtbar geschrieben.",
+        "faint": "Die Schrift ist so blass, dass man sie kaum bemerkt (z. B. hellgrau auf weiß).",
+        "tiny": "Die Schrift ist kleiner als 3 Punkt – normaler Text hat 9 bis 12 Punkt.",
+        "offpage": "Der Text liegt außerhalb der sichtbaren Seite und wird weder angezeigt noch gedruckt."
+      },
+      "page": "Seite {{page}}",
+      "copy": "Text kopieren",
+      "copyAll": "Alles kopieren",
+      "limits": "Text unter einem Bild wird nicht immer erkannt. Bei gescannten PDFs liegt oft absichtlich unsichtbarer Text über dem Scan (Texterkennung, damit man suchen kann) – der wird nicht gemeldet, weil man das Gescannte ja sieht."
+    },
+    "lithophane": {
+      "failed": "Dieses Bild konnte nicht gelesen werden. Versuch es mit einem PNG, JPG oder WebP.",
+      "mode": "Art",
+      "modes": {
+        "lithophane": "Lithophanie (Foto gegen das Licht)",
+        "relief": "Relief (Logo, Schild)"
+      },
+      "modeHelp": {
+        "lithophane": "Am besten mit Fotos mit klaren Hell-dunkel-Unterschieden, z. B. Gesichter oder Landschaften.",
+        "relief": "Am besten mit Logos oder Zeichnungen in Schwarz auf Weiß oder mit durchsichtigem Hintergrund."
+      },
+      "width": "Breite: {{value}} mm",
+      "frame": "Rahmen: {{value}} mm",
+      "min": "Dünnste Stelle (hellste): {{value}} mm",
+      "max": "Dickste Stelle (dunkelste): {{value}} mm",
+      "base": "Grundplatte: {{value}} mm",
+      "raise": "Höhe der Form: {{value}} mm",
+      "invert": "Hell und dunkel tauschen",
+      "backlit": "So ungefähr sieht es mit Licht dahinter aus",
+      "size": "Modell: {{width}} × {{height}} mm, STL-Datei {{file}} (alle {{step}} mm ein Messpunkt).",
+      "download": "STL herunterladen",
+      "printTips": {
+        "lithophane": "Drucktipps: weißes PLA, aufrecht stehend drucken (Bild zeigt nach vorne), 100 % Füllung, dünne Schichten (0,1–0,12 mm). Im Slicer nichts skalieren – die Maße stimmen schon.",
+        "relief": "Drucktipps: flach liegend drucken. Für zwei Farben im Slicer bei der Höhe der Grundplatte einen Farbwechsel (Pause) einfügen."
+      }
+    },
+    "passwordpack": {
+      "mode": "Was möchtest du tun?",
+      "modes": {
+        "pack": "Paket packen",
+        "open": "Paket öffnen"
+      },
+      "remove": "{{name}} entfernen",
+      "total_one": "{{count}} Datei, {{size}}",
+      "total_other": "{{count}} Dateien, zusammen {{size}}",
+      "tooBig": "Zu groß: Ein Paket darf höchstens {{max}} haben, sonst kann es der Browser des Empfängers nicht mehr öffnen.",
+      "big": "Das Paket wird groß. Auf manchen Geräten (vor allem Handys) dauert das Öffnen dann lange oder klappt nicht. Mail-Programme lassen meist nur 20–25 MB zu.",
+      "title": "Titel (optional)",
+      "hint": "Passwort-Hinweis (optional)",
+      "visible": "Für jeden lesbar, auch ohne Passwort.",
+      "message": "Nachricht (optional)",
+      "messageHelp": "Wird mit verschlüsselt – nur wer das Passwort kennt, liest sie.",
+      "password": "Passwort",
+      "weak": "Kurze Passwörter sind leicht zu erraten. Nimm lieber mindestens 10 Zeichen, z. B. drei zufällige Wörter.",
+      "repeat": "Passwort wiederholen",
+      "mismatch": "Die beiden Passwörter sind nicht gleich.",
+      "make": "Paket erstellen",
+      "making": "Wird verschlüsselt …",
+      "done": "Fertig! Das Paket ({{size}}) wurde heruntergeladen. Schick es dem Empfänger – und das Passwort auf einem anderen Weg.",
+      "failed": "Das Paket konnte nicht erstellt werden. Sind die Dateien zu groß für den Speicher des Browsers?",
+      "sendTip": "Tipp: Schick das Passwort nie in derselben Nachricht wie das Paket – besser per Anruf, SMS oder persönlich.",
+      "defaultName": "Passwort-Paket",
+      "errors": {
+        "notPackage": "Das ist kein Passwort-Paket von Conbert.",
+        "wrong": "Das Passwort stimmt nicht (oder die Datei wurde verändert)."
+      },
+      "page": {
+        "heading": "Passwort-Paket",
+        "intro": "Dieses Paket ist mit einem Passwort verschlossen. Gib das Passwort ein, dann kannst du die Dateien speichern. Nichts wird hochgeladen – alles passiert in deinem Browser.",
+        "hintLabel": "Hinweis:",
+        "password": "Passwort",
+        "open": "Öffnen",
+        "opening": "Wird geöffnet …",
+        "wrong": "Das Passwort stimmt nicht.",
+        "noCrypto": "Dein Browser kann dieses Paket nicht öffnen. Speichere die Datei und öffne sie mit einem aktuellen Chrome, Edge, Firefox oder Safari.",
+        "message": "Nachricht",
+        "files": "Dateien",
+        "save": "Speichern",
+        "saveAll": "Alle speichern",
+        "footer": "Erstellt mit Conbert. Verschlüsselt mit AES-256."
+      }
+    },
+    "handfont": {
+      "defaultName": "Meine Handschrift",
+      "sample": "Franz jagt im komplett verwahrlosten Taxi quer durch Bayern. 0123456789",
+      "sheet": {
+        "title": "Conbert – Vorlage für deine Handschrift-Schrift",
+        "instructions": "Schreib jedes Zeichen mit einem dunklen Stift (Filzstift oder Fineliner) groß in sein Kästchen und stell es auf die blaue Linie. g, j, p, q und y hängen nach unten. Nicht über den Rand schreiben, die schwarzen Ecken frei lassen.",
+        "footer": "Danach fotografieren (gerade von oben, gutes Licht) oder scannen und in Conbert unter Werkstatt > Handschrift als Schrift laden.",
+        "file": "Handschrift-Vorlage.pdf"
+      },
+      "steps": {
+        "print": "Vorlage herunterladen und auf A4 ausdrucken (Seitengröße „Tatsächliche Größe“ bzw. 100 %).",
+        "write": "Jedes Zeichen mit dunklem Stift in sein Kästchen schreiben, auf die blaue Linie.",
+        "photo": "Das Blatt fotografieren oder scannen und hier hochladen. Alle vier schwarzen Ecken müssen zu sehen sein."
+      },
+      "getSheet": "Vorlage herunterladen (PDF)",
+      "working": "Das Blatt wird geradegezogen und gelesen …",
+      "failed": "Das Bild konnte nicht gelesen werden. Versuch es mit einem JPG, PNG oder PDF.",
+      "noMarkers": "Die vier schwarzen Quadrate in den Ecken wurden nicht gefunden. Fotografiere das ganze Blatt von oben, mit etwas Rand drumherum und ohne starken Schatten.",
+      "read": "So hat Conbert das Blatt gelesen",
+      "found_one": "{{count}} von {{total}} Zeichen erkannt (grün umrandet).",
+      "found_other": "{{count}} von {{total}} Zeichen erkannt (grün umrandet).",
+      "name": "Name der Schrift",
+      "preview": "Probier sie aus (du kannst hier tippen)",
+      "missing": "Diese Zeichen fehlen, weil ihr Kästchen leer war: {{chars}}",
+      "borrowed": "Hier springt der Groß- bzw. Kleinbuchstabe ein: {{chars}}",
+      "download": "Schrift herunterladen (.otf)",
+      "install": "Installieren: Unter Windows die .otf-Datei doppelklicken und „Installieren“ wählen, auf dem Mac doppelklicken und „Schrift installieren“. Danach taucht sie in Word, LibreOffice & Co. in der Schriftliste auf."
     }
   },
   "feeds": {
