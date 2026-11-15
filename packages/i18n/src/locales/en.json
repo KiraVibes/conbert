@@ -6985,6 +6985,14 @@
       "list": "List",
       "count_one": "{{count}} tool",
       "count_other": "{{count}} tools"
+    },
+    "search": {
+      "label": "Search the tools",
+      "placeholder": "Search tools, e.g. “PDF”, “picture” or “hide”",
+      "clear": "Clear search",
+      "hits_one": "Found {{count}} tool.",
+      "hits_other": "Found {{count}} tools.",
+      "none": "No tool matches “{{query}}”. Try another word, e.g. what you want to do with the file."
     }
   },
   "feeds": {

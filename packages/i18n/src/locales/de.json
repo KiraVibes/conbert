@@ -6985,6 +6985,14 @@
       "list": "Liste",
       "count_one": "{{count}} Werkzeug",
       "count_other": "{{count}} Werkzeuge"
+    },
+    "search": {
+      "label": "Werkzeuge durchsuchen",
+      "placeholder": "Werkzeug suchen, z. B. „PDF“, „Bild“ oder „verstecken“",
+      "clear": "Suche leeren",
+      "hits_one": "{{count}} Werkzeug gefunden.",
+      "hits_other": "{{count}} Werkzeuge gefunden.",
+      "none": "Kein Werkzeug passt zu „{{query}}“. Versuch ein anderes Wort, z. B. was du mit der Datei machen möchtest."
     }
   },
   "feeds": {

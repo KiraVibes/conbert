@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  XIcon,
   ChevronRightIcon,
   ListIcon,
   PaletteIcon,
@@ -130,6 +131,8 @@ import { TreasureTool } from './treasure/TreasureTool';
 import { VaultTool } from './vault/VaultTool';
 import { XrayTool } from './xray/XrayTool';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Input } from '@/components/ui/input';
+import { matchesSearch } from './workshop-search';
 
 /** Tricks with a page of their own (the X-ray tricks share one). */
 const TOOLS: Record<string, () => React.ReactNode> = {
@@ -278,6 +281,7 @@ export function WorkshopView() {
   const { t } = useTranslation();
   const [trick, openTrick] = useWorkshopTrick();
   const [layout, setLayoutState] = useState<Layout>(rememberedLayout);
+  const [query, setQuery] = useState('');
   const setLayout = (next: Layout) => {
     setLayoutState(next);
     try {
@@ -319,13 +323,55 @@ export function WorkshopView() {
     );
   }
 
+  const found = WORKSHOP_TRICKS.filter((tr) =>
+    matchesSearch(
+      query,
+      [
+        tr.id,
+        t(`workshop.tricks.${tr.id}.title`),
+        t(`workshop.tricks.${tr.id}.teaser`),
+        t(`workshop.tricks.${tr.id}.how`),
+        t(`workshop.groups.${tr.group}.title`),
+      ].join(' '),
+    ),
+  );
+
   return (
     <div>
       <ViewIntro title={t('workshop.title')} help="workshop">
         {t('workshop.intro')}
       </ViewIntro>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="relative max-w-md min-w-48 flex-1">
+          <SearchIcon
+            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') setQuery('');
+            }}
+            placeholder={t('workshop.search.placeholder')}
+            aria-label={t('workshop.search.label')}
+            className="pr-8 pl-8 [&::-webkit-search-cancel-button]:hidden"
+            data-testid="workshop-search"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              className="absolute top-1/2 right-1.5 flex size-6 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label={t('workshop.search.clear')}
+            >
+              <XIcon className="size-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
         <ToggleGroup
+          className="ml-auto"
           type="single"
           variant="outline"
           size="sm"
@@ -344,8 +390,15 @@ export function WorkshopView() {
           })}
         </ToggleGroup>
       </div>
+      {query.trim() && (
+        <p className="mb-4 text-sm text-muted-foreground" role="status" data-testid="workshop-hits">
+          {found.length > 0
+            ? t('workshop.search.hits', { count: found.length })
+            : t('workshop.search.none', { query: query.trim() })}
+        </p>
+      )}
       {WORKSHOP_GROUPS.map((group) => {
-        const tricks = WORKSHOP_TRICKS.filter((tr) => tr.group === group);
+        const tricks = found.filter((tr) => tr.group === group);
         if (tricks.length === 0) return null;
         if (layout === 'list')
           return (
