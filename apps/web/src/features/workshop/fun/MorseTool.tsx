@@ -5,6 +5,7 @@ import {
   LightbulbIcon,
   Loader2Icon,
   MicIcon,
+  ArrowRightIcon,
   PlayIcon,
   SquareIcon,
 } from 'lucide-react';
@@ -15,10 +16,20 @@ import {
   morseAudio,
   morseTiming,
   toMorse,
+  WHISPER_LANGUAGES,
   type MorseHeard,
+  type WhisperLanguage,
 } from '@conbert/core';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { convertOnServer } from '@/engines/server-convert';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { decodeSound } from '../audio-convert';
@@ -26,6 +37,7 @@ import { CopyButton } from '../CopyButton';
 import { HowItWorks, SingleFile } from '../SingleFile';
 import { saveBlob } from '../save-blob';
 import { useObjectUrl } from '../thumbs/thumb-image';
+import { useSpeechAvailable } from '../audio-video/lyrics';
 
 const RATE = 22050;
 
@@ -40,13 +52,15 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
     />
   );
 }
-const MODES = ['write', 'read', 'listen'] as const;
+const MODES = ['write', 'read', 'listen', 'speak'] as const;
 type Mode = (typeof MODES)[number];
 
 /** Morse code: text ↔ dots and dashes, as sound and light, and back from a recording. */
 export function MorseTool() {
   const { t } = useTranslation();
   const [mode, setMode] = useState<Mode>('write');
+  // The text of "Text → Morse" – spoken words can be carried over into it.
+  const [text, setText] = useState('SOS');
   return (
     <div className="space-y-4">
       <HowItWorks trick="morse" />
@@ -70,7 +84,7 @@ export function MorseTool() {
       {/* All three stay on the page (only hidden): a sound playing in "Text →
           Morse" or a running recording keeps going while switching tabs. */}
       <div hidden={mode !== 'write'}>
-        <WriteMorse />
+        <WriteMorse text={text} setText={setText} />
       </div>
       <div hidden={mode !== 'read'}>
         <ReadMorse />
@@ -78,13 +92,20 @@ export function MorseTool() {
       <div hidden={mode !== 'listen'}>
         <ListenMorse />
       </div>
+      <div hidden={mode !== 'speak'}>
+        <SpeakMorse
+          onUse={(spoken) => {
+            setText(spoken);
+            setMode('write');
+          }}
+        />
+      </div>
     </div>
   );
 }
 
-function WriteMorse() {
+function WriteMorse({ text, setText }: { text: string; setText: (t: string) => void }) {
   const { t } = useTranslation();
-  const [text, setText] = useState('SOS');
   const [wpm, setWpm] = useState(15);
   const [lit, setLit] = useState(false);
   const [flashing, setFlashing] = useState(false);
@@ -321,6 +342,153 @@ function ListenMorse() {
         <PlayIcon className="mr-1 inline size-3" aria-hidden="true" />
         {t('workshop.morse.listenTip')}
       </p>
+    </div>
+  );
+}
+
+/** Sprache → Morse: speak (or upload a recording), Whisper writes it down, Conbert morses it. */
+function SpeakMorse({ onUse }: { onUse: (text: string) => void }) {
+  const { t } = useTranslation();
+  const available = useSpeechAvailable();
+  const [language, setLanguage] = useState<WhisperLanguage>('auto');
+  const [file, setFile] = useState<File | null>(null);
+  const [recording, setRecording] = useState<MediaRecorder | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [spoken, setSpoken] = useState<string | null>(null);
+  const code = useMemo(() => (spoken ? toMorse(spoken) : ''), [spoken]);
+  const wav = useMemo(
+    () =>
+      code
+        ? new Blob([floatWav(morseAudio(code, RATE, 15), RATE) as Uint8Array<ArrayBuffer>], {
+            type: 'audio/wav',
+          })
+        : null,
+    [code],
+  );
+  const url = useObjectUrl(wav);
+
+  async function recognise(f: File) {
+    setBusy(true);
+    setFailed(false);
+    setSpoken(null);
+    try {
+      const out = await convertOnServer({
+        file: f,
+        fileName: f.name,
+        outputExt: 'txt',
+        options: { speechLanguage: language },
+      });
+      setSpoken((await out.text()).replace(/\s+/g, ' ').trim());
+    } catch (e) {
+      console.error(e);
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function record() {
+    if (recording) {
+      recording.stop();
+      return;
+    }
+    try {
+      // For speech the browser's speech filters help – they stay on here.
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream);
+      const parts: Blob[] = [];
+      rec.ondataavailable = (e) => parts.push(e.data);
+      rec.onstop = () => {
+        stream.getTracks().forEach((tr) => tr.stop());
+        setRecording(null);
+        const ext = rec.mimeType.includes('ogg')
+          ? 'ogg'
+          : rec.mimeType.includes('mp4')
+            ? 'm4a'
+            : 'webm';
+        const f = new File(parts, `sprache.${ext}`, { type: rec.mimeType });
+        setFile(f);
+        void recognise(f);
+      };
+      rec.start();
+      setRecording(rec);
+    } catch (e) {
+      console.error(e);
+      setFailed(true);
+    }
+  }
+
+  if (!available) {
+    return <p className="rounded-lg border p-3 text-sm">{t('workshop.morse.speakUnavailable')}</p>;
+  }
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">{t('workshop.morse.speakIntro')}</p>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="morse-speak-language">{t('options.speechLanguage.label')}</Label>
+          <Select value={language} onValueChange={(v) => setLanguage(v as WhisperLanguage)}>
+            <SelectTrigger id="morse-speak-language" className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {WHISPER_LANGUAGES.map((l) => (
+                <SelectItem key={l} value={l}>
+                  {t(`options.speechLanguage.${l}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button onClick={() => void record()} disabled={busy}>
+          {recording ? <SquareIcon aria-hidden="true" /> : <MicIcon aria-hidden="true" />}
+          {recording ? t('workshop.morse.speakStop') : t('workshop.morse.speakRecord')}
+        </Button>
+      </div>
+      <SingleFile
+        file={file}
+        onFile={(f) => {
+          setFile(f);
+          if (f) void recognise(f);
+        }}
+      />
+      {busy && (
+        <p className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2Icon
+            className="size-4 animate-spin motion-reduce:animate-none"
+            aria-hidden="true"
+          />
+          {t('workshop.morse.speakWorking')}
+        </p>
+      )}
+      {failed && (
+        <p role="alert" className="text-sm text-destructive">
+          {t('workshop.morse.speakFailed')}
+        </p>
+      )}
+      {spoken !== null && !busy && (
+        <div className="space-y-2" data-testid="morse-spoken">
+          <p className="rounded-lg border p-3 text-lg">
+            {spoken || t('workshop.morse.speakNothing')}
+          </p>
+          {code && (
+            <>
+              <div className="flex items-start gap-2">
+                <p className="flex-1 rounded-lg border bg-muted/40 p-3 font-mono break-words">
+                  {code}
+                </p>
+                <CopyButton text={code} label={t('workshop.morse.copy')} />
+              </div>
+              {url && <audio src={url} controls className="w-full" />}
+              <Button variant="outline" size="sm" onClick={() => onUse(spoken)}>
+                <ArrowRightIcon aria-hidden="true" />
+                {t('workshop.morse.speakUse')}
+              </Button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

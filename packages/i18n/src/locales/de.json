@@ -4390,8 +4390,8 @@
       },
       "morse": {
         "title": "Morse-Code",
-        "teaser": "Text in Punkte und Striche verwandeln – als Ton, als Lichtblinken und zurück, sogar per Mikrofon.",
-        "how": "Morse-Code schreibt jeden Buchstaben als kurze und lange Signale: Punkt (kurz) und Strich (dreimal so lang). Zwischen Buchstaben ist eine Pause von drei Punkten, zwischen Wörtern von sieben. Conbert übersetzt Text in Morse-Zeichen, spielt sie als Ton oder lässt eine Lampe blinken – und liest Morse aus Zeichen oder aus einer Aufnahme zurück: Es misst, wann der Ton an und aus ist, und unterscheidet Punkte und Striche an ihrer Länge. Alles läuft in deinem Browser."
+        "teaser": "Text in Punkte und Striche verwandeln – als Ton, als Lichtblinken und zurück, per Mikrofon. Oder einfach etwas sagen und es wird gemorst.",
+        "how": "Morse-Code schreibt jeden Buchstaben als kurze und lange Signale: Punkt (kurz) und Strich (dreimal so lang). Zwischen Buchstaben ist eine Pause von drei Punkten, zwischen Wörtern von sieben. Conbert übersetzt Text in Morse-Zeichen, spielt sie als Ton oder lässt eine Lampe blinken – und liest Morse aus Zeichen oder aus einer Aufnahme zurück: Es sucht die Tonhöhe des Pieptons, misst, wann er an und aus ist, und unterscheidet Punkte und Striche an ihrer Länge. Bei „Sprache → Morse“ schreibt die Spracherkennung (Whisper) auf deinem Server mit, was du sagst, und Conbert morst es. Bis auf die Spracherkennung läuft alles in deinem Browser."
       },
       "sstv": {
         "title": "Bild als Funk-Ton (SSTV)",
@@ -6495,7 +6495,8 @@
       "modes": {
         "write": "Text → Morse",
         "read": "Morse → Text",
-        "listen": "Aufnahme → Text"
+        "listen": "Aufnahme → Text",
+        "speak": "Sprache → Morse"
       },
       "text": "Dein Text",
       "copy": "Morse-Code kopieren",
@@ -6516,7 +6517,15 @@
       "heard": "Gehört: {{seconds}} s Aufnahme · Piepton bei {{pitch}} Hz · {{tones}} Töne · ein Punkt ≈ {{ms}} ms",
       "heardNothing": "Gehört: {{seconds}} s Aufnahme – aber kein gleichmäßiger Piepton. Spiel lauter ab oder halte das Mikrofon näher an den Lautsprecher.",
       "fewTones": "Nur wenige Töne erkannt. Lief der Ton während der ganzen Aufnahme? Tipp: erst „Mit Mikrofon aufnehmen“, dann im Tab „Text → Morse“ abspielen und danach hier die Aufnahme beenden – beides läuft beim Wechseln der Tabs weiter.",
-      "notMorse": "Das klingt nicht nach Morse-Pieptönen, sondern nach Sprache, Musik oder Geräuschen. Der Morse-Erkenner versteht nur Pieptöne (kurz und lang, immer gleiche Tonhöhe) – z. B. den Ton aus „Text → Morse“, abgespielt auf einem anderen Gerät oder über die Lautsprecher. Gesprochene Wörter erkennt er nicht."
+      "notMorse": "Das klingt nicht nach Morse-Pieptönen, sondern nach Sprache, Musik oder Geräuschen. Der Morse-Erkenner versteht nur Pieptöne (kurz und lang, immer gleiche Tonhöhe) – z. B. den Ton aus „Text → Morse“, abgespielt auf einem anderen Gerät oder über die Lautsprecher. Gesprochene Wörter erkennt er nicht.",
+      "speakIntro": "Sag etwas ins Mikrofon (oder lade eine Sprachaufnahme hoch): Die Spracherkennung auf deinem Server schreibt es auf, Conbert macht Morse daraus. Die Aufnahme wird dafür an deinen Server geschickt.",
+      "speakRecord": "Sprechen",
+      "speakStop": "Fertig gesprochen",
+      "speakWorking": "Spracherkennung hört zu …",
+      "speakFailed": "Die Spracherkennung hat nicht geklappt (oder das Mikrofon ist nicht erlaubt).",
+      "speakNothing": "Es wurden keine Wörter erkannt.",
+      "speakUse": "In „Text → Morse“ übernehmen (Tempo, Lichtblinken)",
+      "speakUnavailable": "Dafür braucht es die Spracherkennung (Whisper) auf deinem Server – sie ist gerade nicht verfügbar oder für dein Konto nicht freigegeben (KI-Funktionen). Ein Admin kann sie in der Verwaltung einrichten bzw. freigeben."
     },
     "sstv": {
       "tabs": {

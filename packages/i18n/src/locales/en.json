@@ -4390,8 +4390,8 @@
       },
       "morse": {
         "title": "Morse code",
-        "teaser": "Turn text into dots and dashes – as sound, as a flashing light and back, even through the microphone.",
-        "how": "Morse code writes every letter as short and long signals: dot (short) and dash (three times as long). Between letters there's a pause of three dots, between words of seven. Conbert translates text into Morse, plays it as sound or flashes a lamp – and reads Morse back from characters or a recording: it measures when the tone is on and off and tells dots from dashes by their length. Everything runs in your browser."
+        "teaser": "Turn text into dots and dashes – as sound, as a flashing light and back, through the microphone. Or just say something and it gets morsed.",
+        "how": "Morse code writes every letter as short and long signals: dot (short) and dash (three times as long). Between letters there's a pause of three dots, between words of seven. Conbert translates text into Morse, plays it as sound or flashes a lamp – and reads Morse back from characters or a recording: it finds the beep's pitch, measures when it's on and off and tells dots from dashes by their length. With “Speech → Morse” the speech recognition (Whisper) on your server writes down what you say and Conbert morses it. Apart from the speech recognition everything runs in your browser."
       },
       "sstv": {
         "title": "Picture as radio sound (SSTV)",
@@ -6495,7 +6495,8 @@
       "modes": {
         "write": "Text → Morse",
         "read": "Morse → text",
-        "listen": "Recording → text"
+        "listen": "Recording → text",
+        "speak": "Speech → Morse"
       },
       "text": "Your text",
       "copy": "Copy Morse code",
@@ -6516,7 +6517,15 @@
       "heard": "Heard: {{seconds}} s of recording · beep at {{pitch}} Hz · {{tones}} tones · one dot ≈ {{ms}} ms",
       "heardNothing": "Heard: {{seconds}} s of recording – but no steady beep. Play louder or hold the microphone closer to the speaker.",
       "fewTones": "Only a few tones recognised. Did the sound play during the whole recording? Tip: first “Record with microphone”, then play it in the “Text → Morse” tab and stop the recording here afterwards – both keep running when switching tabs.",
-      "notMorse": "This doesn't sound like Morse beeps but like speech, music or noise. The Morse reader only understands beeps (short and long, always the same pitch) – e.g. the sound from “Text → Morse”, played on another device or through the speakers. It doesn't recognise spoken words."
+      "notMorse": "This doesn't sound like Morse beeps but like speech, music or noise. The Morse reader only understands beeps (short and long, always the same pitch) – e.g. the sound from “Text → Morse”, played on another device or through the speakers. It doesn't recognise spoken words.",
+      "speakIntro": "Say something into the microphone (or upload a voice recording): the speech recognition on your server writes it down, Conbert turns it into Morse. The recording is sent to your server for this.",
+      "speakRecord": "Speak",
+      "speakStop": "Done speaking",
+      "speakWorking": "Speech recognition is listening …",
+      "speakFailed": "Speech recognition didn't work (or the microphone isn't allowed).",
+      "speakNothing": "No words were recognised.",
+      "speakUse": "Carry over to “Text → Morse” (speed, flashing)",
+      "speakUnavailable": "This needs the speech recognition (Whisper) on your server – it's not available right now or not allowed for your account (AI features). An admin can set it up or allow it in the administration."
     },
     "sstv": {
       "tabs": {
