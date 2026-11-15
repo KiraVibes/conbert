@@ -32,7 +32,11 @@ function walk(dir: string): string[] {
 export function buildOfflineManifest(outDir: string): OfflineManifest {
   const files = walk(outDir)
     .map((full) => ({ full, rel: path.relative(outDir, full).split(path.sep).join('/') }))
-    .filter(({ rel }) => !SKIP.has(rel) && !rel.endsWith('.map') && !rel.startsWith('.vite/'))
+    // .br/.gz are only other encodings of the same file; the browser picks them itself.
+    .filter(
+      ({ rel }) =>
+        !SKIP.has(rel) && !/\.(map|br|gz)$/.test(rel) && !rel.startsWith('.vite/'),
+    )
     .map(({ full, rel }) => ({
       url: `/${rel}`,
       hash: createHash('sha256').update(readFileSync(full)).digest('hex').slice(0, 16),

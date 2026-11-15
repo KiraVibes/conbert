@@ -1,6 +1,7 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { brotliCompressSync, brotliDecompressSync, gzipSync } from 'node:zlib';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import type { Engine } from '@conbert/core';
@@ -81,6 +82,10 @@ describe('API with web build', () => {
     mkdirSync(path.join(webDir, 'assets'));
     writeFileSync(path.join(webDir, 'index.html'), '<!doctype html><title>Conbert</title>');
     writeFileSync(path.join(webDir, 'assets', 'app-abc123.js'), 'console.log(1)');
+    // Pre-compressed copies as the web build writes them (scripts/precompress.ts).
+    writeFileSync(path.join(webDir, 'assets', 'big-abc123.js'), 'console.log(2)');
+    writeFileSync(path.join(webDir, 'assets', 'big-abc123.js.br'), brotliCompressSync('console.log(2)'));
+    writeFileSync(path.join(webDir, 'assets', 'big-abc123.js.gz'), gzipSync('console.log(2)'));
     app = await buildApp({
       config: loadConfig({ CONBERT_WEB_DIR: webDir }),
       db: memoryDb(),
@@ -116,6 +121,29 @@ describe('API with web build', () => {
     const res = await app.inject({ method: 'GET', url: '/api/nope' });
     expect(res.statusCode).toBe(404);
     expect(res.headers['content-type']).toContain('application/json');
+  });
+
+  it('sends the Brotli or gzip copy when the browser accepts it', async () => {
+    const br = await app.inject({
+      method: 'GET',
+      url: '/assets/big-abc123.js',
+      headers: { 'accept-encoding': 'gzip, deflate, br' },
+    });
+    expect(br.headers['content-encoding']).toBe('br');
+    expect(br.headers['content-type']).toContain('javascript');
+    expect(br.headers['cache-control']).toContain('immutable');
+    expect(brotliDecompressSync(br.rawPayload).toString()).toBe('console.log(2)');
+
+    const gz = await app.inject({
+      method: 'GET',
+      url: '/assets/big-abc123.js',
+      headers: { 'accept-encoding': 'gzip' },
+    });
+    expect(gz.headers['content-encoding']).toBe('gzip');
+
+    const plain = await app.inject({ method: 'GET', url: '/assets/big-abc123.js' });
+    expect(plain.headers['content-encoding']).toBeUndefined();
+    expect(plain.body).toBe('console.log(2)');
   });
 });
 

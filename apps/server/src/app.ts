@@ -331,6 +331,8 @@ export async function buildApp(options: BuildAppOptions): Promise<FastifyInstanc
     await app.register(fastifyStatic, {
       root: config.webDir,
       wildcard: false,
+      // The build ships .br/.gz next to each file (apps/web/scripts/precompress.ts).
+      preCompressed: true,
       // Hashed assets can be cached forever; index.html must always be fresh.
       setHeaders(res, filePath) {
         // Guides as readable text in the browser (not as a download).

@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { dropAssets } from './scripts/drop-assets.ts';
 import { offlineManifest } from './scripts/offline-manifest.ts';
+import { precompress } from './scripts/precompress.ts';
 
 /**
  * Cross-origin isolation (COOP/COEP) is required for SharedArrayBuffer, which
@@ -22,7 +23,7 @@ const UNUSED_ASSETS = /^assets\/vips-[\w-]+\.wasm$/;
 const apiTarget = `http://localhost:${process.env['CONBERT_PORT'] ?? '3313'}`;
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), dropAssets(UNUSED_ASSETS), offlineManifest()],
+  plugins: [react(), tailwindcss(), dropAssets(UNUSED_ASSETS), offlineManifest(), precompress()],
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, 'src'),
