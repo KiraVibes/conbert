@@ -7,6 +7,7 @@ import {
   type EngineStatus,
 } from '@conbert/core';
 import { useEngineStatus } from './engine-status-store';
+import { engineLoadError } from './load-error';
 
 export interface MainThreadEngineConfig {
   meta: Omit<Engine, 'init' | 'status' | 'convert'>;
@@ -46,8 +47,9 @@ export function createMainThreadEngine(config: MainThreadEngineConfig): Engine {
         report('ready');
       } catch (error) {
         loading = null;
-        report('error', 'errors.engineLoadFailed');
-        throw new ConversionError('errors.engineLoadFailed', String(error));
+        const failure = await engineLoadError(error);
+        report('error', failure.messageKey);
+        throw failure;
       }
     })();
     return loading;

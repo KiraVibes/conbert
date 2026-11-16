@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { CheckIcon, CloudDownloadIcon, Loader2Icon, Trash2Icon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ErrorMessage } from '@/components/ErrorMessage';
@@ -6,52 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { formatBytes } from '@/lib/format-bytes';
-import { clearOffline, getOfflineStatus, prepareOffline, type OfflineStatus } from '@/lib/offline';
+import { useOfflineStorage } from '@/lib/use-offline-storage';
 
 /** Settings → "Use offline": how much of the app is stored, download the rest. */
 export function OfflineCard() {
   const { t, i18n } = useTranslation();
-  // undefined = still asking, null = no service worker here.
-  const [status, setStatus] = useState<OfflineStatus | null | undefined>(undefined);
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getOfflineStatus()
-      .then((s) => !cancelled && setStatus(s))
-      .catch(() => !cancelled && setStatus(null));
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  const { status, complete, missingBytes, progress, error, prepare, clear } = useOfflineStorage();
   const size = (bytes: number | undefined) => formatBytes(bytes ?? 0, i18n.language);
-  const complete =
-    status?.available === true &&
-    status.cachedFiles !== undefined &&
-    status.cachedFiles === status.files;
-
-  const prepare = async () => {
-    setError(null);
-    setProgress({ done: status?.cachedBytes ?? 0, total: status?.bytes ?? 0 });
-    try {
-      setStatus(await prepareOffline((done, total) => setProgress({ done, total })));
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setProgress(null);
-    }
-  };
-
-  const clear = async () => {
-    setError(null);
-    try {
-      setStatus(await clearOffline());
-    } catch (e) {
-      setError(String(e));
-    }
-  };
 
   return (
     <Card>
@@ -104,9 +64,7 @@ export function OfflineCard() {
                   ) : (
                     <CloudDownloadIcon aria-hidden="true" />
                   )}
-                  {t('settings.offline.prepare', {
-                    size: size((status.bytes ?? 0) - (status.cachedBytes ?? 0)),
-                  })}
+                  {t('settings.offline.prepare', { size: size(missingBytes) })}
                 </Button>
               )}
               {(status.cachedBytes ?? 0) > 0 && (

@@ -31,6 +31,7 @@ import { useHistoryPersistence } from '@/features/archive/history-persistence';
 import { useHistory } from '@/features/archive/history-store';
 import { useJobLogPersistence } from '@/features/archive/job-log';
 import { ConvertView } from '@/features/convert/ConvertView';
+import { OfflineHint } from '@/features/settings/OfflineHint';
 import { ExpertModeToggle } from '@/features/settings/ExpertModeToggle';
 import { useSettings } from '@/features/settings/settings-store';
 import { useApplySettings } from '@/features/settings/use-apply-settings';
@@ -233,7 +234,10 @@ function Shell() {
               ) : view === 'pdf' ? (
                 <PdfView />
               ) : (
-                <ConvertView key={view} task={view === 'compress' ? 'compress' : 'convert'} />
+                <>
+                  {view === 'home' && <OfflineHint />}
+                  <ConvertView key={view} task={view === 'compress' ? 'compress' : 'convert'} />
+                </>
               )}
             </LazyView>
           </>

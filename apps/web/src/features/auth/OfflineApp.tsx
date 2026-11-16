@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { AppHeader } from '@/components/AppHeader';
 import { Button } from '@/components/ui/button';
 import { ConvertView } from '@/features/convert/ConvertView';
+import { formatBytes } from '@/lib/format-bytes';
+import { useOfflineStorage } from '@/lib/use-offline-storage';
 import { useView } from '@/lib/use-view';
 
 /**
@@ -11,8 +13,10 @@ import { useView } from '@/lib/use-view';
  * Nothing here talks to the server or shows another account's data.
  */
 export function OfflineApp({ onRetry }: { onRetry: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [view, navigate] = useView();
+  const storage = useOfflineStorage();
+  const notStored = storage.status?.available === true && !storage.complete;
   const task = view === 'compress' ? 'compress' : 'convert';
 
   return (
@@ -30,6 +34,14 @@ export function OfflineApp({ onRetry }: { onRetry: () => void }) {
           <div className="flex-1 space-y-1 text-sm">
             <p className="font-medium">{t('offline.title')}</p>
             <p className="text-muted-foreground">{t('offline.body')}</p>
+            {notStored && (
+              <p className="text-muted-foreground">
+                {t('offline.notStored', {
+                  cached: formatBytes(storage.status?.cachedBytes ?? 0, i18n.language),
+                  total: formatBytes(storage.status?.bytes ?? 0, i18n.language),
+                })}
+              </p>
+            )}
           </div>
           <Button variant="outline" size="sm" onClick={onRetry}>
             <RefreshCwIcon aria-hidden="true" />

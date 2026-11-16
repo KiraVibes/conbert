@@ -9,6 +9,7 @@ import {
 } from '@conbert/core';
 import type { WorkerEngineApi } from '@/workers/expose-engine';
 import { useEngineStatus, type EngineStatusEntry } from './engine-status-store';
+import { engineLoadError, workerFailure } from './load-error';
 
 /** Multi-threaded WASM needs SharedArrayBuffer, which needs HTTPS or localhost. */
 export function isolationAvailable(): boolean {
@@ -63,8 +64,7 @@ export function createWorkerEngine(config: WorkerEngineConfig): Engine {
     report({ status: 'loading' });
     worker = config.createWorker();
     api = Comlink.wrap<WorkerEngineApi>(worker);
-    initPromise = api
-      .init()
+    initPromise = Promise.race([api.init(), workerFailure(worker)])
       .then(({ unavailableFormats }) => {
         report(
           unavailableFormats.length > 0
@@ -72,10 +72,11 @@ export function createWorkerEngine(config: WorkerEngineConfig): Engine {
             : { status: 'ready' },
         );
       })
-      .catch((error: unknown) => {
+      .catch(async (error: unknown) => {
         terminate();
-        report({ status: 'error', messageKey: 'errors.engineLoadFailed' });
-        throw new ConversionError('errors.engineLoadFailed', String(error));
+        const failure = await engineLoadError(error);
+        report({ status: 'error', messageKey: failure.messageKey });
+        throw failure;
       });
     return initPromise;
   };

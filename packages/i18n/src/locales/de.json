@@ -928,6 +928,12 @@
       "preparing": "Lade Dateien für die Offline-Nutzung",
       "progress": "{{done}} von {{total}} geladen",
       "clear": "Gespeicherte Dateien löschen",
+      "hint": {
+        "title": "Conbert auch ohne Internet nutzen",
+        "body": "Lade einmal alle Werkzeuge auf dieses Gerät ({{size}}, am besten im WLAN). Danach kannst du auch ohne Internet oder bei ausgeschaltetem Server umwandeln. Das geht auch später unter Einstellungen → „Offline nutzen“.",
+        "later": "Nicht jetzt",
+        "close": "Fertig"
+      },
       "error": {
         "what": "Nicht alle Dateien konnten gespeichert werden.",
         "cause": "Die Verbindung ist abgebrochen oder der Browser hat keinen Platz mehr.",
@@ -1601,6 +1607,11 @@
       "what": "Die Umwandlungs-Engine konnte nicht geladen werden.",
       "cause": "Die Verbindung ist abgebrochen oder dein Browser ist zu alt für WebAssembly.",
       "action": "Lade die Seite neu. Hilft das nicht, wähle „Auf dem Server“ oder nutze einen aktuellen Browser."
+    },
+    "engineOffline": {
+      "what": "Dieses Werkzeug ist auf deinem Gerät nicht für die Offline-Nutzung gespeichert.",
+      "cause": "Es gibt gerade keine Verbindung zu deinem Conbert-Server, und das Werkzeug wurde vorher noch nie geladen.",
+      "action": "Sobald du wieder Verbindung hast: Einstellungen → „Offline nutzen“ → „Für offline vorbereiten“. Danach geht alles auch ohne Internet."
     },
     "notIsolated": {
       "what": "Umwandeln auf diesem Gerät ist hier nicht möglich.",
@@ -8388,7 +8399,8 @@
   "offline": {
     "title": "Keine Verbindung zum Server",
     "body": "Du kannst trotzdem weiterarbeiten: Umwandeln und Komprimieren auf diesem Gerät gehen auch offline – mit allen Werkzeugen, die schon einmal geladen wurden. Anmelden, Herunterladen und alles, was der Server macht, geht erst wieder mit Verbindung.",
-    "retry": "Erneut verbinden"
+    "retry": "Erneut verbinden",
+    "notStored": "Noch nicht alles ist auf diesem Gerät gespeichert ({{cached}} von {{total}}). Werkzeuge, die du noch nie benutzt hast, gehen erst wieder mit Verbindung. Tipp für das nächste Mal: Einstellungen → „Offline nutzen“ → „Für offline vorbereiten“."
   },
   "blender": {
     "title": "Blender",

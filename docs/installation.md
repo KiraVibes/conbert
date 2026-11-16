@@ -178,6 +178,12 @@ Das übernimmt ein **Reverse-Proxy**, z. B.:
 Wichtig dabei: Der Proxy muss **WebSockets** durchlassen (für den Fortschritt)
 und große Uploads erlauben (z. B. bei Nginx `client_max_body_size 2g;`).
 
+**Offline am Handy:** Ist Conbert als App installiert, lade einmal mit
+Internet alles aufs Gerät – die App bietet das auf der Startseite an, oder
+unter **Einstellungen → Offline nutzen → Für offline vorbereiten** (rund
+200 MB, am besten im WLAN). Ohne diesen Schritt gehen offline nur Werkzeuge,
+die du vorher schon einmal benutzt hast.
+
 Für **Nginx** liegt eine fertige Vorlage in
 [reverse-proxy/nginx.conf](reverse-proxy/nginx.conf) – nur HTTP, das
 Zertifikat ergänzt danach `certbot --nginx`. Wichtig darin: Nginx muss den

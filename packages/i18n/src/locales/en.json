@@ -928,6 +928,12 @@
       "preparing": "Loading files for offline use",
       "progress": "{{done}} of {{total}} loaded",
       "clear": "Delete stored files",
+      "hint": {
+        "title": "Use Conbert without internet too",
+        "body": "Download all tools to this device once ({{size}}, best on Wi-Fi). After that you can convert without internet or while the server is off. You can also do this later under Settings → “Use offline”.",
+        "later": "Not now",
+        "close": "Done"
+      },
       "error": {
         "what": "Not all files could be stored.",
         "cause": "The connection dropped or the browser is out of space.",
@@ -1597,6 +1603,11 @@
     "chain": "Not possible directly, but in {{count}} steps: {{path}}"
   },
   "errors": {
+    "engineOffline": {
+      "what": "This tool isn't stored on your device for offline use.",
+      "cause": "There's no connection to your Conbert server right now, and the tool was never loaded before.",
+      "action": "As soon as you're connected again: Settings → “Use offline” → “Prepare for offline”. After that everything works without internet too."
+    },
     "engineLoadFailed": {
       "what": "The conversion engine couldn't be loaded.",
       "cause": "The connection dropped or your browser is too old for WebAssembly.",
@@ -8388,7 +8399,8 @@
   "offline": {
     "title": "No connection to the server",
     "body": "You can keep working: converting and compressing on this device also work offline – with every tool that was loaded before. Signing in, downloading and everything the server does only work again with a connection.",
-    "retry": "Reconnect"
+    "retry": "Reconnect",
+    "notStored": "Not everything is stored on this device yet ({{cached}} of {{total}}). Tools you have never used only work again with a connection. Tip for next time: Settings → “Use offline” → “Prepare for offline”."
   },
   "blender": {
     "title": "Blender",

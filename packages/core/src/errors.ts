@@ -16,6 +16,7 @@ export class ConversionError extends Error {
 /** Error keys every engine may use. All have texts in @conbert/i18n. */
 export const ENGINE_ERROR_KEYS = [
   'errors.engineLoadFailed',
+  'errors.engineOffline',
   'errors.metadataReadFailed',
   'errors.metadataWriteFailed',
   'errors.notIsolated',

@@ -77,6 +77,8 @@ export function FileCard({ item, children }: { item: FileItem; children?: React.
     item.mode !== 'server' &&
     browserBlockedKey !== undefined &&
     !detecting &&
+    // The failed conversion already shows this very message.
+    !(item.status === 'error' && item.error?.messageKey === browserBlockedKey) &&
     (routing.targets.length === 0 || (item.targetExt !== null && !route));
   const ctx = {
     serverAvailable,

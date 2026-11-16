@@ -32,6 +32,7 @@ const MB = 1024 * 1024;
 const RETRYABLE = new Set([
   'errors.formatUnavailable',
   'errors.engineLoadFailed',
+  'errors.engineOffline',
   'errors.notIsolated',
 ]);
 

@@ -22,6 +22,7 @@ import {
   type FormatSupport,
 } from '@conbert/core';
 import { useEngineStatus, type EngineStatusEntry } from './engine-status-store';
+import { engineLoadError } from './load-error';
 
 /**
  * ffmpeg.wasm: audio and video in the browser. The FFmpeg class runs the
@@ -76,10 +77,11 @@ async function load(): Promise<FFmpeg> {
     ffmpeg = instance;
     report({ status: 'ready' });
     return instance;
-  })().catch((error: unknown) => {
+  })().catch(async (error: unknown) => {
     loading = null;
-    report({ status: 'error', messageKey: 'errors.engineLoadFailed' });
-    throw new ConversionError('errors.engineLoadFailed', String(error));
+    const failure = await engineLoadError(error);
+    report({ status: 'error', messageKey: failure.messageKey });
+    throw failure;
   });
   return loading;
 }
