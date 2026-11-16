@@ -6,8 +6,10 @@ coverage/
 .env.*
 !.env.example
 
-# Runtime data (uploads, temp files, database)
-data/
+# Runtime data (uploads, temp files, database) – only these folders, not
+# source folders that happen to be called "data" (packages/core/src/data).
+/data/
+apps/server/data/
 # Debug/E2E server instances (apps/server/data-e2e-debug …)
 apps/server/data-*/
 
