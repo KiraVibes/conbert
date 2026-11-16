@@ -8,8 +8,8 @@ don't need any programming skills – just a few commands to type in. Allow abou
 
 ```bash
 mkdir conbert && cd conbert
-curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
-curl -fsSL -o .env https://raw.githubusercontent.com/OWNER/conbert/main/.env.example
+curl -fsSLO https://raw.githubusercontent.com/KiraVibes/conbert/main/docker-compose.yml
+curl -fsSL -o .env https://raw.githubusercontent.com/KiraVibes/conbert/main/.env.example
 docker compose up -d
 docker compose logs conbert  # shows the setup code
 ```
@@ -51,8 +51,8 @@ Create a folder and download the files into it:
 
 ```bash
 mkdir conbert && cd conbert
-curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
-curl -fsSL -o .env.example https://raw.githubusercontent.com/OWNER/conbert/main/.env.example
+curl -fsSLO https://raw.githubusercontent.com/KiraVibes/conbert/main/docker-compose.yml
+curl -fsSL -o .env.example https://raw.githubusercontent.com/KiraVibes/conbert/main/.env.example
 ```
 
 It also works without a terminal: open both addresses in your browser, save
@@ -61,7 +61,7 @@ and put them together in one folder. On a NAS you can create the folder via
 its file sharing, for example.
 
 > **Build it yourself instead of downloading?** If you want to change the
-> source code, clone the repository (`git clone https://github.com/OWNER/conbert.git`)
+> source code, clone the repository (`git clone https://github.com/KiraVibes/conbert.git`)
 > and start with
 > `docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d`.
 > The first time this takes 10 to 30 minutes.

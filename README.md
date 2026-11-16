@@ -49,7 +49,7 @@ Conbert comes as a ready-built image for amd64 and arm64 (e.g. Raspberry Pi
 
 ```bash
 mkdir conbert && cd conbert
-curl -fsSLO https://raw.githubusercontent.com/OWNER/conbert/main/docker-compose.yml
+curl -fsSLO https://raw.githubusercontent.com/KiraVibes/conbert/main/docker-compose.yml
 docker compose up -d
 ```
 
@@ -89,7 +89,7 @@ version: [CHANGELOG.md](CHANGELOG.md).
 ### Building the image yourself
 
 ```bash
-git clone https://github.com/OWNER/conbert.git && cd conbert
+git clone https://github.com/KiraVibes/conbert.git && cd conbert
 docker compose -f docker-compose.yml -f docker-compose.build.yml up --build -d
 ```
 

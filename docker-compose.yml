@@ -16,7 +16,7 @@ services:
     # like MOBI, AZW3, FB2; about 850 MB larger) or a fixed version such as
     # "0.1.0" / "0.1.0-full". To build from the source code instead, see
     # docker-compose.build.yml.
-    image: ghcr.io/OWNER/conbert:${CONBERT_IMAGE_TAG:-latest}
+    image: ghcr.io/kiravibes/conbert:${CONBERT_IMAGE_TAG:-latest}
     container_name: conbert
     restart: unless-stopped
     # A tiny init process that cleans up finished helper programs (zombies).
