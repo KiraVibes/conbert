@@ -4,6 +4,27 @@ All notable changes to Conbert. Versions follow [Semantic Versioning](https://se
 the Docker image tags match them (`0.1.0`, `0.1`, `latest`, and `-full` for the
 full edition).
 
+## [0.1.1] – 2026-11-16
+
+### Fixed
+
+- **Offline:** a tool that was never stored on the device no longer hangs at
+  “Loading engine …” without a connection. Conbert now says that the tool
+  isn't stored for offline use and how to change that.
+- The same error no longer shows up twice on a file card.
+
+### Added
+
+- The installed app (home screen) offers on its start page to download
+  everything for offline use once – with the size and a “Not now” button.
+- Without a connection, the offline notice says how much is stored on the
+  device and that unused tools only work again online.
+- The installation guide explains how to prepare offline use on a phone.
+
+### Changed
+
+- The release workflow uses the current GitHub Actions (Node.js 24).
+
 ## [0.1.0] – 2026-11-16
 
 The first public release.
