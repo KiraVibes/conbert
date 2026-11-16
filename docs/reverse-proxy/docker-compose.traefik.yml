@@ -1,0 +1,28 @@
+# Conbert behind Traefik (v3) – put this file next to docker-compose.yml and start with
+#   docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
+#
+# Adjust: the domain, the entrypoint ("websecure") and the certificate
+# resolver ("letsencrypt") to the names in your Traefik setup, and the name
+# of the network Traefik is in ("traefik").
+#
+# Traefik passes the real Host and WebSockets through by default. Long
+# uploads: Traefik v3 cancels requests after 60 s unless the entrypoint has
+#   --entrypoints.websecure.transport.respondingTimeouts.readTimeout=0
+services:
+  conbert:
+    # No port on the host needed – Traefik talks to the container directly.
+    ports: !reset []
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.conbert.rule=Host(`conbert.example.com`)
+      - traefik.http.routers.conbert.entrypoints=websecure
+      - traefik.http.routers.conbert.tls.certresolver=letsencrypt
+      - traefik.http.services.conbert.loadbalancer.server.port=3313
+    networks:
+      - default
+      - traefik
+
+networks:
+  traefik:
+    external: true

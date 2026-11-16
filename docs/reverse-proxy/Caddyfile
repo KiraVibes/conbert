@@ -1,0 +1,14 @@
+# Conbert behind Caddy – Caddy gets the HTTPS certificate by itself.
+#
+# Adjust: the domain, and the address after reverse_proxy:
+#   - Caddy in the same Docker network as Conbert: conbert:3313
+#   - Caddy elsewhere: <IP of the Conbert machine>:3313
+#
+# Caddy passes the real Host, WebSockets and big uploads through by default.
+
+conbert.example.com {
+	reverse_proxy conbert:3313 {
+		# Show progress immediately instead of buffering it.
+		flush_interval -1
+	}
+}
