@@ -20,7 +20,8 @@
     "typecheck": "pnpm --recursive run typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:docker": "docker build -f apps/server/Dockerfile --target test --build-arg TOOLS_STAGE=tools-full -t conbert-test . && docker run --rm conbert-test"
+    "test:docker": "docker build -f apps/server/Dockerfile --target test --build-arg TOOLS_STAGE=tools-full -t conbert-test . && docker run --rm conbert-test",
+    "docs:tools": "node scripts/tools-doc.mjs && prettier --write docs/werkzeuge.md docs/en/tools.md"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

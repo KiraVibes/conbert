@@ -54,9 +54,11 @@ on your own server. Every option is explained in plain language.
 > pictures and profiles from YouTube, TikTok, Instagram, X, Reddit & more
 > (yt-dlp, gallery-dl) straight into the list. Scripts, Home Assistant, n8n
 > and a small CLI can use Conbert through an API with tokens
-> ([guide, German](docs/api.md)). For more – booru, workflows, the
-> workshop and the rest – see
-> the specification in [`docs/spec/`](docs/spec/) (German).
+> ([guide](docs/en/api.md)).
+>
+> **Everything at a glance:** all areas of the app and the 68 tools of the
+> FileWizard workshop, each with a short description –
+> [**list of all tools**](docs/en/tools.md) ([German](docs/werkzeuge.md)).
 
 ## Quick start with Docker
 
