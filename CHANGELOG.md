@@ -4,7 +4,7 @@ All notable changes to Conbert. Versions follow [Semantic Versioning](https://se
 the Docker image tags match them (`0.1.0`, `0.1`, `latest`, and `-full` for the
 full edition).
 
-## [Unreleased]
+## [0.1.2] – 2026-11-19
 
 ### Fixed
 
