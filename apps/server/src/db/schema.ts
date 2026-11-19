@@ -550,6 +550,11 @@ export const workflowRuns = sqliteTable(
     toList: integer('to_list', { mode: 'boolean' }).notNull().default(true),
     /** Delete the input files afterwards (downloads that only went through the workflow). */
     dropInputs: integer('drop_inputs', { mode: 'boolean' }).notNull().default(false),
+    /**
+     * Downloads with "keep on server": the results go into the server archive
+     * under this source name (null = not archived).
+     */
+    archiveAs: text('archive_as'),
     fileIds: text('file_ids', { mode: 'json' }).notNull(),
     status: text('status', { enum: WORKFLOW_RUN_STATUSES }).notNull().default('queued'),
     /** One entry per input file (see schemas workflowRunFileSchema). */

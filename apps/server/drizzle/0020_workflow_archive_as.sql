@@ -1,0 +1,1 @@
+ALTER TABLE `workflow_runs` ADD `archive_as` text;

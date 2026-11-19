@@ -123,6 +123,8 @@ export interface RunInput {
   test?: boolean;
   /** Delete the input files at the end (downloads that only went through the workflow). */
   dropInputs?: boolean;
+  /** Keep the results in the server archive under this source name. */
+  archiveAs?: string | null;
 }
 
 /** Queues a run over the user's own files. */
@@ -160,6 +162,7 @@ export async function startRun(ctx: AppContext, userId: string, input: RunInput)
       test: input.test ?? false,
       toList: input.toList,
       dropInputs: input.dropInputs ?? false,
+      archiveAs: input.archiveAs ?? null,
       fileIds: input.fileIds,
       results,
     })
@@ -247,6 +250,8 @@ export async function runAfter(
     sameFileSkips?: boolean;
     /** Downloads: an own folder per file id (Pixiv works with several pages). */
     subfolders?: Record<string, string>;
+    /** Downloads with "keep on server": results go into the server archive under this name. */
+    archiveAs?: string;
   },
 ) {
   const base = resolveAfter(ctx, userId, after);
@@ -280,5 +285,6 @@ export async function runAfter(
     fileIds,
     toList: options.toList,
     dropInputs: true,
+    archiveAs: options.archiveAs ?? null,
   });
 }

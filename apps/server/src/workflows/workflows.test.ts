@@ -21,9 +21,11 @@ import {
   workflowI18nKeys,
   type ConvertRequest,
   type Engine,
+  type WorkflowStep,
 } from '@conbert/core';
 import { findMissingKeys } from '@conbert/i18n';
 import type { WorkflowDto, WorkflowRunDto } from '@conbert/schemas';
+import { archivedFiles } from '../archive/server-archive';
 import { storageTargets } from '../db/schema';
 import { sharpEngine } from '../engines/sharp';
 import { getOwnFile, recordFile } from '../storage/uploads';
@@ -246,6 +248,41 @@ describe('workflow runs', () => {
       expect(readdirSync(path.join(dataDir, '_', 'NASA'))).toEqual(['sample.png']);
     },
   );
+
+  // "Then automatically …" after a download kept on the server, not in the list:
+  // the converted file must land in the server archive, not get lost.
+  it('keeps the results of a kept download in the server archive', async () => {
+    const converted = await upload('sample.png');
+    const filteredOut = await upload('sample.png', 'other.png');
+    const steps: WorkflowStep[] = [
+      { kind: 'filter', rule: { category: ['image'] } },
+      { kind: 'convert', outputExt: 'webp', options: {} },
+    ];
+    const kept = { toList: false, targetIds: [], label: 'Video', archiveAs: 'YouTube' };
+    const run = await runAfter(app.conbert, userId, { steps }, [converted], kept);
+    // A file the workflow doesn't touch stays as it was downloaded.
+    const skipped = await runAfter(
+      app.conbert,
+      userId,
+      { steps: [{ kind: 'filter', rule: { category: ['video'] } }] },
+      [filteredOut],
+      kept,
+    );
+    await idle();
+    const runOf = async (id: string) =>
+      (await call('GET', `/api/workflow-runs/${id}`)).json<{ run: WorkflowRunDto }>().run;
+    const done = await runOf(run.id);
+    expect(done.files[0], JSON.stringify(done)).toMatchObject({ status: 'done' });
+    expect((await runOf(skipped.id)).files[0]?.status).toBe('skipped');
+
+    const archived = archivedFiles(app.conbert, userId);
+    expect(archived.map((f) => [f.originalName, f.archivedFrom]).sort()).toEqual([
+      ['other.png', 'YouTube'],
+      ['sample.webp', 'YouTube'],
+    ]);
+    // The converted original left the server.
+    expect(() => getOwnFile(app.conbert, userId, converted)).toThrow();
+  });
 
   it('test run: shows where it would save, saves nothing', async () => {
     const targetId = randomUUID();

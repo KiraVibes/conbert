@@ -398,6 +398,8 @@ export class DownloadRunner {
     const taken = new Set<string>();
     /** Pixiv works with several pages: file id → the work's folder. */
     const subfolders: Record<string, string> = {};
+    /** Where "keep on server" files show up in the server archive. */
+    const archiveName = options.sourceName ?? row.title ?? row.platform;
     /** One file at a time: take it over, save it to the chosen locations. */
     let chain: Promise<void> = Promise.resolve();
 
@@ -442,8 +444,9 @@ export class DownloadRunner {
           name: path.basename(full),
           size: info.size,
         });
-        if (options.keepOnServer) {
-          archiveFile(this.ctx, fileId, options.sourceName ?? row.title ?? row.platform);
+        // With a workflow, its results go into the archive instead (see runAfter).
+        if (options.keepOnServer && !options.after) {
+          archiveFile(this.ctx, fileId, archiveName);
         }
         const entry: DownloadedFile = {
           fileId,
@@ -607,8 +610,15 @@ export class DownloadRunner {
             platformFolder: platformFolder(row.platform, row.url),
             sameFileSkips: true,
             ...(Object.keys(subfolders).length > 0 && { subfolders }),
+            ...(options.keepOnServer && { archiveAs: archiveName }),
           },
-        ).catch(() => undefined);
+        ).catch((err: unknown) => {
+          // The download itself worked; the workflow error shows in the log.
+          this.ctx.log.error(
+            { err, area: 'download', download: id },
+            'workflow after download failed',
+          );
+        });
       }
       this.finish(id, 'done', {
         files,

@@ -34,6 +34,7 @@ import {
   type WorkflowStep,
 } from '@conbert/core';
 import type { WorkflowRunDto, WorkflowRunFile } from '@conbert/schemas';
+import { archiveFile } from '../archive/server-archive';
 import { dataPaths } from '../config';
 import type { AppContext } from '../context';
 import { userName } from '../logs/who';
@@ -252,8 +253,8 @@ export class WorkflowRunner {
       }
     }
     if (result.status === 'pending') result.status = 'done';
-    // Results go back to the list (or are shown in the test run).
-    if ((row.toList || row.test) && result.status === 'done') {
+    // Results go back to the list, into the server archive, or are shown in the test run.
+    if ((row.toList || row.test || row.archiveAs) && result.status === 'done') {
       if (current.original) {
         result.resultFileId = record.id;
         result.resultName = record.originalName;
@@ -274,6 +275,7 @@ export class WorkflowRunner {
         result.resultName = saved.originalName;
         result.resultSize = size;
       }
+      if (row.archiveAs && !row.test) archiveFile(this.ctx, result.resultFileId, row.archiveAs);
     }
   }
 
@@ -624,14 +626,24 @@ export class WorkflowRunner {
     return ids.map((id) => rows.find((r) => r.id === id)?.name ?? '?');
   }
 
-  /** Downloads that only went through the workflow: their files leave the server. */
+  /**
+   * Downloads that only went through the workflow: their files leave the
+   * server. With "keep on server" the original stays in the archive when the
+   * workflow keeps originals or had no result for it (filtered out, failed) –
+   * a download is never lost.
+   */
   private async dropInputs(row: WorkflowRunRecord, results: WorkflowRunFile[]) {
     const keep = new Set(results.map((r) => r.resultFileId));
-    for (const fileId of row.fileIds as string[]) {
+    for (const [index, fileId] of (row.fileIds as string[]).entries()) {
       if (keep.has(fileId)) continue;
       const record = this.ctx.db.select().from(files).where(eq(files.id, fileId)).get();
+      if (!record) continue;
+      if (row.archiveAs && (row.keepOriginal || results[index]?.status !== 'done')) {
+        archiveFile(this.ctx, fileId, row.archiveAs);
+        continue;
+      }
       // Kept in the server archive on purpose: stays.
-      if (record && !record.archivedFrom) await deleteFileRecord(this.ctx, record);
+      if (!record.archivedFrom) await deleteFileRecord(this.ctx, record);
     }
   }
 

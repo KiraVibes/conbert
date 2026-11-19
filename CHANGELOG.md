@@ -4,6 +4,15 @@ All notable changes to Conbert. Versions follow [Semantic Versioning](https://se
 the Docker image tags match them (`0.1.0`, `0.1`, `latest`, and `-full` for the
 full edition).
 
+## [Unreleased]
+
+### Fixed
+
+- **Downloader:** “Then automatically …” (e.g. to MP3) on a download that is
+  kept on the server but not added to the list now keeps the converted file in
+  the server archive. Before, only the original (e.g. the MP4) stayed and the
+  result was lost.
+
 ## [0.1.1] – 2026-11-16
 
 ### Fixed
