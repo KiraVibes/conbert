@@ -84,6 +84,7 @@ important points:
 | `CONBERT_MAX_UPLOAD_MB` | Largest file you may upload (default 2048 = 2 GB).                        |
 | `CONBERT_MEMORY_LIMIT`  | How much RAM Conbert may use at most (e.g. `4g`).                         |
 | `CONBERT_IMAGE_TAG`     | `full` for e-book formats such as MOBI and AZW3 (image grows by ~850 MB). |
+| `PUID` / `PGID`         | Which user Conbert runs as (default `1000`). Unraid: `99` / `100`.        |
 
 A line starting with `#` is switched off. To switch it on, remove the `#`.
 
@@ -267,16 +268,25 @@ docker compose exec conbert node server/dist/index.mjs reset-password admin
 logs you out on all devices. Log in with it and change it under **Settings →
 Your account**.
 
-## 13. If something doesn't work
+## 13. Unraid, Synology & co.: a folder instead of a Docker volume
 
-| Problem                               | What usually helps                                                                                |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `port is already allocated`           | Port 3313 is taken. Set e.g. `CONBERT_PORT=3320` in `.env`.                                       |
-| Page doesn't load from another device | Check the IP address, open the port in the server's firewall.                                     |
-| Can't find the setup code             | `docker compose logs conbert \| grep -A3 "not set up"`                                            |
-| “On this device” doesn't work         | Open it via `https://…` or `http://localhost:3313` (see section 6).                               |
-| Videos stop with a “memory” error     | Increase `CONBERT_MEMORY_LIMIT` or set `CONBERT_JOB_CONCURRENCY=1`.                               |
-| Downloads from Instagram & co. fail   | Update the tools under **Settings → Download**; add cookies if needed ([cookies.md](cookies.md)). |
-| Stored passwords stop working         | `CONBERT_SECRET` was changed – restore the old value or enter the passwords again.                |
+If you mount `/data` as a folder of your server (e.g.
+`/mnt/user/appdata/conbert:/data` on Unraid), Conbert hands it over to the user
+it runs as when it starts. On Unraid, shares belong to `nobody:users` – set the
+variables `PUID=99` and `PGID=100` there as well. The same goes for folders you
+mount below `/storage`: Conbert must be allowed to write into them.
+
+## 14. If something doesn't work
+
+| Problem                                                 | What usually helps                                                                                                                                                                                             |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `port is already allocated`                             | Port 3313 is taken. Set e.g. `CONBERT_PORT=3320` in `.env`.                                                                                                                                                    |
+| Page doesn't load from another device                   | Check the IP address, open the port in the server's firewall.                                                                                                                                                  |
+| Can't find the setup code                               | `docker compose logs conbert \| grep -A3 "not set up"`                                                                                                                                                         |
+| “On this device” doesn't work                           | Open it via `https://…` or `http://localhost:3313` (see section 6).                                                                                                                                            |
+| Videos stop with a “memory” error                       | Increase `CONBERT_MEMORY_LIMIT` or set `CONBERT_JOB_CONCURRENCY=1`.                                                                                                                                            |
+| Downloads from Instagram & co. fail                     | Update the tools under **Settings → Download**; add cookies if needed ([cookies.md](cookies.md)).                                                                                                              |
+| Stored passwords stop working                           | `CONBERT_SECRET` was changed – restore the old value or enter the passwords again.                                                                                                                             |
+| `can't write to /data` / `unable to open database file` | Conbert may not write to its data folder. Start the container without a `user:` setting and set `PUID`/`PGID` to the folder's owner (Unraid: `99`/`100`) – or run `chown -R 1000:1000 <folder>` on the server. |
 
 You find more help in Conbert itself: click the **?** at the top right.

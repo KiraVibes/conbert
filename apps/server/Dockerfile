@@ -216,7 +216,11 @@ COPY --from=build /repo/docs/en/api.md /repo/docs/en/installation.md /repo/docs/
 
 # /storage: mount NAS shares or disks here for "local folder" locations.
 RUN mkdir -p /data /storage && chown node:node /data /storage
-USER node
+# Starts as root just long enough to hand /data to the user Conbert runs as
+# (PUID/PGID, default node = 1000:1000), then drops to that user. Needed when
+# /data is a host folder that belongs to someone else (Unraid: 99:100).
+COPY --chmod=755 docker/entrypoint.sh /usr/local/bin/conbert-entrypoint
+ENTRYPOINT ["conbert-entrypoint"]
 
 EXPOSE 3313
 VOLUME ["/data"]

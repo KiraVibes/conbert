@@ -77,13 +77,14 @@ cp .env.example .env
 Öffne `.env` mit einem Texteditor. Alles darin ist optional – die wichtigsten
 Punkte:
 
-| Einstellung             | Wofür                                                                    |
-| ----------------------- | ------------------------------------------------------------------------ |
-| `CONBERT_PORT`          | Unter welchem Port Conbert erreichbar ist (Standard `3313`).             |
-| `CONBERT_SECRET`        | Schlüssel für gespeicherte Passwörter – siehe unten.                     |
-| `CONBERT_MAX_UPLOAD_MB` | Größte Datei, die du hochladen darfst (Standard 2048 = 2 GB).            |
-| `CONBERT_MEMORY_LIMIT`  | Wie viel Arbeitsspeicher Conbert höchstens nutzt (z. B. `4g`).           |
-| `CONBERT_IMAGE_TAG`     | `full` für E-Book-Formate wie MOBI und AZW3 (Image wird ~850 MB größer). |
+| Einstellung             | Wofür                                                                       |
+| ----------------------- | --------------------------------------------------------------------------- |
+| `CONBERT_PORT`          | Unter welchem Port Conbert erreichbar ist (Standard `3313`).                |
+| `CONBERT_SECRET`        | Schlüssel für gespeicherte Passwörter – siehe unten.                        |
+| `CONBERT_MAX_UPLOAD_MB` | Größte Datei, die du hochladen darfst (Standard 2048 = 2 GB).               |
+| `CONBERT_MEMORY_LIMIT`  | Wie viel Arbeitsspeicher Conbert höchstens nutzt (z. B. `4g`).              |
+| `CONBERT_IMAGE_TAG`     | `full` für E-Book-Formate wie MOBI und AZW3 (Image wird ~850 MB größer).    |
+| `PUID` / `PGID`         | Als welcher Benutzer Conbert läuft (Standard `1000`). Unraid: `99` / `100`. |
 
 Eine Zeile, die mit `#` beginnt, ist ausgeschaltet. Zum Einschalten das `#`
 entfernen.
@@ -269,16 +270,26 @@ docker compose exec conbert node server/dist/index.mjs reset-password admin
 zufälliges Passwort an und meldet dich auf allen Geräten ab. Melde dich damit
 an und ändere es unter **Einstellungen → Dein Konto**.
 
-## 13. Wenn etwas nicht klappt
+## 13. Unraid, Synology & Co.: eigener Ordner statt Docker-Volume
 
-| Problem                                  | Was meistens hilft                                                                                                        |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `port is already allocated`              | Port 3313 ist belegt. In `.env` z. B. `CONBERT_PORT=3320` setzen.                                                         |
-| Seite lädt nicht von einem anderen Gerät | IP-Adresse prüfen, Firewall des Servers für den Port öffnen.                                                              |
-| Einrichtungscode nicht gefunden          | `docker compose logs conbert \| grep -A3 "not set up"`                                                                    |
-| „Auf diesem Gerät“ geht nicht            | Über `https://…` oder `http://localhost:3313` öffnen (siehe Abschnitt 6).                                                 |
-| Videos brechen mit „Arbeitsspeicher“ ab  | `CONBERT_MEMORY_LIMIT` erhöhen oder `CONBERT_JOB_CONCURRENCY=1` setzen.                                                   |
-| Downloads von Instagram & Co. scheitern  | Unter **Einstellungen → Herunterladen** die Werkzeuge aktualisieren; ggf. Cookies hinterlegen ([cookies.md](cookies.md)). |
-| Gespeicherte Passwörter gehen nicht mehr | `CONBERT_SECRET` wurde geändert – alten Wert zurück oder Passwörter neu eingeben.                                         |
+Bindest du `/data` als Ordner deines Servers ein (z. B.
+`/mnt/user/appdata/conbert:/data` auf Unraid), übergibt Conbert ihn beim Start
+an den Benutzer, als der es läuft. Auf Unraid gehören Freigaben
+`nobody:users` – setz dort zusätzlich die Variablen `PUID=99` und `PGID=100`.
+Dasselbe gilt für Ordner, die du unter `/storage` einbindest: Conbert muss
+hineinschreiben dürfen.
+
+## 14. Wenn etwas nicht klappt
+
+| Problem                                                 | Was meistens hilft                                                                                                                                                                                                             |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `port is already allocated`                             | Port 3313 ist belegt. In `.env` z. B. `CONBERT_PORT=3320` setzen.                                                                                                                                                              |
+| Seite lädt nicht von einem anderen Gerät                | IP-Adresse prüfen, Firewall des Servers für den Port öffnen.                                                                                                                                                                   |
+| Einrichtungscode nicht gefunden                         | `docker compose logs conbert \| grep -A3 "not set up"`                                                                                                                                                                         |
+| „Auf diesem Gerät“ geht nicht                           | Über `https://…` oder `http://localhost:3313` öffnen (siehe Abschnitt 6).                                                                                                                                                      |
+| Videos brechen mit „Arbeitsspeicher“ ab                 | `CONBERT_MEMORY_LIMIT` erhöhen oder `CONBERT_JOB_CONCURRENCY=1` setzen.                                                                                                                                                        |
+| Downloads von Instagram & Co. scheitern                 | Unter **Einstellungen → Herunterladen** die Werkzeuge aktualisieren; ggf. Cookies hinterlegen ([cookies.md](cookies.md)).                                                                                                      |
+| Gespeicherte Passwörter gehen nicht mehr                | `CONBERT_SECRET` wurde geändert – alten Wert zurück oder Passwörter neu eingeben.                                                                                                                                              |
+| `can't write to /data` / `unable to open database file` | Conbert darf nicht in seinen Datenordner schreiben. Container ohne `user:`-Einstellung starten und `PUID`/`PGID` auf den Besitzer des Ordners setzen (Unraid: `99`/`100`) – oder auf dem Server `chown -R 1000:1000 <Ordner>`. |
 
 Mehr Hilfe findest du in Conbert selbst: oben rechts auf das **?** klicken.

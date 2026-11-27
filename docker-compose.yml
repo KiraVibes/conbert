@@ -28,6 +28,10 @@ services:
       - '${CONBERT_PORT:-3313}:3313'
     environment:
       CONBERT_LOG_LEVEL: ${CONBERT_LOG_LEVEL:-info}
+      # User and group Conbert runs as; /data is handed to them on start.
+      # Unraid and many NAS: PUID=99, PGID=100 (see .env.example).
+      PUID: ${PUID:-1000}
+      PGID: ${PGID:-1000}
       CONBERT_REDIS_URL: redis://valkey:6379
       CONBERT_MAX_UPLOAD_MB: ${CONBERT_MAX_UPLOAD_MB:-2048}
       CONBERT_CLEANUP_MINUTES: ${CONBERT_CLEANUP_MINUTES:-60}

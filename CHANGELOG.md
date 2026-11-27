@@ -4,6 +4,23 @@ All notable changes to Conbert. Versions follow [Semantic Versioning](https://se
 the Docker image tags match them (`0.1.0`, `0.1`, `latest`, and `-full` for the
 full edition).
 
+## [Unreleased]
+
+### Fixed
+
+- **Unraid, Synology & co.:** Conbert no longer fails with “unable to open
+  database file” when `/data` is a folder of the server that belongs to
+  another user. The container now hands its data folder to the user it runs
+  as before starting, then drops root rights.
+
+### Added
+
+- `PUID` / `PGID`: which user and group Conbert runs as (default `1000`). On
+  Unraid use `99` / `100`.
+- If Conbert still can't write its data folder (e.g. started with `--user`),
+  it says which folder, who owns it and how to fix it – instead of a stack
+  trace.
+
 ## [0.1.2] – 2026-11-19
 
 ### Fixed
