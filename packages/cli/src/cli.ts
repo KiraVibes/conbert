@@ -15,7 +15,7 @@ import { parseArgs } from 'node:util';
  * Settings: ~/.config/conbert/config.json, or CONBERT_URL / CONBERT_TOKEN.
  */
 
-export const VERSION = '0.1.2';
+export const VERSION = '0.1.3';
 
 export interface Io {
   out: (line: string) => void;
